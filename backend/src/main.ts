@@ -7,14 +7,26 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // Global prefix
+  // Global prefix (exclude root health check)
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
-  app.setGlobalPrefix(apiPrefix);
+  app.setGlobalPrefix(apiPrefix, {
+    exclude: ['/', 'health'],
+  });
 
   // CORS
+  const corsOrigins = configService
+    .get<string>('CORS_ORIGINS', 'http://localhost:3000')
+    .split(',')
+    .map((origin) => origin.trim());
+  
+  console.log('🔐 CORS enabled for origins:', corsOrigins);
+  
   app.enableCors({
-    origin: configService.get<string>('CORS_ORIGINS', 'http://localhost:3000').split(','),
+    origin: corsOrigins,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    exposedHeaders: ['Authorization'],
   });
 
   // Global validation pipe
