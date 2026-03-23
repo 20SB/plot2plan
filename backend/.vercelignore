@@ -1,0 +1,20 @@
+# Development files
+node_modules
+.env
+.env.local
+*.log
+
+# Source files (we only need dist)
+src/**/*.spec.ts
+test/
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+
+# Testing
+coverage/
