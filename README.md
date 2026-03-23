@@ -1,4 +1,4 @@
-# 🏠 AI-Powered House Design Platform
+# 🏠 AI-Powered House Design Platform - plot2plan
 
 Production-grade, scalable web application that generates professional architectural drawings using AI.
 
