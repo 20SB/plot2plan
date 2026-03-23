@@ -69,3 +69,35 @@ export const projectsApi = {
   getStats: () =>
     api.get('/projects/stats'),
 };
+
+// Floor Plan API
+export const floorPlanApi = {
+  generate: (data: {
+    projectId: string;
+    plotDimensions: { length: number; width: number; unit: 'feet' | 'meters' };
+    rooms: {
+      bedrooms: number;
+      bathrooms: number;
+      kitchen: boolean;
+      livingRoom: boolean;
+      diningRoom: boolean;
+      balconies?: number;
+      parking?: boolean;
+      studyRoom?: boolean;
+      prayerRoom?: boolean;
+      storeRoom?: boolean;
+    };
+    preferences?: {
+      vastuCompliant?: boolean;
+      style?: 'modern' | 'traditional' | 'minimalist';
+      floors?: number;
+    };
+  }) =>
+    api.post('/floor-plan/generate', data),
+  
+  get: (projectId: string) =>
+    api.get(`/floor-plan/${projectId}`),
+  
+  save: (projectId: string, layout: any) =>
+    api.post(`/floor-plan/${projectId}/save`, layout),
+};

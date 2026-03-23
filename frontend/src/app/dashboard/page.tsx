@@ -115,23 +115,24 @@ export default function DashboardPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <Link
+            <div
               key={project._id}
-              href={`/dashboard/projects/${project._id}`}
-              className="card hover:shadow-lg transition-shadow cursor-pointer"
+              className="card hover:shadow-lg transition-shadow"
             >
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {project.name}
-                </h3>
-                <span
-                  className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                    project.status,
-                  )}`}
-                >
-                  {project.status}
-                </span>
-              </div>
+              <Link href={`/dashboard/projects/${project._id}`}>
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600">
+                    {project.name}
+                  </h3>
+                  <span
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                      project.status,
+                    )}`}
+                  >
+                    {project.status}
+                  </span>
+                </div>
+              </Link>
               
               {project.description && (
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">
@@ -139,7 +140,7 @@ export default function DashboardPage() {
                 </p>
               )}
               
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-gray-600 mb-4">
                 <p>
                   📐 Plot: {project.plotDetails.length} x {project.plotDetails.width} ft
                   ({project.plotDetails.area} sq ft)
@@ -151,7 +152,15 @@ export default function DashboardPage() {
                   Created: {new Date(project.createdAt).toLocaleDateString()}
                 </p>
               </div>
-            </Link>
+
+              {/* Floor Plan Button */}
+              <Link
+                href={`/projects/${project._id}/floor-plan`}
+                className="block w-full text-center py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+              >
+                🎨 Generate Floor Plan
+              </Link>
+            </div>
           ))}
         </div>
       )}
