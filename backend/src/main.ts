@@ -4,8 +4,14 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'debug', 'log', 'verbose'],
+  });
   const configService = app.get(ConfigService);
+  
+  console.log('📝 MongoDB URI:', configService.get<string>('MONGODB_URI') ? 'Set' : 'MISSING');
+  console.log('📝 JWT Secret:', configService.get<string>('JWT_SECRET') ? 'Set' : 'MISSING');
+  console.log('📝 Port:', configService.get<number>('PORT', 3001));
 
   // Global prefix (exclude root health check)
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
@@ -42,6 +48,11 @@ async function bootstrap() {
   await app.listen(port);
   
   console.log(`🚀 Application is running on: http://localhost:${port}/${apiPrefix}`);
+  console.log(`🌐 Health check: http://localhost:${port}/`);
+  console.log(`🔑 Auth endpoint: http://localhost:${port}/${apiPrefix}/auth/register`);
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start application:', error);
+  process.exit(1);
+});
