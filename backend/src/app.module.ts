@@ -17,9 +17,17 @@ import { AppController } from './app.controller';
     // Database
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const mongoUri = configService.get<string>('MONGODB_URI');
+        if (!mongoUri) {
+          console.error('❌ MONGODB_URI is not configured!');
+          throw new Error('MONGODB_URI environment variable is required');
+        }
+        console.log('✅ MongoDB URI configured, attempting connection...');
+        return {
+          uri: mongoUri,
+        };
+      },
       inject: [ConfigService],
     }),
 

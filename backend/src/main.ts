@@ -45,11 +45,13 @@ async function bootstrap() {
   );
 
   const port = configService.get<number>('PORT', 3001);
-  await app.listen(port);
   
-  console.log(`🚀 Application is running on: http://localhost:${port}/${apiPrefix}`);
-  console.log(`🌐 Health check: http://localhost:${port}/`);
-  console.log(`🔑 Auth endpoint: http://localhost:${port}/${apiPrefix}/auth/register`);
+  console.log(`🎯 Attempting to listen on port: ${port}`);
+  await app.listen(port, '0.0.0.0');
+  
+  console.log(`🚀 Application is running on: http://0.0.0.0:${port}/${apiPrefix}`);
+  console.log(`🌐 Health check: http://0.0.0.0:${port}/`);
+  console.log(`🔑 Auth endpoint: http://0.0.0.0:${port}/${apiPrefix}/auth/register`);
 }
 
 bootstrap().catch((error) => {

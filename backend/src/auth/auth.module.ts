@@ -13,12 +13,20 @@ import { UsersModule } from '../users/users.module';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRATION', '7d'),
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const jwtSecret = configService.get<string>('JWT_SECRET');
+        if (!jwtSecret) {
+          console.error('❌ JWT_SECRET is not configured!');
+          throw new Error('JWT_SECRET environment variable is required');
+        }
+        console.log('✅ JWT configured successfully');
+        return {
+          secret: jwtSecret,
+          signOptions: {
+            expiresIn: configService.get<string>('JWT_EXPIRATION', '7d'),
+          },
+        };
+      },
       inject: [ConfigService],
     }),
   ],
