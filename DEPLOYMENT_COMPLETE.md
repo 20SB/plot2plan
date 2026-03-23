@@ -127,7 +127,7 @@ After adding secrets:
 ### **Current Configuration:**
 
 ```env
-NEXT_PUBLIC_API_URL=https://plot2plan-backend.onrender.com/api/v1
+NEXT_PUBLIC_API_URL=https://plot2plan.onrender.com/api/v1
 ```
 
 **Note:** Backend is not deployed yet. Auth will work after backend deployment.

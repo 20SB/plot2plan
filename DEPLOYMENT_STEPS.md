@@ -70,7 +70,7 @@ After deployment, test it:
 
 **1. Health Check:**
 ```bash
-curl https://plot2plan-backend.onrender.com/api/v1
+curl https://plot2plan.onrender.com/api/v1
 ```
 
 Should return:
@@ -80,7 +80,7 @@ Should return:
 
 **2. Test Registration:**
 ```bash
-curl -X POST https://plot2plan-backend.onrender.com/api/v1/auth/register \
+curl -X POST https://plot2plan.onrender.com/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@plot2plan.com",

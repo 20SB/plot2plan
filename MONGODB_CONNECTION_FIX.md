@@ -153,7 +153,7 @@ If still not working after environment variable fix:
 3. ✅ Render service redeployed (green "Live" status)
 4. ✅ Health endpoint shows `mongodbConfigured: true`
 5. ✅ Logs show: `[RoutesResolver] AuthController {/api/v1/auth}`
-6. ✅ Test auth endpoint: `curl -X POST https://plot2plan-backend.onrender.com/api/v1/auth/register`
+6. ✅ Test auth endpoint: `curl -X POST https://plot2plan.onrender.com/api/v1/auth/register`
 
 ---
 
@@ -170,7 +170,7 @@ Should show: `"mongodbConfigured": true`
 
 ### **2. Auth Endpoint:**
 ```bash
-curl -X POST https://plot2plan-backend.onrender.com/api/v1/auth/register \
+curl -X POST https://plot2plan.onrender.com/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@plot2plan.com",
@@ -268,7 +268,7 @@ Send me:
    ```
 4. **Auth endpoint response:**
    ```bash
-   curl -X POST https://plot2plan-backend.onrender.com/api/v1/auth/register \
+   curl -X POST https://plot2plan.onrender.com/api/v1/auth/register \
      -H "Content-Type: application/json" \
      -d '{"email":"test@test.com","password":"Test123","name":"Test"}'
    ```

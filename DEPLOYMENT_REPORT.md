@@ -60,7 +60,7 @@ https://plot2plan.vercel.app
 
 ### **Environment Variables (Vercel):**
 ```
-NEXT_PUBLIC_API_URL=https://plot2plan-backend.onrender.com/api/v1
+NEXT_PUBLIC_API_URL=https://plot2plan.onrender.com/api/v1
 ```
 
 *Note: Backend not deployed yet, so auth features won't work*

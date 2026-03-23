@@ -4,7 +4,7 @@
 
 **CORS Error:**
 ```
-Access to XMLHttpRequest at 'https://plot2plan-backend.onrender.com/api/v1/auth/register' 
+Access to XMLHttpRequest at 'https://plot2plan.onrender.com/api/v1/auth/register' 
 from origin 'https://plot2plot.vercel.app' has been blocked by CORS policy
 ```
 
@@ -78,7 +78,7 @@ app.setGlobalPrefix(apiPrefix, {
 ### 4. **Updated Frontend API URL**
 Created `frontend/.env.production`:
 ```env
-NEXT_PUBLIC_API_URL=https://plot2plan-backend.onrender.com/api/v1
+NEXT_PUBLIC_API_URL=https://plot2plan.onrender.com/api/v1
 ```
 
 **Why:** Frontend was still pointing to localhost. This file is used for production builds on Vercel.
@@ -121,7 +121,7 @@ curl https://plot2plan-backend.onrender.com/
 
 ### 2. **Check CORS Headers**
 ```bash
-curl -I -X OPTIONS https://plot2plan-backend.onrender.com/api/v1/auth/register \
+curl -I -X OPTIONS https://plot2plan.onrender.com/api/v1/auth/register \
   -H "Origin: https://plot2plan.vercel.app" \
   -H "Access-Control-Request-Method: POST"
 ```

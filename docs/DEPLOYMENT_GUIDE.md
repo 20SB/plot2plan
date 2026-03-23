@@ -317,7 +317,7 @@ Your backend will be live at: https://plot2plan-backend.onrender.com
 Go to Vercel Dashboard
 Settings → Environment Variables
 Update NEXT_PUBLIC_API_URL to:
-https://plot2plan-backend.onrender.com/api/v1
+https://plot2plan.onrender.com/api/v1
 Redeploy frontend
 ```
 

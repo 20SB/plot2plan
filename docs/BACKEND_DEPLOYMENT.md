@@ -142,7 +142,7 @@ Your backend will be available at:
 https://plot2plan-backend.onrender.com
 
 API endpoint:
-https://plot2plan-backend.onrender.com/api/v1
+https://plot2plan.onrender.com/api/v1
 ```
 
 ### **Step 7: Update Frontend**
@@ -152,7 +152,7 @@ https://plot2plan-backend.onrender.com/api/v1
 2. Select plot2plan project
 3. Settings → Environment Variables
 4. Edit NEXT_PUBLIC_API_URL
-5. Change to: https://plot2plan-backend.onrender.com/api/v1
+5. Change to: https://plot2plan.onrender.com/api/v1
 6. Save
 7. Deployments → Redeploy (click ... → Redeploy)
 ```
@@ -160,7 +160,7 @@ https://plot2plan-backend.onrender.com/api/v1
 ### **Step 8: Test Your API**
 
 ```
-Visit: https://plot2plan-backend.onrender.com/api/v1
+Visit: https://plot2plan.onrender.com/api/v1
 You should see API response
 
 Test registration:
@@ -348,7 +348,7 @@ Fix: Update CORS_ORIGINS environment variable
 # Everything is done through the dashboard
 
 # After deployment, test:
-curl https://plot2plan-backend.onrender.com/api/v1
+curl https://plot2plan.onrender.com/api/v1
 
 # Should return API info
 ```
@@ -359,7 +359,7 @@ curl https://plot2plan-backend.onrender.com/api/v1
 # Vercel CLI (alternative to dashboard)
 cd frontend
 vercel env add NEXT_PUBLIC_API_URL production
-# Enter: https://plot2plan-backend.onrender.com/api/v1
+# Enter: https://plot2plan.onrender.com/api/v1
 
 # Redeploy
 vercel --prod

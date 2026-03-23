@@ -79,7 +79,7 @@ cd house-design-platform/frontend
 
 Edit `.env.local` (create if doesn't exist):
 ```env
-NEXT_PUBLIC_API_URL=https://plot2plan-backend.onrender.com/api/v1
+NEXT_PUBLIC_API_URL=https://plot2plan.onrender.com/api/v1
 ```
 
 Commit and push:
@@ -95,14 +95,14 @@ Vercel will auto-deploy the updated frontend.
 
 Test your backend:
 ```bash
-curl https://plot2plan-backend.onrender.com/api/v1
+curl https://plot2plan.onrender.com/api/v1
 ```
 
 Should return: `{"message": "Plot2Plan API is running"}`
 
 Test registration:
 ```bash
-curl -X POST https://plot2plan-backend.onrender.com/api/v1/auth/register \
+curl -X POST https://plot2plan.onrender.com/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",

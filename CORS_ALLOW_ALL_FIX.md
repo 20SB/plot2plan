@@ -98,7 +98,7 @@ Once backend redeploys (3-5 minutes):
 
 ### 1. **Check CORS Headers**
 ```bash
-curl -I -X OPTIONS https://plot2plan-backend.onrender.com/api/v1/auth/register \
+curl -I -X OPTIONS https://plot2plan.onrender.com/api/v1/auth/register \
   -H "Origin: https://plot2plan.vercel.app" \
   -H "Access-Control-Request-Method: POST"
 ```

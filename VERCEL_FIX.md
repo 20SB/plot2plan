@@ -130,7 +130,7 @@ Once deployed successfully:
 2. Add variable:
    ```
    Key: NEXT_PUBLIC_API_URL
-   Value: https://plot2plan-backend.onrender.com/api/v1
+   Value: https://plot2plan.onrender.com/api/v1
    Environment: Production
    ```
 3. Save and redeploy
