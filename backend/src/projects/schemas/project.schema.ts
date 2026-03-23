@@ -105,6 +105,9 @@ export class Project {
   @Prop({ type: DesignPreferences })
   designPreferences?: DesignPreferences;
 
+  @Prop({ type: Object })
+  floorPlan?: any; // Generated floor plan layout
+
   @Prop({ default: 'draft', enum: ['draft', 'processing', 'completed', 'failed'] })
   status: string;
 
