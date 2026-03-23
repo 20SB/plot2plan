@@ -1,0 +1,35 @@
+# Cypress test files and artifacts
+cypress/
+cypress.config.ts
+*.cy.ts
+*.cy.js
+
+# Testing
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+coverage/
+
+# Development files
+README.md
+.env.local
+.env*.local
+
+# Git
+.git
+.gitignore
+
+# Node modules (Vercel installs fresh)
+node_modules/
+
+# Build artifacts (Vercel builds fresh)
+.next/
+out/
+
+# Misc
+.DS_Store
+*.log
+*.swp
+*.swo
