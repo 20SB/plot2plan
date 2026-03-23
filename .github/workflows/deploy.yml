@@ -46,13 +46,14 @@ jobs:
         working-directory: ./frontend
         run: npx cypress install
 
-      # Skip E2E tests for now since they require backend
-      # Uncomment when backend is deployed
-      # - name: Run E2E tests
-      #   working-directory: ./frontend
-      #   run: npm run test:e2e
-      #   env:
-      #     NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
+      # E2E tests against production backend
+      - name: Run E2E tests
+        working-directory: ./frontend
+        run: npm run cypress:headless
+        env:
+          CYPRESS_BASE_URL: https://plot2plan.vercel.app
+          NEXT_PUBLIC_API_URL: https://plot2plan.onrender.com/api/v1
+        continue-on-error: true  # Don't block deployment if tests fail
 
   deploy-preview:
     name: Deploy Preview

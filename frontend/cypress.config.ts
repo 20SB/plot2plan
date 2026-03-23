@@ -2,7 +2,7 @@ import { defineConfig } from 'cypress'
 
 export default defineConfig({
   e2e: {
-    baseUrl: 'http://localhost:3000',
+    baseUrl: process.env.CYPRESS_BASE_URL || 'http://localhost:3000',
     viewportWidth: 1280,
     viewportHeight: 720,
     video: true,
@@ -14,7 +14,7 @@ export default defineConfig({
     supportFile: 'cypress/support/e2e.ts',
   },
   env: {
-    apiUrl: 'http://localhost:3001/api/v1',
+    apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1',
   },
   retries: {
     runMode: 2,
