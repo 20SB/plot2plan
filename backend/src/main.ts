@@ -44,9 +44,11 @@ async function bootstrap() {
     }),
   );
 
-  const port = configService.get<number>('PORT', 3001);
+  // Render automatically sets PORT env var
+  const port = process.env.PORT || configService.get<number>('PORT') || 3001;
   
-  console.log(`🎯 Attempting to listen on port: ${port}`);
+  console.log(`🎯 Using PORT from process.env: ${process.env.PORT}`);
+  console.log(`🎯 Final port: ${port}`);
   await app.listen(port, '0.0.0.0');
   
   console.log(`🚀 Application is running on: http://0.0.0.0:${port}/${apiPrefix}`);
