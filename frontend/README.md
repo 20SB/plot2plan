@@ -1,4 +1,4 @@
-# House Design Platform - Frontend
+# P2P House Design Platform - Frontend
 
 Modern, responsive Next.js 14 frontend for the AI-powered house design platform.
 
