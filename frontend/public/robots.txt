@@ -1,0 +1,12 @@
+# robots.txt for Plot2Plan
+
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://plot2plan.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 10
