@@ -1,0 +1,39 @@
+name: Vercel Re-commit
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  recommit:
+    if: "!contains(github.event.head_commit.message, 'recommit -')"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Re-commit if needed
+        run: |
+          AUTHOR_NAME=$(git log -1 --format='%an')
+          AUTHOR_EMAIL=$(git log -1 --format='%ae')
+          LAST_MESSAGE=$(git log -1 --format='%s')
+
+          echo "Last commit by: $AUTHOR_NAME <$AUTHOR_EMAIL>"
+          echo "Last message: $LAST_MESSAGE"
+
+          if [ "$AUTHOR_NAME" = "20sb" ] || [ "$AUTHOR_EMAIL" = "subhabiswal20@gmail.com" ]; then
+            echo "Commit is from owner. No action needed."
+          else
+            echo "Creating re-commit as owner..."
+
+            git config user.name "20SB"
+            git config user.email "subhabiswal20@gmail.com"
+
+            git commit --allow-empty -m "recommit - $LAST_MESSAGE"
+            git push
+          fi
