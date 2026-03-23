@@ -5,12 +5,9 @@
   "framework": "nextjs",
   "outputDirectory": ".next",
   "regions": ["iad1"],
-  "env": {
-    "NEXT_PUBLIC_API_URL": "@api_url"
-  },
   "build": {
     "env": {
-      "NEXT_PUBLIC_API_URL": "@api_url"
+      "NEXT_PUBLIC_API_URL": "https://plot2plan-backend.onrender.com/api/v1"
     }
   },
   "headers": [

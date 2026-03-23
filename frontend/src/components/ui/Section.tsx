@@ -7,6 +7,7 @@ interface SectionProps {
   containerClassName?: string;
   background?: 'white' | 'gray' | 'primary' | 'gradient';
   spacing?: 'sm' | 'md' | 'lg' | 'xl';
+  id?: string;
 }
 
 export const Section: React.FC<SectionProps> = ({
@@ -15,6 +16,7 @@ export const Section: React.FC<SectionProps> = ({
   containerClassName,
   background = 'white',
   spacing = 'lg',
+  id,
 }) => {
   const backgrounds = {
     white: 'bg-white',
@@ -31,7 +33,7 @@ export const Section: React.FC<SectionProps> = ({
   };
   
   return (
-    <section className={clsx(backgrounds[background], spacings[spacing], className)}>
+    <section id={id} className={clsx(backgrounds[background], spacings[spacing], className)}>
       <div className={clsx('max-w-7xl mx-auto px-4 sm:px-6 lg:px-8', containerClassName)}>
         {children}
       </div>
