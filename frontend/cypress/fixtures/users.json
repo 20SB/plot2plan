@@ -1,0 +1,16 @@
+{
+  "validUser": {
+    "name": "Test User",
+    "email": "test@plot2plan.com",
+    "password": "Test123!@#",
+    "phone": "+91 9876543210"
+  },
+  "existingUser": {
+    "email": "existing@plot2plan.com",
+    "password": "Existing123!@#"
+  },
+  "invalidUser": {
+    "email": "invalid-email",
+    "password": "123"
+  }
+}
