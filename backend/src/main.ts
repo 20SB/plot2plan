@@ -13,20 +13,17 @@ async function bootstrap() {
     exclude: ['/', 'health'],
   });
 
-  // CORS
-  const corsOrigins = configService
-    .get<string>('CORS_ORIGINS', 'http://localhost:3000')
-    .split(',')
-    .map((origin) => origin.trim());
-  
-  console.log('🔐 CORS enabled for origins:', corsOrigins);
+  // CORS - Allow all origins with credentials (temporary for testing)
+  console.log('🔐 CORS enabled for ALL origins with credentials');
   
   app.enableCors({
-    origin: corsOrigins,
+    origin: true, // Allow all origins and reflect the request origin
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
     exposedHeaders: ['Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   // Global validation pipe
