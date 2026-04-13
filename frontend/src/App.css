@@ -1,34 +1,122 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.cdnfonts.com/css/cabinet-grotesk');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background-color: #FAFAFA;
+  color: #0A0A0A;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cabinet Grotesk', sans-serif;
 }
 
-.App-link {
-    color: #61dafb;
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* Override shadcn defaults */
+.rounded-md,
+.rounded-lg {
+  border-radius: 0 !important;
+}
+
+/* Blueprint grid pattern */
+.blueprint-bg {
+  background-color: #F5F5F4;
+  background-image:
+    linear-gradient(to right, #E4E4E7 1px, transparent 1px),
+    linear-gradient(to bottom, #E4E4E7 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Sharp shadows */
+.sharp-shadow {
+  box-shadow: 2px 2px 0px #0A0A0A;
+}
+
+/* Room blocks on canvas */
+.room-block {
+  position: absolute;
+  border: 2px solid #0A0A0A;
+  cursor: move;
+  transition: box-shadow 100ms;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.room-block:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.room-block.selected {
+  border-color: #0055FF;
+  box-shadow: 0 0 0 3px rgba(0, 85, 255, 0.2);
+}
+
+.room-block.dragging {
+  box-shadow: 4px 4px 0px #0A0A0A;
+  z-index: 1000;
+}
+
+/* Vastu score colors */
+.vastu-excellent {
+  color: #059669;
+  border-color: #059669;
+}
+
+.vastu-warning {
+  color: #F59E0B;
+  border-color: #F59E0B;
+}
+
+.vastu-violation {
+  color: #DC2626;
+  border-color: #DC2626;
+}
+
+/* Chat messages */
+.chat-message {
+  max-width: 80%;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border: 1px solid #E4E4E7;
+  background-color: white;
+}
+
+.chat-message.user {
+  margin-left: auto;
+  background-color: #F5F5F4;
+  border-color: #0A0A0A;
+}
+
+.chat-message.ai {
+  margin-right: auto;
+  background-color: white;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FAFAFA;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #A1A1AA;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #52525B;
 }
