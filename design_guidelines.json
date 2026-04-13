@@ -1,0 +1,107 @@
+{
+  "theme": "light",
+  "archetype": "4 (Swiss & High-Contrast)",
+  "concept": "Drafting Table meets Control Room. High contrast, technical precision, devoid of visual noise, maximizing data and drawing canvas space. Color is purely functional.",
+  "typography": {
+    "font_family": {
+      "headings": "Cabinet Grotesk, sans-serif",
+      "body": "IBM Plex Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "hierarchy": {
+      "h1": "text-4xl md:text-5xl font-bold tracking-tighter",
+      "h2": "text-2xl md:text-3xl font-semibold tracking-tight",
+      "h3": "text-xl font-medium tracking-tight",
+      "h4": "text-lg font-medium",
+      "body": "text-base leading-relaxed text-stone-800",
+      "small": "text-sm text-stone-600",
+      "overline": "text-xs font-mono uppercase tracking-[0.2em] text-stone-500",
+      "data_metric": "text-4xl sm:text-5xl font-mono font-medium tracking-tighter"
+    }
+  },
+  "colors": {
+    "background": {
+      "main": "#FAFAFA",
+      "surface": "#FFFFFF",
+      "canvas": "#F5F5F4"
+    },
+    "text": {
+      "primary": "#0A0A0A",
+      "secondary": "#52525B",
+      "muted": "#A1A1AA"
+    },
+    "border": {
+      "default": "#E4E4E7",
+      "focus": "#18181B"
+    },
+    "accents": {
+      "primary": "#0055FF",
+      "primary_hover": "#0044CC",
+      "vastu_excellent": "#059669",
+      "vastu_warning": "#F59E0B",
+      "vastu_violation": "#DC2626"
+    }
+  },
+  "spacing_and_layout": {
+    "philosophy": "Tight gaps for dashboards (gap-4 or gap-6), utilizing all screen real estate. Generous padding inside containers to prevent text collision.",
+    "grid_system": "Control Room Grid (grid-cols-1 md:grid-cols-12). Center canvas takes col-span-8, sidebars take col-span-2 or 4.",
+    "borders_and_radius": "Grid Borders: expose the skeleton. Cardless look. Sharp corners (rounded-none or rounded-sm max) to simulate CAD software.",
+    "shadows": "Remove generic soft shadows. Use 1px solid borders for separation. If shadow is needed, use crisp, hard shadow (e.g., shadow-[2px_2px_0px_#0A0A0A])."
+  },
+  "surfaces_and_micro_themes": {
+    "header": "Solid White with 1px bottom border (#E4E4E7).",
+    "sidebar": "Solid White with 1px right border (#E4E4E7) or left border depending on side.",
+    "canvas_area": "Stone 100 (#F5F5F4) with a dot grid background pattern to simulate blueprint paper.",
+    "vastu_warning_card": "1px solid #DC2626, very light red tint background (bg-red-50), red mono text.",
+    "vastu_excellent_card": "1px solid #059669, light green tint background (bg-green-50), green mono text."
+  },
+  "components": {
+    "buttons": "Sharp corners (rounded-none). Primary: bg-primary text-white hover:bg-primary_hover. Outline: border-stone-300 text-stone-800 hover:border-stone-800.",
+    "inputs": "Shadcn standard but override radius to rounded-none. 1px border. Focus state must have a crisp 2px black ring (focus-visible:ring-black).",
+    "cards": "Override Shadcn Card to rounded-none, shadow-none, border-stone-200. Padding p-6.",
+    "tabs": "Override Shadcn Tabs to remove soft background. Use clean bottom border for active state.",
+    "dialogs": "Sharp corners, no overlay blur, just a solid bg-black/50 scrim.",
+    "tables": "Shadcn Table, border-collapse, 1px solid #E4E4E7 for cells. Header text uses mono font."
+  },
+  "icons": {
+    "library": "@phosphor-icons/react",
+    "style": "weight=\"regular\" or \"light\". Technical and geometric.",
+    "installation": "yarn add @phosphor-icons/react"
+  },
+  "media": {
+    "images": {
+      "architect_avatar": {
+        "url": "https://images.unsplash.com/photo-1611106014541-c82a68648bd9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NDh8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBhcmNoaXRlY3QlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzYxMDAwNjV8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Avatar for the AI Copilot or user profile",
+        "category": "avatar"
+      },
+      "blueprint_bg": {
+        "url": "https://static.prod-images.emergentagent.com/jobs/c324a504-9fe8-42c0-8a42-d310eb442b20/images/52b4bad550f91c21855646aad96f41fd7bfb9981eba76835c2864e7a32062eb7.png",
+        "description": "Abstract blueprint background for auth pages or empty states",
+        "category": "background"
+      },
+      "render_preview": {
+        "url": "https://static.prod-images.emergentagent.com/jobs/c324a504-9fe8-42c0-8a42-d310eb442b20/images/463f95106c258fcd94a3d922ba2eba1aa0973da807f4c7d344647644518b62ec.png",
+        "description": "3D render preview placeholder for the final exported PDF or 3D view tab",
+        "category": "showcase"
+      }
+    }
+  },
+  "key_features_instructions": {
+    "plot_input_form": "Keep it modular and dense. Use a grid format for entering dimensions, floors, and parameters. Use strict field validations. Use pure HTML/Tailwind styling combined with Shadcn logic.",
+    "2d_floor_plan_canvas": "This is the hero section of the dashboard. Implement a custom CSS grid pattern background (e.g., bg-[size:20px_20px] bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)]). The rooms should be draggable/resizable blocks with solid colors and 1px black borders. Display dimensions explicitly on the lines.",
+    "vastu_intelligence_engine": "Display the Vastu Score prominently using JetBrains Mono (e.g., '85/100'). Use a vertical progress bar. List real-time warnings dynamically below it using high contrast red/green chips.",
+    "ai_copilot_chat": "Docked in a side panel. Input field should resemble a command-line terminal (font-mono). User messages align right, AI aligns left. Include quick action chips (e.g., 'Optimize for Sun').",
+    "cost_estimation": "A simple datatable component showing BOQ (Bill of Quantities) with standard tabular alignment. Right-align numerical amounts.",
+    "room_editor": "When a room block is selected in the canvas, populate the left sidebar with room-specific properties (dimensions, usage, vastu direction) for editing."
+  },
+  "motion_and_interactions": {
+    "hover_states": "Crisp color shifts. No bouncy scale animations. If something is clickable, change its background or border color instantly or with a very short transition (100ms).",
+    "draggable_elements": "Add a subtle shadow (shadow-md) and 1px solid black border when a room block is actively being dragged.",
+    "vastu_alerts": "When a severe Vastu violation occurs, subtly flash the warning card background (pulse once, do not repeat infinitely)."
+  },
+  "accessibility_and_testing": {
+    "contrast": "Ensure all text passes APCA contrast guidelines against the background. Explicitly define hover states.",
+    "test_ids": "All interactive elements MUST have `data-testid` attributes (e.g., `data-testid=\"export-pdf-button\"`, `data-testid=\"ai-chat-input\"`)."
+  }
+}
