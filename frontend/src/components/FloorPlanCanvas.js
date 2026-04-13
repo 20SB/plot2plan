@@ -8,12 +8,22 @@ const MIN_SIZE = 5; // minimum room size in feet
 
 const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
   const [rooms, setRooms] = useState(project.rooms || []);
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [dragging, setDragging] = useState(null); // { roomId, type: 'move' | 'resize', handle: 'se'|'sw'|'ne'|'nw' }
+  const [selectedRoomId, setSelectedRoomId] = useState(null);
+  const [dragging, setDragging] = useState(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dragOrigin, setDragOrigin] = useState({ x: 0, y: 0, w: 0, h: 0 });
   const canvasRef = useRef(null);
-  const saveTimeoutRef = useRef(null);
+  const latestRoomsRef = useRef(rooms);
+
+  useEffect(() => {
+    setRooms(project.rooms || []);
+  }, [project]);
+
+  useEffect(() => {
+    latestRoomsRef.current = rooms;
+  }, [rooms]);
+
+  const selectedRoom = rooms.find(r => r.id === selectedRoomId) || null;
 
   useEffect(() => {
     setRooms(project.rooms || []);
@@ -41,7 +51,7 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
   const handleRoomMouseDown = (e, room) => {
     e.stopPropagation();
     const rect = canvasRef.current.getBoundingClientRect();
-    setSelectedRoom(room);
+    setSelectedRoomId(room.id);
     setDragging({ roomId: room.id, type: 'move' });
     setDragStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     setDragOrigin({ x: room.x, y: room.y, w: room.width, h: room.height });
@@ -51,7 +61,7 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
     e.stopPropagation();
     e.preventDefault();
     const rect = canvasRef.current.getBoundingClientRect();
-    setSelectedRoom(room);
+    setSelectedRoomId(room.id);
     setDragging({ roomId: room.id, type: 'resize', handle });
     setDragStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     setDragOrigin({ x: room.x, y: room.y, w: room.width, h: room.height });
@@ -112,21 +122,11 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
 
   const handleMouseUp = () => {
     if (dragging) {
-      // Debounced save
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-      saveTimeoutRef.current = setTimeout(() => {
-        saveRooms(rooms);
-      }, 300);
       setDragging(null);
+      // Use ref to get latest rooms state
+      saveRooms(latestRoomsRef.current);
     }
   };
-
-  // Save rooms when they change after drag ends
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    };
-  }, []);
 
   const resizeHandles = ['nw', 'ne', 'sw', 'se'];
 
@@ -177,7 +177,6 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        onClick={() => { if (!dragging) setSelectedRoom(null); }}
       >
         {/* North arrow */}
         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs font-mono text-stone-500 pointer-events-none">
