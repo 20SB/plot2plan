@@ -190,6 +190,81 @@ class VastuBlueprintAPITester:
         
         return success, response
 
+    def test_get_revisions(self):
+        """Test getting project revisions"""
+        if not self.project_id:
+            print("❌ Skipping - No project ID available")
+            return False, {}
+        
+        success, response = self.run_test(
+            "Get Project Revisions",
+            "GET",
+            f"api/projects/{self.project_id}/revisions",
+            200
+        )
+        
+        if success and isinstance(response, list):
+            print(f"   Found {len(response)} revisions")
+            if response:
+                revision = response[0]
+                required_fields = ['id', 'project_id', 'version', 'label', 'rooms', 'vastu_overall_score', 'created_at']
+                missing_fields = [field for field in required_fields if field not in revision]
+                if missing_fields:
+                    print(f"   ⚠️ Missing revision fields: {missing_fields}")
+                else:
+                    print(f"   ✅ Revision structure validated")
+                    print(f"   Latest revision: v{revision.get('version')} - {revision.get('label')}")
+                    self.latest_revision_id = revision.get('id')
+        
+        return success, response
+
+    def test_restore_revision(self):
+        """Test restoring a revision"""
+        if not self.project_id or not hasattr(self, 'latest_revision_id'):
+            print("❌ Skipping - No project ID or revision ID available")
+            return False, {}
+        
+        return self.run_test(
+            "Restore Revision",
+            "POST",
+            f"api/projects/{self.project_id}/revisions/{self.latest_revision_id}/restore",
+            200
+        )
+
+    def test_compare_revisions(self):
+        """Test comparing two revisions"""
+        if not self.project_id:
+            print("❌ Skipping - No project ID available")
+            return False, {}
+        
+        # First get revisions to get IDs for comparison
+        success, revisions = self.test_get_revisions()
+        if not success or len(revisions) < 2:
+            print("❌ Skipping - Need at least 2 revisions for comparison")
+            return False, {}
+        
+        rev_id_a = revisions[0]['id']
+        rev_id_b = revisions[1]['id']
+        
+        success, response = self.run_test(
+            "Compare Revisions",
+            "GET",
+            f"api/projects/{self.project_id}/revisions/compare/{rev_id_a}/{rev_id_b}",
+            200
+        )
+        
+        if success and isinstance(response, dict):
+            required_fields = ['revision_a', 'revision_b', 'score_diff', 'room_changes']
+            missing_fields = [field for field in required_fields if field not in response]
+            if missing_fields:
+                print(f"   ⚠️ Missing comparison fields: {missing_fields}")
+            else:
+                print(f"   ✅ Comparison structure validated")
+                print(f"   Score difference: {response.get('score_diff', 0):.1f}")
+                print(f"   Room changes: {len(response.get('room_changes', []))}")
+        
+        return success, response
+
 def main():
     print("🏗️ Starting Vastu Blueprint API Testing...")
     print("=" * 60)
@@ -203,7 +278,10 @@ def main():
         tester.test_get_project,
         tester.test_update_rooms,
         tester.test_copilot_chat,
-        tester.test_cost_estimate
+        tester.test_cost_estimate,
+        tester.test_get_revisions,
+        tester.test_restore_revision,
+        tester.test_compare_revisions
     ]
     
     for test in tests:

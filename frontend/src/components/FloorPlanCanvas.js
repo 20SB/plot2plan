@@ -1,73 +1,150 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const SCALE = 8;
+const MIN_SIZE = 5; // minimum room size in feet
 
 const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
   const [rooms, setRooms] = useState(project.rooms || []);
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [draggingRoom, setDraggingRoom] = useState(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(null); // { roomId, type: 'move' | 'resize', handle: 'se'|'sw'|'ne'|'nw' }
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragOrigin, setDragOrigin] = useState({ x: 0, y: 0, w: 0, h: 0 });
   const canvasRef = useRef(null);
+  const saveTimeoutRef = useRef(null);
 
   useEffect(() => {
     setRooms(project.rooms || []);
   }, [project]);
 
-  const SCALE = 8; // pixels per foot
-
-  const handleMouseDown = (e, room) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    setDraggingRoom(room);
-    setSelectedRoom(room);
-    setDragOffset({
-      x: mouseX - room.x * SCALE,
-      y: mouseY - room.y * SCALE
-    });
-  };
-
-  const handleMouseMove = (e) => {
-    if (!draggingRoom) return;
-    
-    const rect = canvasRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    const newX = Math.max(0, Math.min((mouseX - dragOffset.x) / SCALE, project.plot_length - draggingRoom.width));
-    const newY = Math.max(0, Math.min((mouseY - dragOffset.y) / SCALE, project.plot_width - draggingRoom.height));
-    
-    setRooms(prevRooms =>
-      prevRooms.map(r =>
-        r.id === draggingRoom.id ? { ...r, x: newX, y: newY } : r
-      )
-    );
-  };
-
-  const handleMouseUp = async () => {
-    if (draggingRoom) {
-      try {
-        const response = await axios.put(
-          `${BACKEND_URL}/api/projects/${project.id}/rooms`,
-          rooms
-        );
-        onRoomsUpdated(response.data.rooms, response.data.overall_score);
-        toast.success("Layout updated");
-      } catch (error) {
-        console.error("Error updating rooms:", error);
-        toast.error("Failed to update layout");
-      }
-      setDraggingRoom(null);
-    }
-  };
-
   const getVastuColor = (score) => {
     if (score >= 90) return "#059669";
     if (score >= 70) return "#F59E0B";
     return "#DC2626";
+  };
+
+  const saveRooms = useCallback(async (updatedRooms) => {
+    try {
+      const response = await axios.put(
+        `${BACKEND_URL}/api/projects/${project.id}/rooms`,
+        updatedRooms
+      );
+      onRoomsUpdated(response.data.rooms, response.data.overall_score);
+    } catch (error) {
+      console.error("Error updating rooms:", error);
+      toast.error("Failed to update layout");
+    }
+  }, [project.id, onRoomsUpdated]);
+
+  const handleRoomMouseDown = (e, room) => {
+    e.stopPropagation();
+    const rect = canvasRef.current.getBoundingClientRect();
+    setSelectedRoom(room);
+    setDragging({ roomId: room.id, type: 'move' });
+    setDragStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setDragOrigin({ x: room.x, y: room.y, w: room.width, h: room.height });
+  };
+
+  const handleResizeMouseDown = (e, room, handle) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const rect = canvasRef.current.getBoundingClientRect();
+    setSelectedRoom(room);
+    setDragging({ roomId: room.id, type: 'resize', handle });
+    setDragStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setDragOrigin({ x: room.x, y: room.y, w: room.width, h: room.height });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!dragging) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const dx = (mouseX - dragStart.x) / SCALE;
+    const dy = (mouseY - dragStart.y) / SCALE;
+
+    setRooms(prevRooms =>
+      prevRooms.map(r => {
+        if (r.id !== dragging.roomId) return r;
+
+        if (dragging.type === 'move') {
+          const newX = Math.max(0, Math.min(dragOrigin.x + dx, project.plot_length - r.width));
+          const newY = Math.max(0, Math.min(dragOrigin.y + dy, project.plot_width - r.height));
+          return { ...r, x: newX, y: newY };
+        }
+
+        if (dragging.type === 'resize') {
+          let newX = dragOrigin.x;
+          let newY = dragOrigin.y;
+          let newW = dragOrigin.w;
+          let newH = dragOrigin.h;
+
+          const handle = dragging.handle;
+
+          if (handle.includes('e')) {
+            newW = Math.max(MIN_SIZE, dragOrigin.w + dx);
+            newW = Math.min(newW, project.plot_length - newX);
+          }
+          if (handle.includes('w')) {
+            const shift = Math.min(dx, dragOrigin.w - MIN_SIZE);
+            newX = Math.max(0, dragOrigin.x + shift);
+            newW = dragOrigin.w - (newX - dragOrigin.x);
+          }
+          if (handle.includes('s')) {
+            newH = Math.max(MIN_SIZE, dragOrigin.h + dy);
+            newH = Math.min(newH, project.plot_width - newY);
+          }
+          if (handle.includes('n')) {
+            const shift = Math.min(dy, dragOrigin.h - MIN_SIZE);
+            newY = Math.max(0, dragOrigin.y + shift);
+            newH = dragOrigin.h - (newY - dragOrigin.y);
+          }
+
+          return { ...r, x: newX, y: newY, width: newW, height: newH };
+        }
+        return r;
+      })
+    );
+  };
+
+  const handleMouseUp = () => {
+    if (dragging) {
+      // Debounced save
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = setTimeout(() => {
+        saveRooms(rooms);
+      }, 300);
+      setDragging(null);
+    }
+  };
+
+  // Save rooms when they change after drag ends
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, []);
+
+  const resizeHandles = ['nw', 'ne', 'sw', 'se'];
+
+  const handleCursorStyle = (handle) => {
+    const cursors = { nw: 'nw-resize', ne: 'ne-resize', sw: 'sw-resize', se: 'se-resize' };
+    return cursors[handle] || 'pointer';
+  };
+
+  const handlePosition = (handle, w, h) => {
+    const size = 10;
+    const half = size / 2;
+    switch (handle) {
+      case 'nw': return { left: -half, top: -half };
+      case 'ne': return { right: -half, top: -half };
+      case 'sw': return { left: -half, bottom: -half };
+      case 'se': return { right: -half, bottom: -half };
+      default: return {};
+    }
   };
 
   return (
@@ -76,7 +153,7 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
         <div>
           <h3 className="text-lg font-semibold" style={{fontFamily: 'Cabinet Grotesk, sans-serif'}}>2D Floor Plan</h3>
           <p className="text-xs text-stone-500 font-mono">
-            {project.plot_length}' × {project.plot_width}' | {project.facing_direction.toUpperCase()} facing
+            {project.plot_length}' x {project.plot_width}' | {project.facing_direction.toUpperCase()} facing
           </p>
         </div>
         <div className="text-right">
@@ -90,7 +167,7 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
       <div
         ref={canvasRef}
         data-testid="floor-plan-canvas"
-        className="blueprint-bg relative border-2 border-stone-900 mx-auto"
+        className="blueprint-bg relative border-2 border-stone-900 mx-auto overflow-hidden"
         style={{
           width: project.plot_length * SCALE,
           height: project.plot_width * SCALE,
@@ -100,50 +177,67 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onClick={() => { if (!dragging) setSelectedRoom(null); }}
       >
-        {/* Plot boundary markers */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {/* North arrow */}
-          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs font-mono text-stone-500">
-            ↑ N
-          </div>
+        {/* North arrow */}
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs font-mono text-stone-500 pointer-events-none">
+          &uarr; N
         </div>
 
         {/* Room blocks */}
-        {rooms.map((room) => (
-          <div
-            key={room.id}
-            data-testid={`room-block-${room.room_type}`}
-            className={`room-block ${
-              selectedRoom?.id === room.id ? 'selected' : ''
-            } ${
-              draggingRoom?.id === room.id ? 'dragging' : ''
-            }`}
-            style={{
-              left: room.x * SCALE,
-              top: room.y * SCALE,
-              width: room.width * SCALE,
-              height: room.height * SCALE,
-              borderColor: getVastuColor(room.vastu_score),
-              borderWidth: selectedRoom?.id === room.id ? '3px' : '2px'
-            }}
-            onMouseDown={(e) => handleMouseDown(e, room)}
-          >
-            <div className="p-2 h-full flex flex-col justify-between" style={{ fontSize: '11px' }}>
-              <div>
-                <div className="font-semibold">{room.name}</div>
-                <div className="text-stone-600 font-mono text-[9px]">
-                  {room.width}' × {room.height}'
+        {rooms.map((room) => {
+          const isSelected = selectedRoom?.id === room.id;
+          const isDragging = dragging?.roomId === room.id;
+          return (
+            <div
+              key={room.id}
+              data-testid={`room-block-${room.room_type}`}
+              className={`room-block ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''}`}
+              style={{
+                left: room.x * SCALE,
+                top: room.y * SCALE,
+                width: room.width * SCALE,
+                height: room.height * SCALE,
+                borderColor: getVastuColor(room.vastu_score),
+                borderWidth: isSelected ? '3px' : '2px'
+              }}
+              onMouseDown={(e) => handleRoomMouseDown(e, room)}
+            >
+              <div className="p-2 h-full flex flex-col justify-between select-none" style={{ fontSize: '11px' }}>
+                <div>
+                  <div className="font-semibold truncate">{room.name}</div>
+                  <div className="text-stone-600 font-mono text-[9px]">
+                    {room.width.toFixed(0)}' x {room.height.toFixed(0)}'
+                  </div>
+                </div>
+                <div className="font-mono font-semibold text-[10px]" style={{ color: getVastuColor(room.vastu_score) }}>
+                  {room.vastu_score.toFixed(0)}/100
                 </div>
               </div>
-              <div className="font-mono font-semibold text-[10px]" style={{ color: getVastuColor(room.vastu_score) }}>
-                {room.vastu_score.toFixed(0)}/100
-              </div>
+
+              {/* Resize handles */}
+              {isSelected && resizeHandles.map((handle) => (
+                <div
+                  key={handle}
+                  data-testid={`resize-handle-${handle}`}
+                  className="absolute z-10"
+                  style={{
+                    ...handlePosition(handle),
+                    width: 10,
+                    height: 10,
+                    backgroundColor: '#0055FF',
+                    border: '1px solid white',
+                    cursor: handleCursorStyle(handle)
+                  }}
+                  onMouseDown={(e) => handleResizeMouseDown(e, room, handle)}
+                />
+              ))}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
+      {/* Selected room details */}
       {selectedRoom && (
         <div className="mt-4 p-4 border border-stone-200 bg-stone-50">
           <div className="flex items-center justify-between mb-2">
@@ -160,8 +254,8 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
           </div>
           <div className="text-xs text-stone-600 space-y-1">
             <p>Direction: <span className="font-mono font-semibold">{selectedRoom.direction}</span></p>
-            <p>Dimensions: <span className="font-mono">{selectedRoom.width}' × {selectedRoom.height}' ({(selectedRoom.width * selectedRoom.height).toFixed(0)} sq.ft)</span></p>
-            {selectedRoom.vastu_warnings.length > 0 && (
+            <p>Dimensions: <span className="font-mono">{selectedRoom.width?.toFixed(1)}' x {selectedRoom.height?.toFixed(1)}' ({(selectedRoom.width * selectedRoom.height).toFixed(0)} sq.ft)</span></p>
+            {selectedRoom.vastu_warnings?.length > 0 && (
               <div className="mt-2 pt-2 border-t border-stone-200">
                 <p className="font-semibold mb-1">Vastu Feedback:</p>
                 {selectedRoom.vastu_warnings.map((warning, idx) => (
@@ -173,8 +267,11 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
         </div>
       )}
 
-      <div className="mt-3 text-xs text-stone-500 font-mono">
-        💡 Tip: Drag rooms to reposition and update Vastu scores in real-time
+      <div className="mt-3 text-xs text-stone-500 font-mono flex items-center gap-4">
+        <span>Drag rooms to reposition</span>
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block w-2 h-2 bg-blue-600"></span> Drag corners to resize
+        </span>
       </div>
     </div>
   );

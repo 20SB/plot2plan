@@ -68,6 +68,16 @@ class Project(BaseModel):
     vastu_overall_score: float = 0.0
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class Revision(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    project_id: str
+    version: int
+    label: str = ""
+    rooms: List[Room] = []
+    vastu_overall_score: float = 0.0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class CopilotMessage(BaseModel):
     project_id: str
     message: str
@@ -295,6 +305,14 @@ async def generate_project(project_input: ProjectInput):
         doc['created_at'] = doc['created_at'].isoformat()
         await db.projects.insert_one(doc)
         
+        # Auto-save initial revision
+        await _save_revision(
+            project.id,
+            [r.model_dump() for r in rooms],
+            overall_score,
+            "Initial layout"
+        )
+        
         return project
     except Exception as e:
         logging.error(f"Error generating project: {e}")
@@ -343,6 +361,14 @@ async def update_rooms(project_id: str, rooms: List[Room]):
             "rooms": [room.model_dump() for room in rooms],
             "vastu_overall_score": overall_score
         }}
+    )
+    
+    # Auto-save revision on room update
+    await _save_revision(
+        project_id,
+        [room.model_dump() for room in rooms],
+        overall_score,
+        "Layout edit"
     )
     
     return {"success": True, "overall_score": overall_score, "rooms": rooms}
@@ -431,6 +457,137 @@ async def get_cost_estimate(project_id: str):
         "construction_cost": construction_cost,
         "cost_per_sqft": rate,
         "boq": boq
+    }
+
+
+# --- Revision History Endpoints ---
+
+async def _save_revision(project_id: str, rooms: list, vastu_score: float, label: str = ""):
+    """Auto-save a revision snapshot"""
+    # Get current version count
+    count = await db.revisions.count_documents({"project_id": project_id})
+    version = count + 1
+    
+    revision = Revision(
+        project_id=project_id,
+        version=version,
+        label=label or f"Revision {version}",
+        rooms=[Room(**r) if isinstance(r, dict) else r for r in rooms],
+        vastu_overall_score=vastu_score
+    )
+    
+    doc = revision.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    # Convert room objects for storage
+    doc['rooms'] = [r.model_dump() if hasattr(r, 'model_dump') else r for r in revision.rooms]
+    await db.revisions.insert_one(doc)
+    return revision
+
+
+@api_router.get("/projects/{project_id}/revisions")
+async def get_revisions(project_id: str):
+    """Get all revisions for a project"""
+    revisions = await db.revisions.find(
+        {"project_id": project_id},
+        {"_id": 0}
+    ).sort("version", -1).to_list(100)
+    
+    for rev in revisions:
+        if isinstance(rev.get('created_at'), str):
+            rev['created_at'] = datetime.fromisoformat(rev['created_at'])
+    
+    return revisions
+
+
+@api_router.get("/projects/{project_id}/revisions/{revision_id}")
+async def get_revision(project_id: str, revision_id: str):
+    """Get a specific revision"""
+    revision = await db.revisions.find_one(
+        {"project_id": project_id, "id": revision_id},
+        {"_id": 0}
+    )
+    if not revision:
+        raise HTTPException(status_code=404, detail="Revision not found")
+    
+    if isinstance(revision.get('created_at'), str):
+        revision['created_at'] = datetime.fromisoformat(revision['created_at'])
+    
+    return revision
+
+
+@api_router.post("/projects/{project_id}/revisions/{revision_id}/restore")
+async def restore_revision(project_id: str, revision_id: str):
+    """Restore a project to a specific revision"""
+    revision = await db.revisions.find_one(
+        {"project_id": project_id, "id": revision_id},
+        {"_id": 0}
+    )
+    if not revision:
+        raise HTTPException(status_code=404, detail="Revision not found")
+    
+    # Update project with revision's rooms
+    await db.projects.update_one(
+        {"id": project_id},
+        {"$set": {
+            "rooms": revision['rooms'],
+            "vastu_overall_score": revision['vastu_overall_score']
+        }}
+    )
+    
+    # Save the restore as a new revision
+    await _save_revision(
+        project_id,
+        revision['rooms'],
+        revision['vastu_overall_score'],
+        f"Restored from v{revision['version']}"
+    )
+    
+    return {"success": True, "rooms": revision['rooms'], "vastu_overall_score": revision['vastu_overall_score']}
+
+
+@api_router.get("/projects/{project_id}/revisions/compare/{rev_id_a}/{rev_id_b}")
+async def compare_revisions(project_id: str, rev_id_a: str, rev_id_b: str):
+    """Compare two revisions"""
+    rev_a = await db.revisions.find_one({"project_id": project_id, "id": rev_id_a}, {"_id": 0})
+    rev_b = await db.revisions.find_one({"project_id": project_id, "id": rev_id_b}, {"_id": 0})
+    
+    if not rev_a or not rev_b:
+        raise HTTPException(status_code=404, detail="One or both revisions not found")
+    
+    # Calculate differences
+    score_diff = rev_b.get('vastu_overall_score', 0) - rev_a.get('vastu_overall_score', 0)
+    
+    rooms_a = {r['name']: r for r in rev_a.get('rooms', [])}
+    rooms_b = {r['name']: r for r in rev_b.get('rooms', [])}
+    
+    room_changes = []
+    all_room_names = set(list(rooms_a.keys()) + list(rooms_b.keys()))
+    
+    for name in all_room_names:
+        ra = rooms_a.get(name)
+        rb = rooms_b.get(name)
+        if ra and rb:
+            score_change = rb.get('vastu_score', 0) - ra.get('vastu_score', 0)
+            moved = abs(ra.get('x', 0) - rb.get('x', 0)) > 1 or abs(ra.get('y', 0) - rb.get('y', 0)) > 1
+            resized = abs(ra.get('width', 0) - rb.get('width', 0)) > 0.5 or abs(ra.get('height', 0) - rb.get('height', 0)) > 0.5
+            room_changes.append({
+                "name": name,
+                "score_change": score_change,
+                "moved": moved,
+                "resized": resized,
+                "old_score": ra.get('vastu_score', 0),
+                "new_score": rb.get('vastu_score', 0)
+            })
+        elif ra and not rb:
+            room_changes.append({"name": name, "removed": True})
+        elif rb and not ra:
+            room_changes.append({"name": name, "added": True})
+    
+    return {
+        "revision_a": rev_a,
+        "revision_b": rev_b,
+        "score_diff": score_diff,
+        "room_changes": room_changes
     }
 
 
