@@ -46,8 +46,8 @@ const PlumbingLayer = ({ elements, plotLength, plotWidth, onElementsUpdated }) =
     <svg
       data-layer-container
       data-testid="plumbing-layer"
-      className="absolute inset-0 pointer-events-auto"
-      style={{ width: plotLength * SCALE, height: plotWidth * SCALE }}
+      className="absolute inset-0"
+      style={{ width: plotLength * SCALE, height: plotWidth * SCALE, pointerEvents: 'none' }}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -71,7 +71,7 @@ const PlumbingLayer = ({ elements, plotLength, plotWidth, onElementsUpdated }) =
           <g
             key={elem.id}
             data-testid={`plumbing-${elem.element_type}-${elem.id}`}
-            style={{ cursor: "move" }}
+            style={{ cursor: "move", pointerEvents: "auto" }}
             onMouseDown={(e) => handleMouseDown(e, elem)}
           >
             <circle
