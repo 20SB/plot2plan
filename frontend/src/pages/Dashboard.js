@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import PlotInputForm from "@/components/PlotInputForm";
 import FloorPlanCanvas from "@/components/FloorPlanCanvas";
+import FloorSelector from "@/components/FloorSelector";
 import VastuScorePanel from "@/components/VastuScorePanel";
 import AICopilot from "@/components/AICopilot";
 import CostEstimate from "@/components/CostEstimate";
@@ -26,12 +27,14 @@ const Dashboard = () => {
   const [showProjects, setShowProjects] = useState(false);
   const [compareData, setCompareData] = useState(null);
   const [activeLayers, setActiveLayers] = useState({ architecture: true, plumbing: false, electrical: false });
+  const [currentFloor, setCurrentFloor] = useState(1);
 
   const handleProjectGenerated = (project) => {
     setCurrentProject(project);
     setActiveTab("canvas");
     setCompareData(null);
     setShowProjects(false);
+    setCurrentFloor(1);
     toast.success("Floor plan generated successfully!");
   };
 
@@ -242,6 +245,15 @@ const Dashboard = () => {
             </div>
           ) : currentProject && (
             <>
+              {/* Floor Selector */}
+              {currentProject.num_floors > 1 && (
+                <FloorSelector
+                  project={currentProject}
+                  currentFloor={currentFloor}
+                  onFloorChange={setCurrentFloor}
+                />
+              )}
+
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="w-full bg-white border border-stone-200 rounded-none mb-4">
                   <TabsTrigger data-testid="canvas-tab" value="canvas" className="rounded-none text-xs data-[state=active]:border-b-2 data-[state=active]:border-stone-900">Floor Plan</TabsTrigger>
@@ -257,6 +269,7 @@ const Dashboard = () => {
                     activeLayers={activeLayers}
                     onPlumbingUpdated={handlePlumbingUpdated}
                     onElectricalUpdated={handleElectricalUpdated}
+                    currentFloor={currentFloor}
                   />
                 </TabsContent>
                 <TabsContent value="cost" className="mt-0">

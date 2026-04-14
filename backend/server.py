@@ -103,27 +103,30 @@ class Room(BaseModel):
     y: float
     width: float
     height: float
+    floor: int = 1
     direction: str = ""
     vastu_score: float = 0.0
     vastu_warnings: List[str] = []
 
 class PlumbingElement(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    element_type: str  # pipe, tank, drain, sump, tap, shower
+    element_type: str
     x: float
     y: float
     x2: Optional[float] = None
     y2: Optional[float] = None
     label: str = ""
     room_id: str = ""
+    floor: int = 1
 
 class ElectricalElement(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    element_type: str  # socket, switch, light, fan, ac, db_panel, earthing
+    element_type: str
     x: float
     y: float
     label: str = ""
     room_id: str = ""
+    floor: int = 1
 
 class ProjectInput(BaseModel):
     plot_length: float
@@ -222,75 +225,82 @@ def validate_vastu_for_room(room: Room, plot_width: float, plot_height: float, f
 # ===================== PLUMBING GENERATION =====================
 def generate_plumbing_for_rooms(rooms: List[Room], plot_length: float, plot_width: float) -> List[PlumbingElement]:
     elements = []
-    # Overhead tank in northeast
-    elements.append(PlumbingElement(element_type="overhead_tank", x=5, y=5, label="Overhead Tank"))
-    # Underground sump in southwest
-    elements.append(PlumbingElement(element_type="sump", x=plot_length - 10, y=plot_width - 10, label="Underground Sump"))
+    # Ground floor infrastructure
+    elements.append(PlumbingElement(element_type="overhead_tank", x=5, y=5, label="Overhead Tank", floor=1))
+    elements.append(PlumbingElement(element_type="sump", x=plot_length - 10, y=plot_width - 10, label="Underground Sump", floor=1))
     
     for room in rooms:
         rt = room.room_type.lower()
         cx = room.x + room.width / 2
-        cy = room.y + room.height / 2
+        fl = room.floor
         
         if rt == "kitchen":
-            elements.append(PlumbingElement(element_type="tap", x=room.x + 2, y=room.y + 2, label="Kitchen Sink", room_id=room.id))
-            elements.append(PlumbingElement(element_type="drain", x=room.x + 2, y=room.y + room.height - 1, label="Kitchen Drain", room_id=room.id))
-            # Water line from sump to kitchen
-            elements.append(PlumbingElement(element_type="pipe", x=5, y=5, x2=room.x + 2, y2=room.y + 2, label="Cold Water Line", room_id=room.id))
+            elements.append(PlumbingElement(element_type="tap", x=room.x + 2, y=room.y + 2, label="Kitchen Sink", room_id=room.id, floor=fl))
+            elements.append(PlumbingElement(element_type="drain", x=room.x + 2, y=room.y + room.height - 1, label="Kitchen Drain", room_id=room.id, floor=fl))
+            elements.append(PlumbingElement(element_type="pipe", x=5, y=5, x2=room.x + 2, y2=room.y + 2, label="Cold Water Line", room_id=room.id, floor=fl))
         elif rt == "bathroom":
-            elements.append(PlumbingElement(element_type="shower", x=cx, y=room.y + 2, label="Shower", room_id=room.id))
-            elements.append(PlumbingElement(element_type="tap", x=room.x + 2, y=cy, label="Basin Tap", room_id=room.id))
-            elements.append(PlumbingElement(element_type="drain", x=cx, y=room.y + room.height - 1, label="Floor Drain", room_id=room.id))
-            elements.append(PlumbingElement(element_type="pipe", x=5, y=5, x2=cx, y2=room.y + 2, label="Water Supply", room_id=room.id))
+            elements.append(PlumbingElement(element_type="shower", x=cx, y=room.y + 2, label="Shower", room_id=room.id, floor=fl))
+            elements.append(PlumbingElement(element_type="tap", x=room.x + 2, y=room.y + room.height / 2, label="Basin Tap", room_id=room.id, floor=fl))
+            elements.append(PlumbingElement(element_type="drain", x=cx, y=room.y + room.height - 1, label="Floor Drain", room_id=room.id, floor=fl))
+            elements.append(PlumbingElement(element_type="pipe", x=5, y=5, x2=cx, y2=room.y + 2, label="Water Supply", room_id=room.id, floor=fl))
     
-    # Main drainage line
-    elements.append(PlumbingElement(element_type="pipe", x=plot_length / 2, y=plot_width - 3, x2=plot_length - 3, y2=plot_width - 3, label="Main Drain Line"))
-    # Septic tank
-    elements.append(PlumbingElement(element_type="septic", x=plot_length - 5, y=plot_width - 5, label="Septic Tank"))
-    
+    elements.append(PlumbingElement(element_type="pipe", x=plot_length / 2, y=plot_width - 3, x2=plot_length - 3, y2=plot_width - 3, label="Main Drain Line", floor=1))
+    elements.append(PlumbingElement(element_type="septic", x=plot_length - 5, y=plot_width - 5, label="Septic Tank", floor=1))
     return elements
 
 # ===================== ELECTRICAL GENERATION =====================
 def generate_electrical_for_rooms(rooms: List[Room], plot_length: float, plot_width: float) -> List[ElectricalElement]:
     elements = []
-    # Main DB panel near entrance
-    elements.append(ElectricalElement(element_type="db_panel", x=plot_length / 2, y=3, label="Main DB Panel"))
-    # Earthing point
-    elements.append(ElectricalElement(element_type="earthing", x=plot_length - 3, y=plot_width - 3, label="Earthing Point"))
+    elements.append(ElectricalElement(element_type="db_panel", x=plot_length / 2, y=3, label="Main DB Panel", floor=1))
+    elements.append(ElectricalElement(element_type="earthing", x=plot_length - 3, y=plot_width - 3, label="Earthing Point", floor=1))
     
     for room in rooms:
         rt = room.room_type.lower()
         cx = room.x + room.width / 2
         cy = room.y + room.height / 2
+        fl = room.floor
         
-        # Every room gets a light and switch
-        elements.append(ElectricalElement(element_type="light", x=cx, y=cy, label=f"{room.name} Light", room_id=room.id))
-        elements.append(ElectricalElement(element_type="switch", x=room.x + 1, y=cy, label=f"{room.name} Switch", room_id=room.id))
+        elements.append(ElectricalElement(element_type="light", x=cx, y=cy, label=f"{room.name} Light", room_id=room.id, floor=fl))
+        elements.append(ElectricalElement(element_type="switch", x=room.x + 1, y=cy, label=f"{room.name} Switch", room_id=room.id, floor=fl))
         
         if rt in ["master_bedroom", "bedroom"]:
-            elements.append(ElectricalElement(element_type="fan", x=cx, y=cy, label=f"{room.name} Fan", room_id=room.id))
-            elements.append(ElectricalElement(element_type="socket", x=room.x + room.width - 1, y=room.y + 2, label="Bed Side Socket", room_id=room.id))
-            elements.append(ElectricalElement(element_type="socket", x=room.x + 1, y=room.y + room.height - 2, label="Charging Socket", room_id=room.id))
+            elements.append(ElectricalElement(element_type="fan", x=cx, y=cy, label=f"{room.name} Fan", room_id=room.id, floor=fl))
+            elements.append(ElectricalElement(element_type="socket", x=room.x + room.width - 1, y=room.y + 2, label="Bed Side Socket", room_id=room.id, floor=fl))
+            elements.append(ElectricalElement(element_type="socket", x=room.x + 1, y=room.y + room.height - 2, label="Charging Socket", room_id=room.id, floor=fl))
             if rt == "master_bedroom":
-                elements.append(ElectricalElement(element_type="ac", x=room.x + room.width - 2, y=room.y + 1, label="AC Point", room_id=room.id))
+                elements.append(ElectricalElement(element_type="ac", x=room.x + room.width - 2, y=room.y + 1, label="AC Point", room_id=room.id, floor=fl))
         elif rt == "kitchen":
-            elements.append(ElectricalElement(element_type="socket", x=room.x + 2, y=room.y + 1, label="Chimney Socket", room_id=room.id))
-            elements.append(ElectricalElement(element_type="socket", x=room.x + room.width - 2, y=room.y + 1, label="Fridge Socket", room_id=room.id))
-            elements.append(ElectricalElement(element_type="socket", x=cx, y=room.y + 1, label="Mixer/Oven Socket", room_id=room.id))
+            elements.append(ElectricalElement(element_type="socket", x=room.x + 2, y=room.y + 1, label="Chimney Socket", room_id=room.id, floor=fl))
+            elements.append(ElectricalElement(element_type="socket", x=room.x + room.width - 2, y=room.y + 1, label="Fridge Socket", room_id=room.id, floor=fl))
+            elements.append(ElectricalElement(element_type="socket", x=cx, y=room.y + 1, label="Mixer/Oven Socket", room_id=room.id, floor=fl))
         elif rt == "living_room":
-            elements.append(ElectricalElement(element_type="fan", x=cx, y=cy, label="Ceiling Fan", room_id=room.id))
-            elements.append(ElectricalElement(element_type="socket", x=room.x + 1, y=room.y + 2, label="TV Socket", room_id=room.id))
-            elements.append(ElectricalElement(element_type="socket", x=room.x + room.width - 1, y=room.y + 2, label="Power Socket", room_id=room.id))
+            elements.append(ElectricalElement(element_type="fan", x=cx, y=cy, label="Ceiling Fan", room_id=room.id, floor=fl))
+            elements.append(ElectricalElement(element_type="socket", x=room.x + 1, y=room.y + 2, label="TV Socket", room_id=room.id, floor=fl))
+            elements.append(ElectricalElement(element_type="socket", x=room.x + room.width - 1, y=room.y + 2, label="Power Socket", room_id=room.id, floor=fl))
         elif rt == "bathroom":
-            elements.append(ElectricalElement(element_type="socket", x=room.x + 2, y=room.y + 1, label="Geyser Point", room_id=room.id))
+            elements.append(ElectricalElement(element_type="socket", x=room.x + 2, y=room.y + 1, label="Geyser Point", room_id=room.id, floor=fl))
         elif rt == "parking":
-            elements.append(ElectricalElement(element_type="socket", x=cx, y=cy, label="EV Charging Point", room_id=room.id))
-    
+            elements.append(ElectricalElement(element_type="socket", x=cx, y=cy, label="EV Charging Point", room_id=room.id, floor=fl))
     return elements
 
 # ===================== AI LAYOUT GENERATION =====================
 async def generate_layout_with_ai(project_input: ProjectInput) -> List[Room]:
     api_key = os.environ.get('EMERGENT_LLM_KEY')
+    
+    floor_guidance = ""
+    if project_input.num_floors > 1:
+        floor_guidance = f"""
+This is a {project_input.num_floors}-floor building. Generate UNIQUE layouts for each floor:
+- Floor 1 (Ground): Living room, kitchen, dining, parking, one bathroom, staircase
+- Floor 2 (First): Bedrooms, bathrooms, balcony
+- Floor 3+ (Upper): Additional bedrooms, study, terrace access
+Include a "staircase" room on EVERY floor at the SAME position (same x,y,width,height).
+Add a "floor" field (integer 1-{project_input.num_floors}) to each room.
+Distribute rooms logically: public spaces on ground floor, private spaces upstairs.
+"""
+    else:
+        floor_guidance = "This is a single floor building. Set floor=1 for all rooms."
+    
     prompt = f"""You are an expert architect specializing in Vastu-compliant house designs.
 
 Generate a floor plan for:
@@ -304,6 +314,8 @@ Generate a floor plan for:
 - Parking: {project_input.parking}
 - Style: {project_input.style}
 
+{floor_guidance}
+
 Vastu Guidelines:
 - Kitchen: Southeast (ideal)
 - Master Bedroom: Southwest (ideal)
@@ -314,7 +326,7 @@ Vastu Guidelines:
 - Staircase: South or West
 
 Provide the layout as a JSON array of rooms with:
-- name, room_type, x, y (position in feet from top-left, use 5ft setback), width, height (in feet)
+- name, room_type, x, y (position in feet from top-left, use 5ft setback), width, height (in feet), floor (integer)
 
 Return ONLY valid JSON array, no other text."""
     
@@ -333,13 +345,18 @@ Return ONLY valid JSON array, no other text."""
         elif "```" in response_text:
             response_text = response_text.split("```")[1].split("```")[0].strip()
         rooms_data = json.loads(response_text)
-        return [Room(**rd) for rd in rooms_data]
+        rooms = []
+        for rd in rooms_data:
+            if 'floor' not in rd:
+                rd['floor'] = 1
+            rooms.append(Room(**rd))
+        return rooms
     except Exception as e:
         logging.error(f"Failed to parse AI response: {e}")
         return [
-            Room(name="Living Room", room_type="living_room", x=5, y=5, width=15, height=12),
-            Room(name="Master Bedroom", room_type="master_bedroom", x=project_input.plot_length-20, y=project_input.plot_width-15, width=15, height=12),
-            Room(name="Kitchen", room_type="kitchen", x=project_input.plot_length-15, y=5, width=10, height=10),
+            Room(name="Living Room", room_type="living_room", x=5, y=5, width=15, height=12, floor=1),
+            Room(name="Master Bedroom", room_type="master_bedroom", x=project_input.plot_length-20, y=project_input.plot_width-15, width=15, height=12, floor=1),
+            Room(name="Kitchen", room_type="kitchen", x=project_input.plot_length-15, y=5, width=10, height=10, floor=1),
         ]
 
 # ===================== REVISION HELPER =====================

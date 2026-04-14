@@ -108,7 +108,7 @@ const PlotInputForm = ({ onProjectGenerated }) => {
             id="floors"
             type="number"
             min="1"
-            max="3"
+            max="5"
             value={formData.num_floors}
             onChange={(e) => handleChange('num_floors', parseInt(e.target.value))}
             className="rounded-none border-stone-300 focus-visible:ring-stone-900 mt-1"

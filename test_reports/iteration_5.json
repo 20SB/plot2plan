@@ -1,0 +1,80 @@
+{
+  "summary": "Completed comprehensive testing of multi-floor Vastu blueprint generator. Backend APIs working perfectly with 100% success rate. Frontend multi-floor functionality working excellently with floor selector, floor switching, room filtering, and staircase ghost indicators. Found critical backward compatibility issues with single floor projects.",
+  
+  "backend_issues": {
+    "critical_bugs": [],
+    "flaky_endpoints": []
+  },
+  
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "FloorSelector single floor compatibility",
+        "issue": "Floor selector panel appears for single floor projects when it should be hidden",
+        "selector": "[data-testid^='floor-selector-']",
+        "fix_priority": "CRITICAL",
+        "expected_behavior": "Floor selector should only appear when num_floors > 1"
+      },
+      {
+        "component": "FloorPlanCanvas single floor title",
+        "issue": "Canvas title shows 'Floor 2' for single floor project instead of just '2D Floor Plan'",
+        "selector": "h3:has-text('2D Floor Plan')",
+        "fix_priority": "CRITICAL",
+        "expected_behavior": "Single floor projects should not show floor number in title"
+      },
+      {
+        "component": "FloorPlanCanvas room selection",
+        "issue": "Room selection clicks intercepted by electrical layer SVG overlay when electrical layer is active",
+        "selector": "[data-testid*='room-block-']",
+        "fix_priority": "MEDIUM",
+        "workaround": "Toggle off electrical layer before selecting rooms"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Layer filtering by floor",
+        "issue": "Plumbing elements count shows 0 on all floors when layers are enabled",
+        "affected_selectors": ["[data-testid='toggle-layer-plumbing']"],
+        "fix_priority": "LOW",
+        "note": "May be related to SVG data-layer attribute detection"
+      }
+    ],
+    "design_issues": []
+  },
+  
+  "passed_tests": [
+    "Backend API endpoints (22/22 passed) - 100% success rate",
+    "Multi-floor project generation: 3-floor project with 28 rooms, unique layouts per floor",
+    "Floor field validation: All rooms, plumbing (23), and electrical (78) elements have floor field",
+    "Staircase distribution: Staircases found on all floors (1, 2, 3) at same position",
+    "Floor selector panel: Appears correctly for multi-floor projects with 3 floor buttons",
+    "Floor selector mini-previews: Shows room counts and Vastu scores per floor",
+    "Floor switching: Canvas title updates correctly (Floor 1, Floor 2, Floor 3)",
+    "Room filtering by floor: Different floors show different room counts (8, 8, 5 rooms)",
+    "Staircase ghost indicators: 2 dashed blue indicators from other floors visible",
+    "Layer toggles: ARCH/PLMB/ELEC buttons working correctly",
+    "Multi-floor AI generation: Claude Sonnet 4.5 generates unique layouts per floor",
+    "Authentication: Admin login (admin@vastuplan.com / admin123) working",
+    "Project management: Multi-floor project creation and loading",
+    "Vastu scoring: Room-level scores calculated correctly for each floor",
+    "AI Copilot: Chat interface working with multi-floor projects",
+    "Cost estimation: Tab navigation and calculations working",
+    "Export functionality: PDF, DXF, and Print A3 options available",
+    "User interface: Professional design with proper multi-floor navigation"
+  ],
+  
+  "test_report_links": ["/app/backend_test.py"],
+  
+  "success_percentage": {
+    "backend": "100%",
+    "frontend": "85%",
+    "integration": "90%"
+  },
+  
+  "updated_files": ["/app/backend_test.py"],
+  
+  "action_item_for_main_agent": "Fix critical backward compatibility issues: (1) Hide floor selector for single floor projects (num_floors <= 1), (2) Remove floor number from canvas title for single floor projects, (3) Fix room selection overlay issue with electrical layer",
+  
+  "should_call_test_agent_after_fix": "true",
+  "should_main_agent_test_itself": "false"
+}

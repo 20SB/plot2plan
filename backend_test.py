@@ -417,6 +417,86 @@ class VastuBlueprintAPITester:
             data=updated_electrical
         )
 
+    def test_generate_multi_floor_project(self):
+        """Test multi-floor project generation with AI"""
+        project_data = {
+            "plot_length": 50,
+            "plot_width": 70,
+            "facing_direction": "north",
+            "num_floors": 3,
+            "bedrooms": 4,
+            "kitchen": 1,
+            "bathrooms": 3,
+            "pooja_room": 1,
+            "parking": 1,
+            "style": "duplex",
+            "budget_range": "high"
+        }
+        
+        success, response = self.run_test(
+            "Generate Multi-Floor Project with AI",
+            "POST",
+            "api/projects/generate",
+            200,
+            data=project_data,
+            timeout=90  # Multi-floor AI generation takes more time
+        )
+        
+        if success and isinstance(response, dict) and 'id' in response:
+            self.multi_floor_project_id = response['id']
+            print(f"   Generated multi-floor project ID: {self.multi_floor_project_id}")
+            print(f"   Project name: {response.get('name', 'N/A')}")
+            print(f"   Number of floors: {response.get('num_floors', 'N/A')}")
+            print(f"   Vastu score: {response.get('vastu_overall_score', 'N/A')}")
+            print(f"   Total rooms: {len(response.get('rooms', []))}")
+            
+            # Validate multi-floor specific features
+            rooms = response.get('rooms', [])
+            if rooms:
+                # Check floor distribution
+                floor_counts = {}
+                staircase_floors = []
+                for room in rooms:
+                    floor = room.get('floor', 1)
+                    floor_counts[floor] = floor_counts.get(floor, 0) + 1
+                    if room.get('room_type') == 'staircase':
+                        staircase_floors.append(floor)
+                
+                print(f"   Floor distribution: {floor_counts}")
+                print(f"   Staircases on floors: {staircase_floors}")
+                
+                # Validate floor field exists in all rooms
+                rooms_without_floor = [r for r in rooms if 'floor' not in r]
+                if rooms_without_floor:
+                    print(f"   ⚠️ {len(rooms_without_floor)} rooms missing floor field")
+                else:
+                    print(f"   ✅ All rooms have floor field")
+                
+                # Check if staircases exist on multiple floors
+                if len(staircase_floors) >= 2:
+                    print(f"   ✅ Staircases found on multiple floors")
+                else:
+                    print(f"   ⚠️ Expected staircases on multiple floors, found: {len(staircase_floors)}")
+            
+            # Validate plumbing and electrical have floor fields
+            plumbing = response.get('plumbing', [])
+            electrical = response.get('electrical', [])
+            
+            plumbing_without_floor = [p for p in plumbing if 'floor' not in p]
+            electrical_without_floor = [e for e in electrical if 'floor' not in e]
+            
+            if plumbing_without_floor:
+                print(f"   ⚠️ {len(plumbing_without_floor)} plumbing elements missing floor field")
+            else:
+                print(f"   ✅ All {len(plumbing)} plumbing elements have floor field")
+                
+            if electrical_without_floor:
+                print(f"   ⚠️ {len(electrical_without_floor)} electrical elements missing floor field")
+            else:
+                print(f"   ✅ All {len(electrical)} electrical elements have floor field")
+            
+        return success, response
+
     def test_delete_project(self):
         """Test deleting a project"""
         if not self.project_id:
@@ -444,6 +524,7 @@ def main():
         tester.test_get_me,
         tester.test_list_projects,
         tester.test_generate_project,
+        tester.test_generate_multi_floor_project,  # New multi-floor test
         tester.test_get_project,
         tester.test_update_rooms,
         tester.test_update_plumbing,

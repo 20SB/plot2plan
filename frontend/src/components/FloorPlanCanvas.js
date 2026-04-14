@@ -8,8 +8,9 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const SCALE = 8;
 const MIN_SIZE = 5;
 
-const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbingUpdated, onElectricalUpdated }) => {
-  const [rooms, setRooms] = useState(project.rooms || []);
+const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbingUpdated, onElectricalUpdated, currentFloor = 1 }) => {
+  const allRooms = project.rooms || [];
+  const [rooms, setRooms] = useState(allRooms);
   const [selectedRoomId, setSelectedRoomId] = useState(null);
   const [dragging, setDragging] = useState(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -19,17 +20,22 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbin
 
   useEffect(() => {
     setRooms(project.rooms || []);
-  }, [project]);
+    setSelectedRoomId(null);
+  }, [project, currentFloor]);
 
   useEffect(() => {
     latestRoomsRef.current = rooms;
   }, [rooms]);
 
-  const selectedRoom = rooms.find(r => r.id === selectedRoomId) || null;
+  // Filter rooms for current floor
+  const floorRooms = rooms.filter(r => (r.floor || 1) === currentFloor);
+  // Find staircase rooms on other floors to show indicator
+  const staircasesOtherFloors = rooms.filter(r => r.room_type === "staircase" && (r.floor || 1) !== currentFloor);
+  const selectedRoom = floorRooms.find(r => r.id === selectedRoomId) || null;
 
-  useEffect(() => {
-    setRooms(project.rooms || []);
-  }, [project]);
+  // Filter plumbing/electrical by floor
+  const floorPlumbing = (project.plumbing || []).filter(e => (e.floor || 1) === currentFloor);
+  const floorElectrical = (project.electrical || []).filter(e => (e.floor || 1) === currentFloor);
 
   const getVastuColor = (score) => {
     if (score >= 90) return "#059669";
@@ -154,7 +160,9 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbin
     <div className="bg-white border border-stone-200 p-4">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold" style={{fontFamily: 'Cabinet Grotesk, sans-serif'}}>2D Floor Plan</h3>
+          <h3 className="text-lg font-semibold" style={{fontFamily: 'Cabinet Grotesk, sans-serif'}}>
+            2D Floor Plan {project.num_floors > 1 ? `- Floor ${currentFloor}` : ''}
+          </h3>
           <p className="text-xs text-stone-500 font-mono">
             {project.plot_length}' x {project.plot_width}' | {project.facing_direction.toUpperCase()} facing
           </p>
@@ -162,7 +170,7 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbin
         <div className="text-right">
           <p className="text-xs uppercase tracking-widest text-stone-500 font-mono">Total Area</p>
           <p className="text-lg font-semibold font-mono">
-            {rooms.reduce((sum, room) => sum + (room.width * room.height), 0).toFixed(0)} sq.ft
+            {floorRooms.reduce((sum, room) => sum + (room.width * room.height), 0).toFixed(0)} sq.ft
           </p>
         </div>
       </div>
@@ -187,9 +195,10 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbin
         </div>
 
         {/* Room blocks */}
-        {rooms.map((room) => {
+        {floorRooms.map((room) => {
           const isSelected = selectedRoom?.id === room.id;
           const isDragging = dragging?.roomId === room.id;
+          const isStaircase = room.room_type === "staircase";
           return (
             <div
               key={room.id}
@@ -200,8 +209,9 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbin
                 top: room.y * SCALE,
                 width: room.width * SCALE,
                 height: room.height * SCALE,
-                borderColor: getVastuColor(room.vastu_score),
-                borderWidth: isSelected ? '3px' : '2px'
+                borderColor: isStaircase ? '#0055FF' : getVastuColor(room.vastu_score),
+                borderWidth: isSelected ? '3px' : '2px',
+                backgroundColor: isStaircase ? 'rgba(0,85,255,0.08)' : 'rgba(255,255,255,0.9)',
               }}
               onMouseDown={(e) => handleRoomMouseDown(e, room)}
             >
@@ -212,8 +222,8 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbin
                     {room.width.toFixed(0)}' x {room.height.toFixed(0)}'
                   </div>
                 </div>
-                <div className="font-mono font-semibold text-[10px]" style={{ color: getVastuColor(room.vastu_score) }}>
-                  {room.vastu_score.toFixed(0)}/100
+                <div className="font-mono font-semibold text-[10px]" style={{ color: isStaircase ? '#0055FF' : getVastuColor(room.vastu_score) }}>
+                  {isStaircase ? 'STAIR' : `${room.vastu_score.toFixed(0)}/100`}
                 </div>
               </div>
 
@@ -238,10 +248,31 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbin
           );
         })}
 
+        {/* Staircase ghost indicators from other floors */}
+        {staircasesOtherFloors.map((stair) => (
+          <div
+            key={`ghost-${stair.id}`}
+            className="absolute pointer-events-none"
+            style={{
+              left: stair.x * SCALE,
+              top: stair.y * SCALE,
+              width: stair.width * SCALE,
+              height: stair.height * SCALE,
+              border: '2px dashed #0055FF',
+              backgroundColor: 'rgba(0,85,255,0.04)',
+              opacity: 0.5,
+            }}
+          >
+            <div className="p-1 text-[9px] font-mono text-blue-500 opacity-70">
+              Stair (F{stair.floor || 1})
+            </div>
+          </div>
+        ))}
+
         {/* Plumbing Layer */}
-        {activeLayers?.plumbing && project.plumbing && (
+        {activeLayers?.plumbing && floorPlumbing.length > 0 && (
           <PlumbingLayer
-            elements={project.plumbing}
+            elements={floorPlumbing}
             plotLength={project.plot_length}
             plotWidth={project.plot_width}
             onElementsUpdated={onPlumbingUpdated}
@@ -249,9 +280,9 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbin
         )}
 
         {/* Electrical Layer */}
-        {activeLayers?.electrical && project.electrical && (
+        {activeLayers?.electrical && floorElectrical.length > 0 && (
           <ElectricalLayer
-            elements={project.electrical}
+            elements={floorElectrical}
             plotLength={project.plot_length}
             plotWidth={project.plot_width}
             onElementsUpdated={onElectricalUpdated}
