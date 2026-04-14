@@ -34,7 +34,7 @@ const PlotInputForm = ({ onProjectGenerated }) => {
     setLoading(true);
     
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/projects/generate`, formData);
+      const response = await axios.post(`${BACKEND_URL}/api/projects/generate`, formData, { withCredentials: true });
       onProjectGenerated(response.data);
     } catch (error) {
       console.error("Error generating project:", error);

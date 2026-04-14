@@ -38,7 +38,7 @@ const AICopilot = ({ projectId }) => {
       const response = await axios.post(`${BACKEND_URL}/api/copilot`, {
         project_id: projectId,
         message: userMessage
-      });
+      }, { withCredentials: true });
 
       setMessages(prev => [...prev, { type: 'ai', text: response.data.response }]);
     } catch (error) {

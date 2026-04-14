@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
+import PlumbingLayer from "@/components/PlumbingLayer";
+import ElectricalLayer from "@/components/ElectricalLayer";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const SCALE = 8;
-const MIN_SIZE = 5; // minimum room size in feet
+const MIN_SIZE = 5;
 
-const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
+const FloorPlanCanvas = ({ project, onRoomsUpdated, activeLayers = {}, onPlumbingUpdated, onElectricalUpdated }) => {
   const [rooms, setRooms] = useState(project.rooms || []);
   const [selectedRoomId, setSelectedRoomId] = useState(null);
   const [dragging, setDragging] = useState(null);
@@ -39,9 +41,10 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
     try {
       const response = await axios.put(
         `${BACKEND_URL}/api/projects/${project.id}/rooms`,
-        updatedRooms
+        updatedRooms,
+        { withCredentials: true }
       );
-      onRoomsUpdated(response.data.rooms, response.data.overall_score);
+      onRoomsUpdated(response.data.rooms, response.data.overall_score, response.data.plumbing, response.data.electrical);
     } catch (error) {
       console.error("Error updating rooms:", error);
       toast.error("Failed to update layout");
@@ -234,6 +237,26 @@ const FloorPlanCanvas = ({ project, onRoomsUpdated }) => {
             </div>
           );
         })}
+
+        {/* Plumbing Layer */}
+        {activeLayers?.plumbing && project.plumbing && (
+          <PlumbingLayer
+            elements={project.plumbing}
+            plotLength={project.plot_length}
+            plotWidth={project.plot_width}
+            onElementsUpdated={onPlumbingUpdated}
+          />
+        )}
+
+        {/* Electrical Layer */}
+        {activeLayers?.electrical && project.electrical && (
+          <ElectricalLayer
+            elements={project.electrical}
+            plotLength={project.plot_length}
+            plotWidth={project.plot_width}
+            onElementsUpdated={onElectricalUpdated}
+          />
+        )}
       </div>
 
       {/* Selected room details */}

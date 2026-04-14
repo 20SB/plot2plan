@@ -9,11 +9,17 @@ class VastuBlueprintAPITester:
         self.tests_run = 0
         self.tests_passed = 0
         self.project_id = None
+        self.session = requests.Session()  # Use session for cookies
+        self.auth_token = None
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, timeout=30):
+    def run_test(self, name, method, endpoint, expected_status, data=None, timeout=30, use_auth=True):
         """Run a single API test"""
         url = f"{self.base_url}/{endpoint}"
         headers = {'Content-Type': 'application/json'}
+        
+        # Add auth header if available and requested
+        if use_auth and self.auth_token:
+            headers['Authorization'] = f'Bearer {self.auth_token}'
 
         self.tests_run += 1
         print(f"\n🔍 Testing {name}...")
@@ -21,11 +27,13 @@ class VastuBlueprintAPITester:
         
         try:
             if method == 'GET':
-                response = requests.get(url, headers=headers, timeout=timeout)
+                response = self.session.get(url, headers=headers, timeout=timeout)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=timeout)
+                response = self.session.post(url, json=data, headers=headers, timeout=timeout)
             elif method == 'PUT':
-                response = requests.put(url, json=data, headers=headers, timeout=timeout)
+                response = self.session.put(url, json=data, headers=headers, timeout=timeout)
+            elif method == 'DELETE':
+                response = self.session.delete(url, headers=headers, timeout=timeout)
 
             success = response.status_code == expected_status
             if success:
@@ -46,9 +54,93 @@ class VastuBlueprintAPITester:
             print(f"❌ Failed - Error: {str(e)}")
             return False, {}
 
+    def test_register_user(self):
+        """Test user registration"""
+        timestamp = datetime.now().strftime("%H%M%S")
+        user_data = {
+            "name": f"Test User {timestamp}",
+            "email": f"testuser{timestamp}@example.com",
+            "password": "testpass123"
+        }
+        
+        success, response = self.run_test(
+            "User Registration",
+            "POST",
+            "api/auth/register",
+            200,
+            data=user_data,
+            use_auth=False
+        )
+        
+        if success and isinstance(response, dict):
+            if 'token' in response:
+                self.auth_token = response['token']
+                print(f"   ✅ Auth token received and stored")
+            print(f"   User ID: {response.get('id')}")
+            print(f"   User email: {response.get('email')}")
+        
+        return success, response
+
+    def test_login_admin(self):
+        """Test admin login"""
+        login_data = {
+            "email": "admin@vastuplan.com",
+            "password": "admin123"
+        }
+        
+        success, response = self.run_test(
+            "Admin Login",
+            "POST",
+            "api/auth/login",
+            200,
+            data=login_data,
+            use_auth=False
+        )
+        
+        if success and isinstance(response, dict):
+            if 'token' in response:
+                self.auth_token = response['token']
+                print(f"   ✅ Auth token received and stored")
+            print(f"   User ID: {response.get('id')}")
+            print(f"   User role: {response.get('role')}")
+        
+        return success, response
+
+    def test_get_me(self):
+        """Test getting current user info"""
+        return self.run_test(
+            "Get Current User",
+            "GET",
+            "api/auth/me",
+            200
+        )
+
+    def test_logout(self):
+        """Test user logout"""
+        success, response = self.run_test(
+            "User Logout",
+            "POST",
+            "api/auth/logout",
+            200
+        )
+        
+        if success:
+            print(f"   ✅ Logout successful")
+        
+        return success, response
+
     def test_root_endpoint(self):
         """Test root API endpoint"""
-        return self.run_test("Root Endpoint", "GET", "api/", 200)
+        return self.run_test("Root Endpoint", "GET", "api/", 200, use_auth=False)
+
+    def test_list_projects(self):
+        """Test listing user projects"""
+        return self.run_test(
+            "List Projects",
+            "GET",
+            "api/projects",
+            200
+        )
 
     def test_generate_project(self):
         """Test project generation with AI"""
@@ -265,6 +357,79 @@ class VastuBlueprintAPITester:
         
         return success, response
 
+    def test_update_plumbing(self):
+        """Test updating plumbing elements"""
+        if not self.project_id:
+            print("❌ Skipping - No project ID available")
+            return False, {}
+        
+        # Get current project to get plumbing elements
+        success, project_data = self.test_get_project()
+        if not success:
+            return False, {}
+        
+        plumbing = project_data.get('plumbing', [])
+        if not plumbing:
+            print("❌ No plumbing elements to update")
+            return False, {}
+        
+        # Modify first plumbing element position
+        updated_plumbing = plumbing.copy()
+        if updated_plumbing:
+            updated_plumbing[0]['x'] = updated_plumbing[0]['x'] + 1
+            updated_plumbing[0]['y'] = updated_plumbing[0]['y'] + 1
+        
+        return self.run_test(
+            "Update Plumbing Elements",
+            "PUT",
+            f"api/projects/{self.project_id}/plumbing",
+            200,
+            data=updated_plumbing
+        )
+
+    def test_update_electrical(self):
+        """Test updating electrical elements"""
+        if not self.project_id:
+            print("❌ Skipping - No project ID available")
+            return False, {}
+        
+        # Get current project to get electrical elements
+        success, project_data = self.test_get_project()
+        if not success:
+            return False, {}
+        
+        electrical = project_data.get('electrical', [])
+        if not electrical:
+            print("❌ No electrical elements to update")
+            return False, {}
+        
+        # Modify first electrical element position
+        updated_electrical = electrical.copy()
+        if updated_electrical:
+            updated_electrical[0]['x'] = updated_electrical[0]['x'] + 1
+            updated_electrical[0]['y'] = updated_electrical[0]['y'] + 1
+        
+        return self.run_test(
+            "Update Electrical Elements",
+            "PUT",
+            f"api/projects/{self.project_id}/electrical",
+            200,
+            data=updated_electrical
+        )
+
+    def test_delete_project(self):
+        """Test deleting a project"""
+        if not self.project_id:
+            print("❌ Skipping - No project ID available")
+            return False, {}
+        
+        return self.run_test(
+            "Delete Project",
+            "DELETE",
+            f"api/projects/{self.project_id}",
+            200
+        )
+
 def main():
     print("🏗️ Starting Vastu Blueprint API Testing...")
     print("=" * 60)
@@ -274,14 +439,22 @@ def main():
     # Test sequence
     tests = [
         tester.test_root_endpoint,
+        tester.test_register_user,
+        tester.test_login_admin,  # Switch to admin for full access
+        tester.test_get_me,
+        tester.test_list_projects,
         tester.test_generate_project,
         tester.test_get_project,
         tester.test_update_rooms,
+        tester.test_update_plumbing,
+        tester.test_update_electrical,
         tester.test_copilot_chat,
         tester.test_cost_estimate,
         tester.test_get_revisions,
         tester.test_restore_revision,
-        tester.test_compare_revisions
+        tester.test_compare_revisions,
+        tester.test_delete_project,
+        tester.test_logout
     ]
     
     for test in tests:

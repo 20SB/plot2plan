@@ -15,7 +15,7 @@ const RevisionHistory = ({ projectId, onRestore, onCompare }) => {
 
   const fetchRevisions = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/projects/${projectId}/revisions`);
+      const response = await axios.get(`${BACKEND_URL}/api/projects/${projectId}/revisions`, { withCredentials: true });
       setRevisions(response.data);
     } catch (error) {
       console.error("Error fetching revisions:", error);
@@ -37,7 +37,9 @@ const RevisionHistory = ({ projectId, onRestore, onCompare }) => {
   const handleRestore = async (revisionId) => {
     try {
       const response = await axios.post(
-        `${BACKEND_URL}/api/projects/${projectId}/revisions/${revisionId}/restore`
+        `${BACKEND_URL}/api/projects/${projectId}/revisions/${revisionId}/restore`,
+        {},
+        { withCredentials: true }
       );
       onRestore(response.data.rooms, response.data.vastu_overall_score);
       toast.success("Revision restored successfully");
@@ -64,7 +66,8 @@ const RevisionHistory = ({ projectId, onRestore, onCompare }) => {
     if (selectedRevisions.length !== 2) return;
     try {
       const response = await axios.get(
-        `${BACKEND_URL}/api/projects/${projectId}/revisions/compare/${selectedRevisions[0]}/${selectedRevisions[1]}`
+        `${BACKEND_URL}/api/projects/${projectId}/revisions/compare/${selectedRevisions[0]}/${selectedRevisions[1]}`,
+        { withCredentials: true }
       );
       onCompare(response.data);
       setCompareMode(false);

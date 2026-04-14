@@ -12,7 +12,7 @@ const CostEstimate = ({ projectId }) => {
   useEffect(() => {
     const fetchCostEstimate = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/api/projects/${projectId}/cost-estimate`);
+        const response = await axios.get(`${BACKEND_URL}/api/projects/${projectId}/cost-estimate`, { withCredentials: true });
         setCostData(response.data);
       } catch (error) {
         console.error("Error fetching cost estimate:", error);
