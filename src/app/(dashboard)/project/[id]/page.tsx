@@ -42,7 +42,7 @@ export default function ProjectPage() {
   const [saving, setSaving] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [zoom, setZoom] = useState(1)
-  const [sidebarExpanded, setSidebarExpanded] = useState(false)
+  const [sidebarExpanded, setSidebarExpanded] = useState(true)
   
   // Refs
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -170,8 +170,8 @@ export default function ProjectPage() {
   if (!project) return null
 
   const SidebarContent = (
-    <Tabs defaultValue="vastu" className="flex flex-col h-full overflow-hidden">
-      <div className="p-4 border-b border-white/[0.04] bg-white/[0.01]">
+    <Tabs defaultValue="vastu" className="flex flex-col flex-1 min-h-0 overflow-hidden">
+      <div className="shrink-0 p-4 border-b border-white/[0.04] bg-white/[0.01]">
         <TabsList className="w-full grid grid-cols-4 p-1 rounded-2xl bg-white/[0.03]">
           <TabsTrigger value="vastu" className="flex flex-col items-center gap-1 py-2.5 rounded-xl data-[state=active]:bg-accent data-[state=active]:text-white">
             <Compass weight="bold" size={16} />
@@ -191,14 +191,14 @@ export default function ProjectPage() {
           </TabsTrigger>
         </TabsList>
       </div>
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <TabsContent value="vastu" className="m-0 h-full p-0">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+        <TabsContent value="vastu" className="m-0 p-0">
           <VastuScorePanel rooms={project.rooms} overallScore={project.vastuScore} />
         </TabsContent>
         <TabsContent value="cost" className="m-0 p-0">
           <CostEstimate projectId={project.id} onExportPdf={handleExportPdf} />
         </TabsContent>
-        <TabsContent value="ai" className="m-0 flex flex-col p-0 h-full">
+        <TabsContent value="ai" className="m-0 p-0 flex flex-col min-h-0">
           <AICopilot projectId={project.id} />
         </TabsContent>
         <TabsContent value="history" className="m-0 p-0">
@@ -334,7 +334,7 @@ export default function ProjectPage() {
   )
 
   return (
-    <div className="flex h-[calc(100vh-56px)] bg-transparent animate-in overflow-hidden relative z-10 antialiased">
+    <div className="flex h-[calc(100vh-56px)] w-[calc(100%+40px)] -mx-5 -mt-5 overflow-hidden relative z-10 antialiased">
       {VerticalToolbar}
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -398,7 +398,7 @@ export default function ProjectPage() {
             </div>
           </div>
 
-          <aside className="hidden lg:flex w-[380px] border-l border-white/[0.06] bg-white/[0.02] backdrop-blur-md flex-col overflow-hidden flex-shrink-0 animate-in fade-in slide-in-from-right-4 duration-500 shadow-linear">
+          <aside className="hidden lg:flex flex-col w-[320px] xl:w-[360px] border-l border-white/[0.06] bg-white/[0.02] backdrop-blur-md overflow-hidden flex-shrink-0 animate-in fade-in slide-in-from-right-4 duration-500 shadow-linear">
             {SidebarContent}
           </aside>
         </div>
