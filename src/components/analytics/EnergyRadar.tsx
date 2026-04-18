@@ -7,7 +7,7 @@ import {
   PolarAngleAxis,
   ResponsiveContainer,
 } from 'recharts'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { SpotlightCard } from '@/components/ui/spotlight-card'
 import type { Room } from '@/types'
 
 const ELEMENTS = ['FIRE', 'WATER', 'EARTH', 'AIR', 'SPACE']
@@ -32,20 +32,18 @@ export function EnergyRadar({ rooms }: Props) {
   })
 
   return (
-    <Card className="col-span-1 md:col-span-2 bg-white/[0.02] border-white/[0.06] backdrop-blur-xl overflow-hidden group">
-      <CardHeader>
-        <CardTitle className="text-gradient">Elemental Balance</CardTitle>
-        <CardDescription className="text-foreground-muted">
-          Energy distribution across the five primordial elements.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="h-[300px] w-full pt-0">
+    <SpotlightCard className="col-span-1 md:col-span-2 h-full flex flex-col items-center justify-center p-0 border-white/[0.08] overflow-hidden group">
+      <div className="w-full p-5 border-b border-white/[0.04] bg-white/[0.01]">
+        <h3 className="text-[10px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em]">Elemental Balance</h3>
+      </div>
+      
+      <div className="flex-1 w-full h-[320px] pt-4 px-2">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-            <PolarGrid stroke="rgba(255,255,255,0.05)" />
+            <PolarGrid stroke="rgba(255,255,255,0.06)" />
             <PolarAngleAxis 
               dataKey="subject" 
-              tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: 600 }} 
+              tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em' }} 
             />
             <Radar
               name="Vastu"
@@ -57,10 +55,11 @@ export function EnergyRadar({ rooms }: Props) {
             />
           </RadarChart>
         </ResponsiveContainer>
-      </CardContent>
-      <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
-         <div className="size-2 rounded-full bg-accent shadow-accent-glow animate-pulse" />
       </div>
-    </Card>
+
+      <div className="absolute top-5 right-5 z-20">
+         <div className="size-1.5 rounded-full bg-accent shadow-accent-glow animate-pulse" />
+      </div>
+    </SpotlightCard>
   )
 }

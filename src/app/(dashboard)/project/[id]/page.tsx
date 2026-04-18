@@ -5,7 +5,19 @@ import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowLeft, FloppyDisk, FilePdf, FileCode, Compass, Robot, Clock, Coins } from '@phosphor-icons/react'
+import { 
+  ArrowLeft, 
+  FloppyDisk, 
+  FilePdf, 
+  FileCode, 
+  Compass, 
+  Robot, 
+  Clock, 
+  Coins,
+  MagnifyingGlassPlus,
+  MagnifyingGlassMinus,
+  ArrowsIn
+} from '@phosphor-icons/react'
 import { FloorPlanCanvas } from '@/components/canvas/FloorPlanCanvas'
 import { VastuScorePanel } from '@/components/panels/VastuScorePanel'
 import { CostEstimate } from '@/components/panels/CostEstimate'
@@ -25,8 +37,44 @@ export default function ProjectPage() {
   const [currentFloor, setCurrentFloor] = useState(1)
   const [saving, setSaving] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [zoom, setZoom] = useState(1)
+  
+  // Refs
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const canvasWrapperRef = useRef<HTMLDivElement>(null)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isMountedRef = useRef(true)
+
+  // Zoom & Fit Logic
+  const handleFitToViewport = useCallback(() => {
+    if (!viewportRef.current || !project) return
+    
+    // Canvas dimensions based on SCALE=8 in FloorPlanCanvas
+    const canvasWidth = project.plotWidth * 8 + 32 // +32 for padding
+    const canvasHeight = project.plotHeight * 8 + 32
+    
+    const viewportWidth = viewportRef.current.clientWidth - 64 // -64 for padding
+    const viewportHeight = viewportRef.current.clientHeight - 64
+    
+    const scale = Math.min(viewportWidth / canvasWidth, viewportHeight / canvasHeight)
+    setZoom(Math.max(0.1, Math.min(2, scale)))
+  }, [project])
+
+  // Initial Fit
+  useEffect(() => {
+    if (!loading && project) {
+      // Small delay to ensure container is rendered
+      const timer = setTimeout(handleFitToViewport, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [loading, project, handleFitToViewport])
+
+  // Handle Resize
+  useEffect(() => {
+    window.addEventListener('resize', handleFitToViewport)
+    return () => window.removeEventListener('resize', handleFitToViewport)
+  }, [handleFitToViewport])
+
   useEffect(() => { return () => { isMountedRef.current = false } }, [])
 
   const fetchProject = useCallback(async () => {
@@ -254,24 +302,70 @@ export default function ProjectPage() {
   )
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] bg-transparent animate-in overflow-hidden relative z-10">
+    <div className="flex flex-col h-[calc(100vh-56px)] bg-transparent animate-in overflow-hidden relative z-10">
       {ToolbarContent}
 
       <div className="flex flex-1 overflow-hidden relative">
-        <div className="flex-1 overflow-auto bg-transparent p-4 md:p-8 flex items-start justify-center pattern-grid-slate-200">
-          <div className="glass-surface rounded-2xl md:rounded-3xl shadow-linear p-2 md:p-4 scale-[0.6] sm:scale-[0.8] md:scale-100 origin-top transform-gpu transition-all hover:border-white/10 hover:shadow-linear-hover group/canvas relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
-            <FloorPlanCanvas
-              plotWidth={project.plotWidth}
-              plotHeight={project.plotHeight}
-              rooms={project.rooms}
-              plumbing={project.plumbing}
-              electrical={project.electrical}
-              activeLayer={activeLayer}
-              currentFloor={currentFloor}
-              onRoomsChange={handleRoomsChange}
-              onUndo={handleRestore}
-            />
+        <div 
+          ref={viewportRef}
+          className="flex-1 overflow-auto bg-transparent flex items-start justify-center pattern-grid-slate-200 relative group/viewport"
+        >
+          {/* Zoom Controls HUD */}
+          <div className="absolute top-6 left-6 z-40 flex flex-col gap-1.5 p-1 glass-surface border-white/[0.08] rounded-2xl shadow-linear animate-in slide-in-from-left-4 duration-500 opacity-0 group-hover/viewport:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setZoom(z => Math.min(3, z + 0.1))}
+              className="size-9 rounded-xl text-foreground-muted hover:text-accent hover:bg-accent/10 transition-all"
+            >
+              <MagnifyingGlassPlus size={18} weight="bold" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setZoom(z => Math.max(0.1, z - 0.1))}
+              className="size-9 rounded-xl text-foreground-muted hover:text-accent hover:bg-accent/10 transition-all"
+            >
+              <MagnifyingGlassMinus size={18} weight="bold" />
+            </Button>
+            <div className="h-px bg-white/[0.08] mx-2" />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleFitToViewport}
+              className="size-9 rounded-xl text-foreground-muted hover:text-accent hover:bg-accent/10 transition-all"
+            >
+              <ArrowsIn size={18} weight="bold" />
+            </Button>
+          </div>
+
+          {/* Zoom Indicator */}
+          <div className="absolute bottom-6 left-6 z-40 px-3 py-1.5 glass-surface border-white/[0.08] rounded-full shadow-linear animate-in slide-in-from-bottom-4 duration-500 opacity-0 group-hover/viewport:opacity-100 transition-opacity">
+            <span className="text-[10px] font-mono font-bold text-foreground-subtle tracking-widest uppercase text-center min-w-[3.5rem]">
+              {Math.round(zoom * 100)}%
+            </span>
+          </div>
+
+          {/* Canvas Wrapper */}
+          <div className="p-8 md:p-16 min-h-full flex items-center justify-center">
+            <div 
+              ref={canvasWrapperRef}
+              className="glass-surface rounded-2xl md:rounded-3xl shadow-linear p-2 md:p-4 transform-gpu transition-all duration-300 hover:border-white/10 hover:shadow-linear-hover group/canvas relative origin-center"
+              style={{ transform: `scale(${zoom})` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+              <FloorPlanCanvas
+                plotWidth={project.plotWidth}
+                plotHeight={project.plotHeight}
+                rooms={project.rooms}
+                plumbing={project.plumbing}
+                electrical={project.electrical}
+                activeLayer={activeLayer}
+                currentFloor={currentFloor}
+                onRoomsChange={handleRoomsChange}
+                onUndo={handleRestore}
+              />
+            </div>
           </div>
         </div>
 
