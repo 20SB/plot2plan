@@ -198,7 +198,7 @@ export default function ProjectPage() {
         <TabsContent value="cost" className="m-0 p-0">
           <CostEstimate projectId={project.id} onExportPdf={handleExportPdf} />
         </TabsContent>
-        <TabsContent value="ai" className="m-0 p-0 flex flex-col min-h-0">
+        <TabsContent value="ai" className="m-0 p-0 h-full flex flex-col overflow-hidden">
           <AICopilot projectId={project.id} />
         </TabsContent>
         <TabsContent value="history" className="m-0 p-0">
@@ -209,7 +209,7 @@ export default function ProjectPage() {
   )
 
   const VerticalToolbar = (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider delay={300}>
       <aside
         className={`hidden lg:flex flex-col border-r border-white/[0.06] bg-[#020203] shrink-0 z-40 overflow-hidden transition-[width] duration-300 ease-in-out ${
           sidebarExpanded ? 'w-[220px]' : 'w-16'
@@ -321,11 +321,7 @@ export default function ProjectPage() {
           </div>
         </div>
         <Sheet>
-            <SheetTrigger asChild>
-              <Button size="sm" className="rounded-xl h-9 px-4 gap-2 shadow-accent-glow">
-                <Compass weight="bold" /> Analysis
-              </Button>
-            </SheetTrigger>
+            <SheetTrigger render={<Button size="sm" className="rounded-xl h-9 px-4 gap-2 shadow-accent-glow"><Compass weight="bold" /> Analysis</Button>} />
             <SheetContent side="right" className="p-0 w-[90%] sm:w-[380px] bg-bg-base/95 backdrop-blur-xl border-l border-white/[0.06]">
               {SidebarContent}
             </SheetContent>
@@ -465,7 +461,7 @@ function SidebarItem({
   if (!expanded && tooltip) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{btn}</TooltipTrigger>
+        <TooltipTrigger render={<span>{btn}</span>} />
         <TooltipContent side="right">{tooltip}</TooltipContent>
       </Tooltip>
     )

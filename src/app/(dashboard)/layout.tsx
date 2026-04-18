@@ -33,6 +33,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </Link>
           
           <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-1">
+              <Link href="/" className="text-[11px] font-medium text-foreground-muted hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors tracking-wide uppercase">
+                Dashboard
+              </Link>
+              <Link href="/compare" className="text-[11px] font-medium text-foreground-muted hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors tracking-wide uppercase flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-accent animate-pulse" />
+                Compare AIs
+              </Link>
+            </nav>
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={

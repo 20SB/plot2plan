@@ -5,6 +5,16 @@ import { generateLayout } from '@/lib/claude'
 import { scoreRoom, scoreAllRooms } from '@/lib/vastu'
 import { z } from 'zod'
 
+const roomSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+  x: z.number(),
+  y: z.number(),
+  width: z.number(),
+  height: z.number(),
+  floor: z.number(),
+})
+
 const generateSchema = z.object({
   title: z.string().min(1),
   plotWidth: z.number().positive(),
@@ -14,6 +24,8 @@ const generateSchema = z.object({
   style: z.string().default('Modern'),
   facing: z.string().default('North'),
   rooms: z.array(z.string()).min(1),
+  // Optional: pre-generated rooms from AI comparison (skips AI generation step)
+  preGeneratedRooms: z.array(roomSchema).optional(),
 })
 
 export async function GET() {
@@ -37,8 +49,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const input = generateSchema.parse(body)
 
-    // Generate layout via Claude
-    const generatedRooms = await generateLayout({ ...input, title: input.title })
+    // Use pre-generated rooms (from AI comparison) or generate via Claude
+    const generatedRooms = input.preGeneratedRooms?.length
+      ? input.preGeneratedRooms
+      : await generateLayout({ ...input, title: input.title })
 
     // Score each room
     const scoredRooms = generatedRooms.map(r => {

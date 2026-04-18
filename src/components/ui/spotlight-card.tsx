@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 
-interface SpotlightCardProps extends React.HTMLAttributes<divElement> {
+interface SpotlightCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
   glowColor?: string
   glowOpacity?: number

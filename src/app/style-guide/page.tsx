@@ -8,10 +8,10 @@ import {
   Layout, 
   Palette, 
   MousePointer2, 
-  Figma, 
+  Sigma,
   Zap,
   Layers,
-  Sparkle
+  Sparkles
 } from 'lucide-react'
 
 export default function StyleGuidePage() {
@@ -88,7 +88,7 @@ export default function StyleGuidePage() {
                 <Zap size={24} />
               </div>
               <div className="size-12 rounded-xl bg-accent shadow-accent-glow flex items-center justify-center text-white">
-                <Sparkle size={24} />
+                <Sparkles size={24} />
               </div>
               <div className="size-12 rounded-xl bg-white/[0.05] border border-white/[0.1] flex items-center justify-center text-foreground-muted">
                 <Layers size={24} />
@@ -108,7 +108,7 @@ export default function StyleGuidePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[1, 2, 3].map((i) => (
             <SpotlightCard key={i} className="aspect-video flex flex-col items-center justify-center p-8 text-center space-y-4">
-              <Figma className="size-10 text-accent opacity-50" />
+              <Sigma className="size-10 text-accent opacity-50" />
               <div className="space-y-2">
                 <h4 className="font-semibold">Spotlight Container {i}</h4>
                 <p className="text-xs text-foreground-muted">Responsive radial glow that tracks mouse movement with zero-latency precision.</p>
