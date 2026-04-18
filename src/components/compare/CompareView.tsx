@@ -76,7 +76,7 @@ export default function CompareView() {
   const [results, setResults] = useState<Record<Provider, AIResultState>>({
     claude: { status: 'idle', rooms: [], vastuScore: 0, timingMs: 0 },
     gemini: { status: 'idle', rooms: [], vastuScore: 0, timingMs: 0 },
-    qwen:   { status: 'idle', rooms: [], vastuScore: 0, timingMs: 0 },
+    opus:   { status: 'idle', rooms: [], vastuScore: 0, timingMs: 0 },
   })
 
   const [saving, setSaving] = useState<Provider | null>(null)
