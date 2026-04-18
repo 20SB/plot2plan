@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ClockCounterClockwise, ArrowCounterClockwise, GitDiff } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -51,72 +50,88 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
     })
   }
 
-  if (loading) return <div className="text-slate-500 text-xs font-mono animate-pulse">LOADING HISTORY...</div>
+  if (loading) return (
+    <div className="p-4 text-app-faint text-xs font-mono animate-pulse">LOADING HISTORY...</div>
+  )
 
   if (comparing) {
     return (
       <div>
-        <Button size="sm" variant="ghost" onClick={() => setComparing(null)}
-          className="text-slate-400 hover:text-white text-xs mb-3">← Back</Button>
-        <CompareView projectId={projectId} revIdA={comparing[0]} revIdB={comparing[1]} />
+        <div className="p-4 border-b border-white/6">
+          <Button size="sm" variant="ghost" onClick={() => setComparing(null)}
+            className="text-app-faint hover:text-app-text text-xs gap-1">
+            <ArrowCounterClockwise size={12} />Back
+          </Button>
+        </div>
+        <div className="p-4">
+          <CompareView projectId={projectId} revIdA={comparing[0]} revIdB={comparing[1]} />
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="text-slate-400 text-xs font-mono flex items-center gap-1">
-          <ClockCounterClockwise size={12} />
-          REVISION LOG ({revisions.length})
+    <div className="space-y-0">
+      {/* Panel header */}
+      <div className="flex items-center justify-between p-4 border-b border-white/6">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-app-accent/15 rounded-lg flex items-center justify-center">
+            <ClockCounterClockwise className="w-4 h-4 text-app-accent" />
+          </div>
+          <span className="text-app-text text-sm font-medium">Revision History</span>
         </div>
         {selected.length === 2 && (
           <Button size="sm" variant="outline"
             onClick={() => setComparing([selected[0], selected[1]])}
-            className="h-6 text-xs border-slate-600 text-cyan-400 gap-1">
-            <GitDiff size={10} />
-            COMPARE
+            className="border border-white/10 text-app-violet hover:border-app-accent/40 rounded-xl text-xs h-8 gap-1 px-3">
+            <GitDiff size={12} />
+            Compare
           </Button>
         )}
       </div>
-      {selected.length > 0 && (
-        <p className="text-slate-500 text-[10px]">Select 2 revisions to compare ({selected.length}/2 selected)</p>
-      )}
-      <ScrollArea className="h-96">
-        <div className="space-y-2 pr-2">
-          {revisions.map(rev => (
-            <div key={rev.id}
-              onClick={() => toggleSelect(rev.id)}
-              className={`p-2.5 rounded border cursor-pointer transition-colors ${
-                selected.includes(rev.id)
-                  ? 'border-cyan-600 bg-cyan-950/40'
-                  : 'border-slate-700 bg-slate-800 hover:border-slate-600'
-              }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-slate-700 text-slate-300 font-mono text-[10px]">v{rev.version}</Badge>
-                  <span className="text-slate-300 text-xs">{rev.label || 'Auto-save'}</span>
+
+      <div className="p-4 space-y-3">
+        {selected.length > 0 && (
+          <p className="text-app-faint text-[10px]">Select 2 revisions to compare ({selected.length}/2 selected)</p>
+        )}
+        <ScrollArea className="h-96">
+          <div className="space-y-2 pr-2">
+            {revisions.map(rev => (
+              <div key={rev.id}
+                onClick={() => toggleSelect(rev.id)}
+                className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                  selected.includes(rev.id)
+                    ? 'border-app-accent/40 bg-app-accent/8'
+                    : 'border-white/8 bg-app-input/40 hover:border-white/14'
+                }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-app-card border border-white/10 text-app-faint font-mono text-[10px] rounded-lg px-1.5 py-0.5">
+                      v{rev.version}
+                    </span>
+                    <span className="text-app-text text-xs">{rev.label || 'Auto-save'}</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={restoring === rev.id}
+                    onClick={(e) => { e.stopPropagation(); handleRestore(rev.id) }}
+                    className="h-6 px-2 text-app-faint hover:text-app-violet"
+                  >
+                    <ArrowCounterClockwise size={12} />
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  disabled={restoring === rev.id}
-                  onClick={(e) => { e.stopPropagation(); handleRestore(rev.id) }}
-                  className="h-6 px-2 text-slate-500 hover:text-cyan-400"
-                >
-                  <ArrowCounterClockwise size={12} />
-                </Button>
+                <div className="text-app-faint text-[10px] font-mono mt-1">
+                  {new Date(rev.createdAt).toLocaleString()}
+                </div>
               </div>
-              <div className="text-slate-600 text-[10px] font-mono mt-1">
-                {new Date(rev.createdAt).toLocaleString()}
-              </div>
-            </div>
-          ))}
-          {revisions.length === 0 && (
-            <div className="text-slate-500 text-xs text-center py-8">No revisions yet</div>
-          )}
-        </div>
-      </ScrollArea>
+            ))}
+            {revisions.length === 0 && (
+              <div className="text-app-faint text-xs text-center py-8">No revisions yet</div>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   )
 }

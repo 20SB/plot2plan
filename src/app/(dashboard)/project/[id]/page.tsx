@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowLeft, FloppyDisk, FilePdf, FileCode, Export } from '@phosphor-icons/react'
+import { ArrowLeft, FloppyDisk, FilePdf, FileCode, Compass, Robot, Clock, Coins } from '@phosphor-icons/react'
 import { FloorPlanCanvas } from '@/components/canvas/FloorPlanCanvas'
 import { VastuScorePanel } from '@/components/panels/VastuScorePanel'
 import { CostEstimate } from '@/components/panels/CostEstimate'
@@ -125,8 +125,8 @@ export default function ProjectPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-56px)]">
-        <div className="text-slate-400 font-mono animate-pulse text-sm tracking-widest">
+      <div className="flex items-center justify-center h-[calc(100vh-56px)] bg-app-bg">
+        <div className="text-app-faint font-mono animate-pulse text-sm tracking-widest">
           LOADING BLUEPRINT...
         </div>
       </div>
@@ -136,36 +136,38 @@ export default function ProjectPage() {
   if (!project) return null
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)]">
+    <div className="flex flex-col h-[calc(100vh-56px)] bg-app-bg">
       {/* Toolbar */}
-      <div className="border-b border-slate-800 bg-slate-900 px-4 py-2 flex items-center gap-3 flex-wrap">
+      <div className="bg-app-base border-b border-white/6 px-4 py-2 flex items-center gap-3 flex-wrap">
         <Button variant="ghost" size="sm" onClick={() => router.push('/')}
-          className="text-slate-400 hover:text-white gap-1 h-7 px-2">
+          className="text-app-faint hover:text-app-text transition-colors gap-1.5 text-sm h-7 px-2">
           <ArrowLeft size={13} />
-          <span className="text-xs font-mono">BACK</span>
+          <span className="text-xs">Back</span>
         </Button>
 
         <div className="flex-1 min-w-0">
-          <h2 className="text-white font-mono text-sm truncate">{project.title}</h2>
-          <p className="text-slate-500 text-xs">
+          <h2 className="text-app-text font-medium text-sm truncate">{project.title}</h2>
+          <p className="text-app-faint text-xs font-mono">
             {project.plotWidth}×{project.plotHeight} {project.plotUnit}
             {' · '}{project.facing}
-            {' · '}Score: <span className={project.vastuScore >= 75 ? 'text-green-400' : project.vastuScore >= 50 ? 'text-yellow-400' : 'text-red-400'}>{Math.round(project.vastuScore)}/100</span>
+            {' · '}Score: <span className={project.vastuScore >= 75 ? 'text-app-ok' : project.vastuScore >= 50 ? 'text-app-warn' : 'text-app-danger'}>{Math.round(project.vastuScore)}/100</span>
           </p>
         </div>
 
         {saving && (
-          <span className="text-cyan-400 text-xs font-mono flex items-center gap-1">
+          <span className="text-app-violet text-xs font-mono flex items-center gap-1">
             <FloppyDisk size={11} />SAVING...
           </span>
         )}
 
         {/* Layer toggle */}
-        <div className="flex rounded border border-slate-700 overflow-hidden">
+        <div className="flex bg-app-input rounded-xl p-0.5 gap-0.5">
           {(['ARCH', 'PLMB', 'ELEC'] as LayerType[]).map(layer => (
             <button key={layer} onClick={() => setActiveLayer(layer)}
-              className={`px-3 py-1 text-xs font-mono transition-colors ${
-                activeLayer === layer ? 'bg-cyan-700 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                activeLayer === layer
+                  ? 'bg-app-card text-app-text shadow-sm'
+                  : 'text-app-faint hover:text-app-soft'
               }`}>
               {layer}
             </button>
@@ -174,11 +176,13 @@ export default function ProjectPage() {
 
         {/* Floor selector */}
         {project.numFloors > 1 && (
-          <div className="flex rounded border border-slate-700 overflow-hidden">
+          <div className="flex bg-app-input rounded-xl p-0.5 gap-0.5">
             {Array.from({ length: project.numFloors }, (_, i) => i + 1).map(floor => (
               <button key={floor} onClick={() => setCurrentFloor(floor)}
-                className={`px-3 py-1 text-xs font-mono transition-colors ${
-                  currentFloor === floor ? 'bg-cyan-700 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  currentFloor === floor
+                    ? 'bg-app-card text-app-text shadow-sm'
+                    : 'text-app-faint hover:text-app-soft'
                 }`}>
                 F{floor}
               </button>
@@ -188,13 +192,13 @@ export default function ProjectPage() {
 
         {/* Export buttons */}
         <div className="flex items-center gap-1">
-          <Button size="sm" variant="outline" disabled={exporting} onClick={handleExportPdf}
-            className="h-7 text-xs border-slate-600 text-slate-300 hover:text-white gap-1 px-2">
-            <FilePdf size={12} />PDF
+          <Button variant="ghost" size="sm" disabled={exporting} onClick={handleExportPdf}
+            className="text-app-faint hover:text-app-text border border-white/8 hover:border-white/16 rounded-xl h-8 px-3 text-xs transition-all gap-1.5">
+            <FilePdf className="w-3.5 h-3.5" />PDF
           </Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={handleExportDxf}
-            className="h-7 text-xs border-slate-600 text-slate-300 hover:text-white gap-1 px-2">
-            <FileCode size={12} />DXF
+          <Button variant="ghost" size="sm" disabled={exporting} onClick={handleExportDxf}
+            className="text-app-faint hover:text-app-text border border-white/8 hover:border-white/16 rounded-xl h-8 px-3 text-xs transition-all gap-1.5">
+            <FileCode className="w-3.5 h-3.5" />DXF
           </Button>
         </div>
       </div>
@@ -202,7 +206,7 @@ export default function ProjectPage() {
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Canvas area */}
-        <div className="flex-1 overflow-auto bg-slate-950 p-6 flex items-start justify-center">
+        <div className="flex-1 overflow-auto bg-app-bg p-6 flex items-start justify-center">
           <FloorPlanCanvas
             plotWidth={project.plotWidth}
             plotHeight={project.plotHeight}
@@ -217,31 +221,41 @@ export default function ProjectPage() {
         </div>
 
         {/* Side panels */}
-        <div className="w-80 border-l border-slate-800 bg-slate-900 flex flex-col overflow-hidden flex-shrink-0">
+        <div className="w-80 border-l border-white/6 bg-app-base flex flex-col overflow-hidden flex-shrink-0">
           <Tabs defaultValue="vastu" className="flex flex-col h-full">
-            <TabsList className="bg-slate-800 rounded-none border-b border-slate-700 flex-shrink-0 h-9">
-              <TabsTrigger value="vastu" className="font-mono text-xs flex-1 data-[state=active]:bg-slate-700 h-7">VASTU</TabsTrigger>
-              <TabsTrigger value="cost" className="font-mono text-xs flex-1 data-[state=active]:bg-slate-700 h-7">COST</TabsTrigger>
-              <TabsTrigger value="ai" className="font-mono text-xs flex-1 data-[state=active]:bg-slate-700 h-7">AI</TabsTrigger>
-              <TabsTrigger value="history" className="font-mono text-xs flex-1 data-[state=active]:bg-slate-700 h-7">LOG</TabsTrigger>
-            </TabsList>
+            <div className="p-2 border-b border-white/6 flex-shrink-0">
+              <TabsList className="w-full grid grid-cols-4 bg-app-input rounded-xl p-0.5 h-auto">
+                <TabsTrigger value="vastu" className="flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-medium data-[state=active]:bg-app-card data-[state=active]:text-app-text data-[state=active]:shadow-sm text-app-faint transition-all">
+                  <Compass className="w-3.5 h-3.5" />Vastu
+                </TabsTrigger>
+                <TabsTrigger value="cost" className="flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-medium data-[state=active]:bg-app-card data-[state=active]:text-app-text data-[state=active]:shadow-sm text-app-faint transition-all">
+                  <Coins className="w-3.5 h-3.5" />Cost
+                </TabsTrigger>
+                <TabsTrigger value="ai" className="flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-medium data-[state=active]:bg-app-card data-[state=active]:text-app-text data-[state=active]:shadow-sm text-app-faint transition-all">
+                  <Robot className="w-3.5 h-3.5" />AI
+                </TabsTrigger>
+                <TabsTrigger value="history" className="flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-medium data-[state=active]:bg-app-card data-[state=active]:text-app-text data-[state=active]:shadow-sm text-app-faint transition-all">
+                  <Clock className="w-3.5 h-3.5" />History
+                </TabsTrigger>
+              </TabsList>
+            </div>
             <div className="flex-1 overflow-y-auto">
-              <TabsContent value="vastu" className="p-4 m-0 h-full">
+              <TabsContent value="vastu" className="m-0 h-full">
                 <VastuScorePanel
                   rooms={project.rooms}
                   overallScore={project.vastuScore}
                 />
               </TabsContent>
-              <TabsContent value="cost" className="p-4 m-0">
+              <TabsContent value="cost" className="m-0">
                 <CostEstimate
                   projectId={project.id}
                   onExportPdf={handleExportPdf}
                 />
               </TabsContent>
-              <TabsContent value="ai" className="p-4 m-0 flex flex-col" style={{ height: 'calc(100vh - 56px - 36px - 36px)' }}>
+              <TabsContent value="ai" className="m-0 flex flex-col" style={{ height: 'calc(100vh - 56px - 36px - 36px)' }}>
                 <AICopilot projectId={project.id} />
               </TabsContent>
-              <TabsContent value="history" className="p-4 m-0">
+              <TabsContent value="history" className="m-0">
                 <RevisionHistory
                   projectId={project.id}
                   onRestore={handleRestore}
