@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
+import { Loader2 } from 'lucide-react'
 
 const ROOM_OPTIONS = [
   'Living Room', 'Master Bedroom', 'Bedroom', 'Kitchen', 'Bathroom',
@@ -104,64 +104,64 @@ export function PlotInputForm({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-cyan-400 font-mono">NEW FLOOR PLAN</DialogTitle>
-          <DialogDescription className="text-slate-400">
-            AI will generate a Vastu-compliant layout
+      <DialogContent className="bg-app-card border border-white/10 text-app-text max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl">
+        <DialogHeader className="pb-2 border-b border-white/8 mb-5">
+          <DialogTitle className="text-app-text font-semibold text-base tracking-tight">New Floor Plan Project</DialogTitle>
+          <DialogDescription className="text-app-soft text-sm mt-1">
+            Configure your plot dimensions and room requirements.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-2">
           {/* Title */}
           <div>
-            <Label className="text-slate-300 text-xs font-mono">PROJECT TITLE</Label>
+            <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Project Title</Label>
             <Input
               {...register('title')}
               placeholder="Villa Sunrise"
-              className="bg-slate-800 border-slate-600 text-white mt-1"
+              className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5"
             />
-            {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
+            {errors.title && <p className="text-app-danger text-xs mt-1">{errors.title.message}</p>}
           </div>
 
           {/* Plot dimensions */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <Label className="text-slate-300 text-xs font-mono">WIDTH</Label>
+              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Width</Label>
               <Input
                 {...register('plotWidth')}
                 type="number"
                 placeholder="60"
-                className="bg-slate-800 border-slate-600 text-white mt-1"
+                className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5"
               />
               {errors.plotWidth && (
-                <p className="text-red-400 text-xs mt-1">{errors.plotWidth.message}</p>
+                <p className="text-app-danger text-xs mt-1">{errors.plotWidth.message}</p>
               )}
             </div>
             <div>
-              <Label className="text-slate-300 text-xs font-mono">HEIGHT</Label>
+              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Height</Label>
               <Input
                 {...register('plotHeight')}
                 type="number"
                 placeholder="40"
-                className="bg-slate-800 border-slate-600 text-white mt-1"
+                className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5"
               />
               {errors.plotHeight && (
-                <p className="text-red-400 text-xs mt-1">{errors.plotHeight.message}</p>
+                <p className="text-app-danger text-xs mt-1">{errors.plotHeight.message}</p>
               )}
             </div>
             <div>
-              <Label className="text-slate-300 text-xs font-mono">UNIT</Label>
+              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Unit</Label>
               <Controller
                 name="plotUnit"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
+                    <SelectTrigger className="bg-app-input border-white/10 text-app-text h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
-                      <SelectItem value="ft" className="text-white">ft</SelectItem>
-                      <SelectItem value="m" className="text-white">m</SelectItem>
+                    <SelectContent className="bg-app-card border border-white/10">
+                      <SelectItem value="ft" className="text-app-text">ft</SelectItem>
+                      <SelectItem value="m" className="text-app-text">m</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -172,28 +172,28 @@ export function PlotInputForm({ open, onClose }: Props) {
           {/* Floors */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-slate-300 text-xs font-mono">FLOORS</Label>
+              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Floors</Label>
               <Input
                 {...register('numFloors')}
                 type="number"
                 min={1}
                 max={5}
-                className="bg-slate-800 border-slate-600 text-white mt-1"
+                className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5"
               />
             </div>
             <div>
-              <Label className="text-slate-300 text-xs font-mono">FACING</Label>
+              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Facing</Label>
               <Controller
                 name="facing"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
+                    <SelectTrigger className="bg-app-input border-white/10 text-app-text h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectContent className="bg-app-card border border-white/10">
                       {FACINGS.map(f => (
-                        <SelectItem key={f} value={f} className="text-white">{f}</SelectItem>
+                        <SelectItem key={f} value={f} className="text-app-text">{f}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -204,18 +204,18 @@ export function PlotInputForm({ open, onClose }: Props) {
 
           {/* Style */}
           <div>
-            <Label className="text-slate-300 text-xs font-mono">ARCHITECTURAL STYLE</Label>
+            <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Architectural Style</Label>
             <Controller
               name="style"
               control={control}
               render={({ field }) => (
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
+                  <SelectTrigger className="bg-app-input border-white/10 text-app-text h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectContent className="bg-app-card border border-white/10">
                     {STYLES.map(s => (
-                      <SelectItem key={s} value={s} className="text-white">{s}</SelectItem>
+                      <SelectItem key={s} value={s} className="text-app-text">{s}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -225,41 +225,44 @@ export function PlotInputForm({ open, onClose }: Props) {
 
           {/* Rooms */}
           <div>
-            <Label className="text-slate-300 text-xs font-mono">ROOMS TO INCLUDE</Label>
+            <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Rooms to Include</Label>
             <div className="flex flex-wrap gap-2 mt-2">
               {ROOM_OPTIONS.map(room => (
-                <Badge
+                <span
                   key={room}
                   onClick={() => toggleRoom(room)}
-                  className={`cursor-pointer font-mono text-xs transition-colors ${
+                  className={
                     selectedRooms.includes(room)
-                      ? 'bg-cyan-700 hover:bg-cyan-600 text-white border-cyan-600'
-                      : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-600'
-                  }`}
-                  variant="outline"
+                      ? 'bg-app-accent/15 border border-app-accent/40 text-app-violet text-xs rounded-xl px-3 py-1.5 cursor-pointer transition-all hover:bg-app-accent/20'
+                      : 'bg-app-input border border-white/8 text-app-faint text-xs rounded-xl px-3 py-1.5 cursor-pointer transition-all hover:border-white/16 hover:text-app-soft'
+                  }
                 >
                   {room}
-                </Badge>
+                </span>
               ))}
             </div>
-            <p className="text-slate-500 text-xs mt-2">{selectedRooms.length} rooms selected</p>
+            <p className="text-app-faint text-xs mt-2">{selectedRooms.length} rooms selected</p>
           </div>
 
           <div className="flex gap-3 pt-2">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={onClose}
-              className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-800"
+              className="flex-1 text-app-soft hover:text-app-text hover:bg-white/5 rounded-xl"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-mono tracking-wider"
+              className="flex-1 bg-app-accent hover:bg-app-accent-dim text-white rounded-xl font-medium shadow-[0_0_16px_rgba(99,102,241,0.2)] transition-all"
             >
-              {loading ? 'GENERATING...' : 'GENERATE LAYOUT'}
+              {loading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating&hellip;</>
+              ) : (
+                'Generate with AI'
+              )}
             </Button>
           </div>
         </form>

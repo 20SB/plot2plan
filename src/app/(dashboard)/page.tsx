@@ -3,25 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { PlotInputForm } from '@/components/panels/PlotInputForm'
-import { Plus, Trash, FolderOpen, Blueprint } from '@phosphor-icons/react'
+import { Plus, Trash2, Layout } from 'lucide-react'
 import type { Project } from '@/types'
-
-function VastuBadge({ score }: { score: number }) {
-  const color =
-    score >= 75
-      ? 'bg-green-700 text-green-100'
-      : score >= 50
-      ? 'bg-yellow-700 text-yellow-100'
-      : 'bg-red-700 text-red-100'
-  return (
-    <span className={`text-xs font-mono px-2 py-0.5 rounded ${color}`}>{score}/100</span>
-  )
-}
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -46,8 +31,7 @@ export default function DashboardPage() {
     fetchProjects()
   }, [])
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
+  const handleDelete = async (id: string) => {
     if (!confirm('Delete this project?')) return
     setDeleting(id)
     try {
@@ -67,87 +51,88 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white font-mono">MY PROJECTS</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            {projects.length} floor plan{projects.length !== 1 ? 's' : ''}
-          </p>
+          <h1 className="text-2xl font-semibold text-app-text tracking-tight">My Projects</h1>
+          <p className="text-app-soft text-sm mt-0.5">Your Vastu-compliant floor plans</p>
         </div>
         <Button
           onClick={() => setShowForm(true)}
-          className="bg-cyan-600 hover:bg-cyan-500 font-mono gap-2"
+          className="bg-app-accent hover:bg-app-accent-dim text-white h-9 px-4 rounded-xl font-medium text-sm shadow-[0_0_16px_rgba(99,102,241,0.2)] transition-all"
         >
-          <Plus size={16} weight="bold" />
-          NEW PLAN
+          <Plus className="w-4 h-4 mr-2" /> New Project
         </Button>
       </div>
-
-      <Separator className="bg-slate-800 mb-8" />
 
       {/* Project grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-48 bg-slate-800 rounded-lg animate-pulse" />
+            <div key={i} className="shimmer h-40 rounded-2xl" />
           ))}
         </div>
       ) : projects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-slate-500">
-          <Blueprint size={64} className="mb-4 text-slate-700" />
-          <p className="font-mono text-lg">NO PROJECTS YET</p>
-          <p className="text-sm mt-2">Create your first floor plan to get started</p>
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-16 h-16 bg-app-card border border-white/8 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_32px_rgba(99,102,241,0.1)]">
+            <Layout className="w-8 h-8 text-app-accent opacity-60" />
+          </div>
+          <h3 className="text-app-text font-medium text-base mb-2">No projects yet</h3>
+          <p className="text-app-faint text-sm max-w-xs leading-relaxed mb-6">
+            Create your first Vastu-compliant floor plan with AI-powered room placement.
+          </p>
           <Button
             onClick={() => setShowForm(true)}
-            className="mt-6 bg-cyan-600 hover:bg-cyan-500 font-mono gap-2"
+            className="bg-app-accent hover:bg-app-accent-dim text-white px-5 h-9 rounded-xl font-medium text-sm"
           >
-            <Plus size={16} weight="bold" />
-            GENERATE FIRST PLAN
+            Create your first project
           </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {projects.map(project => (
-            <Card
+            <div
               key={project.id}
               onClick={() => router.push(`/project/${project.id}`)}
-              className="bg-slate-900 border-slate-700 hover:border-cyan-700 cursor-pointer transition-colors group"
+              className="group relative bg-app-card border border-white/8 rounded-2xl p-5 cursor-pointer transition-all duration-200 hover:border-white/16 hover:bg-app-hover hover:shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:-translate-y-0.5"
             >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-white text-sm font-mono leading-tight group-hover:text-cyan-300 transition-colors">
+              {/* Left accent bar based on score */}
+              <div className={`absolute left-0 top-4 bottom-4 w-0.5 rounded-full ${
+                (project.vastuScore ?? 0) >= 75 ? 'bg-app-ok' :
+                (project.vastuScore ?? 0) >= 50 ? 'bg-app-warn' : 'bg-app-danger'
+              }`} />
+
+              {/* Top: title + score badge */}
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-app-text font-medium text-sm leading-tight group-hover:text-white transition-colors line-clamp-2">
                     {project.title}
-                  </CardTitle>
-                  <button
-                    onClick={e => handleDelete(project.id, e)}
-                    disabled={deleting === project.id}
-                    className="text-slate-600 hover:text-red-400 transition-colors ml-2 flex-shrink-0"
-                  >
-                    <Trash size={14} />
-                  </button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 text-xs font-mono">VASTU</span>
-                    <VastuBadge score={Math.round(project.vastuScore)} />
-                  </div>
-                  <p className="text-slate-400 text-xs">
-                    {project.plotWidth} × {project.plotHeight} {project.plotUnit}
-                    {project.numFloors > 1 && ` · ${project.numFloors} floors`}
-                  </p>
-                  <p className="text-slate-500 text-xs">
-                    {project.facing} facing · {project.style}
-                  </p>
-                  <p className="text-slate-600 text-xs font-mono">
-                    {new Date(project.updatedAt).toLocaleDateString()}
+                  </h3>
+                  <p className="text-app-faint text-xs mt-1 font-mono">
+                    {project.plotWidth}×{project.plotHeight} {project.plotUnit} · {project.numFloors}F
                   </p>
                 </div>
-                <div className="mt-3 flex items-center gap-1 text-slate-600 group-hover:text-cyan-500 transition-colors">
-                  <FolderOpen size={12} />
-                  <span className="text-xs font-mono">OPEN</span>
-                </div>
-              </CardContent>
-            </Card>
+                {/* Vastu score badge */}
+                <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-lg ${
+                  (project.vastuScore ?? 0) >= 75 ? 'bg-green-950/60 text-app-ok border border-green-800/40' :
+                  (project.vastuScore ?? 0) >= 50 ? 'bg-amber-950/60 text-app-warn border border-amber-800/40' :
+                                                    'bg-red-950/60 text-app-danger border border-red-800/40'
+                }`}>
+                  {project.vastuScore != null ? Math.round(project.vastuScore) : '--'}
+                </span>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/6">
+                <span className="text-app-faint text-xs">
+                  {project.rooms?.length ?? 0} rooms · {project.style}
+                </span>
+                <button
+                  className="text-app-faint hover:text-app-danger transition-colors p-1 rounded-lg hover:bg-red-950/30"
+                  disabled={deleting === project.id}
+                  onClick={(e) => { e.stopPropagation(); handleDelete(project.id) }}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}
