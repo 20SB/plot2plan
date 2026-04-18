@@ -19,16 +19,80 @@ interface DragState {
   corner?: Corner
 }
 
-export function useCanvas(rooms: Room[], onRoomsChange?: (rooms: Room[]) => void) {
+export function useCanvas(
+  rooms: Room[],
+  onRoomsChange?: (rooms: Room[]) => void,
+  onUndo?: () => void,
+  plotWidth?: number,
+  plotHeight?: number,
+) {
   const [localRooms, setLocalRooms] = useState<Room[]>(rooms)
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
   const dragRef = useRef<DragState | null>(null)
   const localRoomsRef = useRef<Room[]>(rooms)
+  const selectedRoomIdRef = useRef<string | null>(null)
 
-  // Keep ref in sync whenever localRooms state changes
+  // Keep refs in sync
   useEffect(() => {
     localRoomsRef.current = localRooms
   }, [localRooms])
+
+  useEffect(() => {
+    selectedRoomIdRef.current = selectedRoomId
+  }, [selectedRoomId])
+
+  // Keyboard controls: arrow keys (move), Delete/Backspace (remove), Ctrl+Z (undo)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const roomId = selectedRoomIdRef.current
+      if (!roomId) return
+
+      // Ctrl+Z → undo
+      if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        onUndo?.()
+        return
+      }
+
+      // Delete / Backspace → remove selected room
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault()
+        const updated = localRoomsRef.current.filter(r => r.id !== roomId)
+        setLocalRooms(updated)
+        localRoomsRef.current = updated
+        setSelectedRoomId(null)
+        selectedRoomIdRef.current = null
+        onRoomsChange?.(updated)
+        return
+      }
+
+      // Arrow keys → move by 1 unit
+      const ARROWS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
+      if (!ARROWS.includes(e.key)) return
+      e.preventDefault()
+
+      const pw = plotWidth ?? Infinity
+      const ph = plotHeight ?? Infinity
+
+      setLocalRooms(prev => {
+        const updated = prev.map(room => {
+          if (room.id !== roomId) return room
+          let { x, y } = room
+          if (e.key === 'ArrowLeft')  x = Math.max(0, x - 1)
+          if (e.key === 'ArrowRight') x = Math.min(pw - room.width, x + 1)
+          if (e.key === 'ArrowUp')    y = Math.max(0, y - 1)
+          if (e.key === 'ArrowDown')  y = Math.min(ph - room.height, y + 1)
+          return { ...room, x, y }
+        })
+        localRoomsRef.current = updated
+        onRoomsChange?.(updated)
+        return updated
+      })
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onRoomsChange, onUndo, plotWidth, plotHeight])
 
   // Sync external rooms into local state
   const syncRooms = useCallback((newRooms: Room[]) => {
@@ -118,7 +182,7 @@ export function useCanvas(rooms: Room[], onRoomsChange?: (rooms: Room[]) => void
     setSelectedRoomId(null)
   }, [selectedRoomId])
 
-  const onMouseMove = useCallback((e: MouseEvent, canvas: HTMLCanvasElement, plotWidth: number, plotHeight: number) => {
+  const onMouseMove = useCallback((e: MouseEvent, canvas: HTMLCanvasElement, pw: number, ph: number) => {
     if (!dragRef.current) return
     const { x: mouseX, y: mouseY } = getCanvasPos(e, canvas)
     const drag = dragRef.current
@@ -129,8 +193,8 @@ export function useCanvas(rooms: Room[], onRoomsChange?: (rooms: Room[]) => void
       if (room.id !== drag.roomId) return room
 
       if (drag.type === 'move') {
-        const newX = Math.max(0, Math.min(plotWidth - room.width, drag.startRoomX + dx))
-        const newY = Math.max(0, Math.min(plotHeight - room.height, drag.startRoomY + dy))
+        const newX = Math.max(0, Math.min(pw - room.width, drag.startRoomX + dx))
+        const newY = Math.max(0, Math.min(ph - room.height, drag.startRoomY + dy))
         return { ...room, x: Math.round(newX * 2) / 2, y: Math.round(newY * 2) / 2 }
       }
 
@@ -149,8 +213,8 @@ export function useCanvas(rooms: Room[], onRoomsChange?: (rooms: Room[]) => void
 
         newX = Math.max(0, newX)
         newY = Math.max(0, newY)
-        newW = Math.min(newW, plotWidth - newX)
-        newH = Math.min(newH, plotHeight - newY)
+        newW = Math.min(newW, pw - newX)
+        newH = Math.min(newH, ph - newY)
 
         return {
           ...room,

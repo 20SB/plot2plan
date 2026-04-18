@@ -16,6 +16,7 @@ interface Props {
   activeLayer: LayerType
   currentFloor: number
   onRoomsChange?: (rooms: Room[]) => void
+  onUndo?: () => void
 }
 
 function vastuColor(score: number): string {
@@ -183,10 +184,10 @@ function drawElectrical(ctx: CanvasRenderingContext2D, items: ElectricalItem[]) 
 
 export function FloorPlanCanvas({
   plotWidth, plotHeight, rooms, plumbing, electrical,
-  activeLayer, currentFloor, onRoomsChange
+  activeLayer, currentFloor, onRoomsChange, onUndo
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { localRooms, syncRooms, selectedRoomId, onMouseDown, onMouseMove, onMouseUp } = useCanvas(rooms, onRoomsChange)
+  const { localRooms, syncRooms, selectedRoomId, onMouseDown, onMouseMove, onMouseUp } = useCanvas(rooms, onRoomsChange, onUndo, plotWidth, plotHeight)
 
   // Sync when external rooms prop changes
   useEffect(() => { syncRooms(rooms) }, [rooms, syncRooms])

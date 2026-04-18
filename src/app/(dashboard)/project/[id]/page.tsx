@@ -212,6 +212,7 @@ export default function ProjectPage() {
             activeLayer={activeLayer}
             currentFloor={currentFloor}
             onRoomsChange={handleRoomsChange}
+            onUndo={handleRestore}
           />
         </div>
 
