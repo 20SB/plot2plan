@@ -60,65 +60,59 @@ export function AICopilot({ projectId }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-[400px]">
-      {/* Panel header */}
-      <div className="flex items-center gap-2 p-4 border-b border-white/6 flex-shrink-0">
-        <div className="w-7 h-7 bg-app-accent/15 rounded-lg flex items-center justify-center">
-          <Robot className="w-4 h-4 text-app-accent" />
-        </div>
-        <span className="text-app-text text-sm font-medium">AI Copilot</span>
-      </div>
-
-      <ScrollArea className="flex-1 mb-0 p-4">
-        <div className="space-y-3 pr-2">
+    <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
+      <ScrollArea className="flex-1 p-6 h-full">
+        <div className="space-y-6 pr-4">
           {messages.map((msg, i) => (
-            <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
               {msg.role === 'assistant' && (
-                <div className="flex-shrink-0 w-6 h-6 bg-app-accent/20 border border-app-accent/30 rounded-lg flex items-center justify-center mt-0.5">
-                  <Robot size={12} className="text-app-accent" />
+                <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-xl flex items-center justify-center shadow-premium">
+                  <Robot size={18} weight="bold" className="text-white" />
                 </div>
               )}
-              <div className={`max-w-[85%] text-xs leading-relaxed ${
+              <div className={`max-w-[85%] text-sm leading-relaxed p-4 shadow-sm border ${
                 msg.role === 'user'
-                  ? 'bg-app-accent text-white rounded-2xl rounded-tr-sm px-3 py-2'
-                  : 'bg-app-card border border-white/8 text-app-text rounded-2xl rounded-tl-sm px-3 py-2'
+                  ? 'bg-primary text-white rounded-2xl rounded-tr-none border-primary shadow-premium'
+                  : 'bg-card text-foreground rounded-2xl rounded-tl-none border-border'
               }`}>
-                {msg.content}
+                <p className="font-medium">{msg.content}</p>
               </div>
               {msg.role === 'user' && (
-                <div className="flex-shrink-0 w-6 h-6 bg-app-input border border-white/10 rounded-lg flex items-center justify-center mt-0.5">
-                  <User size={12} className="text-app-soft" />
+                <div className="flex-shrink-0 w-8 h-8 bg-muted rounded-xl flex items-center justify-center border shadow-sm">
+                  <User size={18} weight="bold" className="text-muted-foreground" />
                 </div>
               )}
             </div>
           ))}
           {loading && (
-            <div className="flex gap-2">
-              <div className="w-6 h-6 bg-app-accent/20 border border-app-accent/30 rounded-lg flex items-center justify-center">
-                <Robot size={12} className="text-app-accent" />
+            <div className="flex gap-3 animate-pulse">
+              <div className="w-8 h-8 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
+                <Robot size={18} weight="bold" className="text-primary" />
               </div>
-              <div className="bg-app-card border border-white/8 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-app-faint">
-                <span className="animate-pulse">Analyzing...</span>
+              <div className="bg-card border rounded-2xl rounded-tl-none p-4 text-sm text-muted-foreground font-semibold tracking-tight italic">
+                Architectural AI is analyzing...
               </div>
             </div>
           )}
-          <div ref={bottomRef} />
+          <div ref={bottomRef} className="h-4" />
         </div>
       </ScrollArea>
 
-      <div className="flex gap-2 flex-shrink-0 p-4 border-t border-white/6">
-        <Textarea
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask about Vastu placement..."
-          className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint text-xs resize-none rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 min-h-[60px]"
-          rows={2}
-        />
-        <Button onClick={send} disabled={loading || !input.trim()}
-          className="bg-app-accent hover:bg-app-accent-dim text-white rounded-xl h-8 w-8 p-0 flex items-center justify-center flex-shrink-0 self-end">
-          <PaperPlaneTilt size={14} />
-        </Button>
+      <div className="p-6 pt-2 bg-muted/10 border-t">
+        <div className="flex gap-3 bg-background border rounded-2xl p-2 shadow-premium focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+          <Textarea
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask your Vastu Architect..."
+            className="flex-1 bg-transparent border-none text-sm placeholder:text-muted-foreground resize-none focus-visible:ring-0 min-h-[44px] max-h-[200px] py-3 px-3"
+            rows={1}
+          />
+          <Button onClick={send} disabled={loading || !input.trim()}
+            className="rounded-xl h-12 w-12 p-0 flex items-center justify-center flex-shrink-0 self-end shadow-premium active:scale-95 transition-all">
+            <PaperPlaneTilt size={20} weight="bold" />
+          </Button>
+        </div>
       </div>
     </div>
   )

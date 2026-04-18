@@ -136,38 +136,44 @@ export default function ProjectPage() {
   if (!project) return null
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-app-bg">
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-background animate-in overflow-hidden">
       {/* Toolbar */}
-      <div className="bg-app-base border-b border-white/6 px-4 py-2 flex items-center gap-3 flex-wrap">
+      <div className="glass border-b px-6 py-3 flex items-center gap-6 flex-wrap z-10">
         <Button variant="ghost" size="sm" onClick={() => router.push('/')}
-          className="text-app-faint hover:text-app-text transition-colors gap-1.5 text-sm h-7 px-2">
-          <ArrowLeft size={13} />
-          <span className="text-xs">Back</span>
+          className="text-muted-foreground hover:text-foreground transition-all gap-2 h-9 px-3 rounded-xl border group">
+          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          <span className="font-medium">Projects</span>
         </Button>
 
         <div className="flex-1 min-w-0">
-          <h2 className="text-app-text font-medium text-sm truncate">{project.title}</h2>
-          <p className="text-app-faint text-xs font-mono">
-            {project.plotWidth}×{project.plotHeight} {project.plotUnit}
-            {' · '}{project.facing}
-            {' · '}Score: <span className={project.vastuScore >= 75 ? 'text-app-ok' : project.vastuScore >= 50 ? 'text-app-warn' : 'text-app-danger'}>{Math.round(project.vastuScore)}/100</span>
-          </p>
+          <h2 className="text-foreground font-bold text-lg truncate tracking-tight">{project.title}</h2>
+          <div className="flex items-center gap-3 mt-0.5">
+            <span className="text-muted-foreground text-xs font-mono bg-muted px-2 py-0.5 rounded">
+              {project.plotWidth}×{project.plotHeight} {project.plotUnit} · {project.facing}
+            </span>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded border ${
+              project.vastuScore >= 75 ? 'bg-green-500/10 text-green-600 border-green-500/20' : 
+              project.vastuScore >= 50 ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 
+                                         'bg-rose-500/10 text-rose-600 border-rose-500/20'
+            }`}>
+              Vastu: {Math.round(project.vastuScore)}/100
+            </span>
+            {saving && (
+              <span className="text-primary text-[10px] font-bold tracking-widest flex items-center gap-1 animate-pulse uppercase">
+                <FloppyDisk size={12} weight="fill" /> Auto-Saving
+              </span>
+            )}
+          </div>
         </div>
 
-        {saving && (
-          <span className="text-app-violet text-xs font-mono flex items-center gap-1">
-            <FloppyDisk size={11} />SAVING...
-          </span>
-        )}
-
         {/* Layer toggle */}
-        <div className="flex bg-app-input rounded-xl p-0.5 gap-0.5">
+        <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-2xl border">
           {(['ARCH', 'PLMB', 'ELEC'] as LayerType[]).map(layer => (
             <button key={layer} onClick={() => setActiveLayer(layer)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeLayer === layer
-                  ? 'bg-app-card text-app-text shadow-sm'
-                  : 'text-app-faint hover:text-app-soft'
+                  ? 'bg-background text-primary shadow-sm ring-1 ring-border'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}>
               {layer}
             </button>
@@ -176,13 +182,13 @@ export default function ProjectPage() {
 
         {/* Floor selector */}
         {project.numFloors > 1 && (
-          <div className="flex bg-app-input rounded-xl p-0.5 gap-0.5">
+          <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-2xl border">
             {Array.from({ length: project.numFloors }, (_, i) => i + 1).map(floor => (
               <button key={floor} onClick={() => setCurrentFloor(floor)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   currentFloor === floor
-                    ? 'bg-app-card text-app-text shadow-sm'
-                    : 'text-app-faint hover:text-app-soft'
+                    ? 'bg-background text-primary shadow-sm ring-1 ring-border'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
                 }`}>
                 F{floor}
               </button>
@@ -191,14 +197,14 @@ export default function ProjectPage() {
         )}
 
         {/* Export buttons */}
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" disabled={exporting} onClick={handleExportPdf}
-            className="text-app-faint hover:text-app-text border border-white/8 hover:border-white/16 rounded-xl h-8 px-3 text-xs transition-all gap-1.5">
-            <FilePdf className="w-3.5 h-3.5" />PDF
+        <div className="flex items-center gap-3 ml-2">
+          <Button variant="outline" size="sm" disabled={exporting} onClick={handleExportPdf}
+            className="rounded-xl h-10 px-4 font-semibold hover:bg-primary hover:text-white transition-all gap-2 border shadow-sm">
+            <FilePdf weight="bold" /> PDF
           </Button>
-          <Button variant="ghost" size="sm" disabled={exporting} onClick={handleExportDxf}
-            className="text-app-faint hover:text-app-text border border-white/8 hover:border-white/16 rounded-xl h-8 px-3 text-xs transition-all gap-1.5">
-            <FileCode className="w-3.5 h-3.5" />DXF
+          <Button variant="outline" size="sm" disabled={exporting} onClick={handleExportDxf}
+            className="rounded-xl h-10 px-4 font-semibold hover:bg-primary hover:text-white transition-all gap-2 border shadow-sm">
+            <FileCode weight="bold" /> DXF
           </Button>
         </div>
       </div>
@@ -206,56 +212,62 @@ export default function ProjectPage() {
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Canvas area */}
-        <div className="flex-1 overflow-auto bg-app-bg p-6 flex items-start justify-center">
-          <FloorPlanCanvas
-            plotWidth={project.plotWidth}
-            plotHeight={project.plotHeight}
-            rooms={project.rooms}
-            plumbing={project.plumbing}
-            electrical={project.electrical}
-            activeLayer={activeLayer}
-            currentFloor={currentFloor}
-            onRoomsChange={handleRoomsChange}
-            onUndo={handleRestore}
-          />
+        <div className="flex-1 overflow-auto bg-muted/30 p-8 flex items-start justify-center pattern-grid-slate-200">
+          <div className="bg-background rounded-3xl shadow-premium border p-4">
+            <FloorPlanCanvas
+              plotWidth={project.plotWidth}
+              plotHeight={project.plotHeight}
+              rooms={project.rooms}
+              plumbing={project.plumbing}
+              electrical={project.electrical}
+              activeLayer={activeLayer}
+              currentFloor={currentFloor}
+              onRoomsChange={handleRoomsChange}
+              onUndo={handleRestore}
+            />
+          </div>
         </div>
 
         {/* Side panels */}
-        <div className="w-80 border-l border-white/6 bg-app-base flex flex-col overflow-hidden flex-shrink-0">
+        <aside className="w-[380px] border-l bg-background flex flex-col overflow-hidden flex-shrink-0 animate-in fade-in slide-in-from-right-4 duration-500">
           <Tabs defaultValue="vastu" className="flex flex-col h-full">
-            <div className="p-2 border-b border-white/6 flex-shrink-0">
-              <TabsList className="w-full grid grid-cols-4 bg-app-input rounded-xl p-0.5 h-auto">
-                <TabsTrigger value="vastu" className="flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-medium data-[state=active]:bg-app-card data-[state=active]:text-app-text data-[state=active]:shadow-sm text-app-faint transition-all">
-                  <Compass className="w-3.5 h-3.5" />Vastu
+            <div className="p-4 border-b">
+              <TabsList className="w-full grid grid-cols-4 p-1 rounded-2xl">
+                <TabsTrigger value="vastu" className="flex flex-col items-center gap-1 py-3 rounded-xl">
+                  <Compass weight="bold" size={18} />
+                  <span className="text-[10px] uppercase font-bold tracking-wider">Vastu</span>
                 </TabsTrigger>
-                <TabsTrigger value="cost" className="flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-medium data-[state=active]:bg-app-card data-[state=active]:text-app-text data-[state=active]:shadow-sm text-app-faint transition-all">
-                  <Coins className="w-3.5 h-3.5" />Cost
+                <TabsTrigger value="cost" className="flex flex-col items-center gap-1 py-3 rounded-xl">
+                  <Coins weight="bold" size={18} />
+                  <span className="text-[10px] uppercase font-bold tracking-wider">Cost</span>
                 </TabsTrigger>
-                <TabsTrigger value="ai" className="flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-medium data-[state=active]:bg-app-card data-[state=active]:text-app-text data-[state=active]:shadow-sm text-app-faint transition-all">
-                  <Robot className="w-3.5 h-3.5" />AI
+                <TabsTrigger value="ai" className="flex flex-col items-center gap-1 py-3 rounded-xl">
+                  <Robot weight="bold" size={18} />
+                  <span className="text-[10px] uppercase font-bold tracking-wider">AI Copilot</span>
                 </TabsTrigger>
-                <TabsTrigger value="history" className="flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-medium data-[state=active]:bg-app-card data-[state=active]:text-app-text data-[state=active]:shadow-sm text-app-faint transition-all">
-                  <Clock className="w-3.5 h-3.5" />History
+                <TabsTrigger value="history" className="flex flex-col items-center gap-1 py-3 rounded-xl">
+                  <Clock weight="bold" size={18} />
+                  <span className="text-[10px] uppercase font-bold tracking-wider">Log</span>
                 </TabsTrigger>
               </TabsList>
             </div>
-            <div className="flex-1 overflow-y-auto">
-              <TabsContent value="vastu" className="m-0 h-full">
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <TabsContent value="vastu" className="m-0 h-full p-0">
                 <VastuScorePanel
                   rooms={project.rooms}
                   overallScore={project.vastuScore}
                 />
               </TabsContent>
-              <TabsContent value="cost" className="m-0">
+              <TabsContent value="cost" className="m-0 p-0">
                 <CostEstimate
                   projectId={project.id}
                   onExportPdf={handleExportPdf}
                 />
               </TabsContent>
-              <TabsContent value="ai" className="m-0 flex flex-col" style={{ height: 'calc(100vh - 56px - 36px - 36px)' }}>
+              <TabsContent value="ai" className="m-0 flex flex-col p-0" style={{ height: 'calc(100vh - 180px)' }}>
                 <AICopilot projectId={project.id} />
               </TabsContent>
-              <TabsContent value="history" className="m-0">
+              <TabsContent value="history" className="m-0 p-0">
                 <RevisionHistory
                   projectId={project.id}
                   onRestore={handleRestore}
@@ -263,7 +275,7 @@ export default function ProjectPage() {
               </TabsContent>
             </div>
           </Tabs>
-        </div>
+        </aside>
       </div>
     </div>
   )

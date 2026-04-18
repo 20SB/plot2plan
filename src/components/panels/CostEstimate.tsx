@@ -23,76 +23,85 @@ export function CostEstimate({ projectId, onExportPdf }: Props) {
   }, [projectId])
 
   if (loading) return (
-    <div className="p-4 text-app-faint text-xs font-mono animate-pulse">LOADING ESTIMATE...</div>
+    <div className="p-8 text-muted-foreground text-[10px] font-bold tracking-widest animate-pulse flex items-center gap-2">
+      <Coins size={16} className="animate-bounce" /> LOADING ESTIMATE...
+    </div>
   )
   if (!data) return (
-    <div className="p-4 text-app-danger text-xs">Failed to load estimate</div>
+    <div className="p-8 text-destructive text-xs font-bold text-center">Failed to load estimate</div>
   )
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
 
   return (
-    <div className="space-y-0">
-      {/* Panel header */}
-      <div className="flex items-center gap-2 p-4 border-b border-white/6">
-        <div className="w-7 h-7 bg-app-accent/15 rounded-lg flex items-center justify-center">
-          <Coins className="w-4 h-4 text-app-accent" />
+    <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
+      <div className="p-6 space-y-6">
+        {/* Summary Card */}
+        <div className="bg-primary/5 border border-primary/20 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-4 opacity-5 transition-transform group-hover:scale-110">
+            <Coins size={80} weight="fill" className="text-primary" />
+          </div>
+          <div className="relative z-10">
+             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1 block">Project Total</span>
+             <h2 className="text-3xl font-black text-foreground tracking-tighter">{formatCurrency(data.totalCost)}</h2>
+             <div className="flex items-center gap-3 mt-3">
+               <span className="text-xs font-bold text-muted-foreground bg-background/50 px-2 py-0.5 rounded border border-primary/10">
+                {data.totalArea} {data.items[0]?.unit}² TOTAL
+              </span>
+               <span className="text-[10px] font-bold text-green-600 bg-green-500/10 px-2 py-0.5 rounded-full">
+                READY
+              </span>
+             </div>
+          </div>
         </div>
-        <span className="text-app-text text-sm font-medium">Cost Estimate</span>
-      </div>
 
-      <div className="p-4 space-y-4">
-        {/* Export button */}
+        {/* Action Bar */}
         {onExportPdf && (
-          <div className="flex justify-end">
-            <Button variant="ghost" size="sm" onClick={onExportPdf}
-              className="text-app-faint hover:text-app-text border border-white/8 hover:border-white/16 rounded-xl text-xs h-8 px-3 gap-1.5">
-              <FileText className="w-3.5 h-3.5" />Export PDF
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Itemized Breakdown</h3>
+            <Button variant="outline" size="sm" onClick={onExportPdf}
+              className="rounded-xl text-[10px] font-bold h-8 px-3 gap-2 border shadow-sm hover:bg-primary hover:text-white transition-all">
+              <FileText size={14} weight="bold" /> PDF REPORT
             </Button>
           </div>
         )}
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+        <div className="border rounded-2xl overflow-hidden shadow-sm bg-card">
+          <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/6">
-                <th className="text-left text-app-faint text-[10px] font-medium uppercase tracking-wider pb-2">Room</th>
-                <th className="text-right text-app-faint text-[10px] font-medium uppercase tracking-wider pb-2">Area</th>
-                <th className="text-right text-app-faint text-[10px] font-medium uppercase tracking-wider pb-2">Rate</th>
-                <th className="text-right text-app-faint text-[10px] font-medium uppercase tracking-wider pb-2">Total</th>
+              <tr className="bg-muted/50 border-b">
+                <th className="px-4 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-wider">Room / Zone</th>
+                <th className="px-4 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-wider text-right">Area</th>
+                <th className="px-4 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-wider text-right">Estimate</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody className="divide-y divide-border">
               {data.items.map((item, i) => (
-                <tr key={i}>
-                  <td className="py-1.5 pr-2">
-                    <div className="text-app-text text-xs truncate max-w-[80px]">{item.roomName}</div>
-                    <div className="text-app-faint text-[10px] font-mono">{item.roomType.replace('_', ' ')}</div>
+                <tr key={i} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="text-xs font-bold text-foreground truncate ">{item.roomName}</div>
+                    <div className="text-[9px] font-bold text-muted-foreground uppercase mt-0.5">{item.roomType.replace('_', ' ')}</div>
                   </td>
-                  <td className="py-1.5 text-right text-app-soft font-mono text-xs">{item.area}<span className="text-app-faint"> {item.unit}²</span></td>
-                  <td className="py-1.5 text-right text-app-soft font-mono text-xs">₹{item.ratePerSqft}</td>
-                  <td className="py-1.5 text-right text-app-soft font-mono text-xs">{formatCurrency(item.subtotal)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="text-xs font-mono font-bold text-foreground">{item.area} <span className="text-[10px] text-muted-foreground">{item.unit}²</span></div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="text-xs font-mono font-bold text-primary">{formatCurrency(item.subtotal)}</div>
+                    <div className="text-[9px] font-bold text-muted-foreground uppercase mt-0.5">₹{item.ratePerSqft}/SQFT</div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <Separator className="bg-white/6" />
-
-        {/* Totals */}
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs">
-            <span className="text-app-faint font-mono">TOTAL AREA</span>
-            <span className="text-app-soft font-mono">{data.totalArea} {data.items[0]?.unit}²</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-app-faint text-xs font-mono">ESTIMATED COST</span>
-            <span className="text-app-ok font-mono font-semibold text-sm">{formatCurrency(data.totalCost)}</span>
-          </div>
-          <p className="text-app-faint text-[10px]">* Structural + finishing costs. Excludes land, MEP, furnishing.</p>
+        <div className="p-4 bg-muted/20 rounded-2xl border border-dashed text-center">
+          <p className="text-muted-foreground text-[10px] font-semibold leading-relaxed">
+            * Estimates are based on standard structural + finishing parameters. <br/>
+            Final costs may vary by up to 15% depending on material selection.
+          </p>
         </div>
       </div>
     </div>

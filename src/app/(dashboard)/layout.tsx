@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -16,51 +17,61 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const initials = session.user.name?.split(' ').map(n => n[0]).join('').toUpperCase() ?? 'U'
 
   return (
-    <div className="min-h-screen bg-app-bg text-app-text">
+    <div className="min-h-screen bg-background text-foreground animate-in">
       {/* Nav */}
-      <header className="bg-app-bg/80 backdrop-blur-md border-b border-white/6 sticky top-0 z-50">
-        <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-app-violet font-bold text-lg tracking-tight">PLOT2PLAN</span>
-            <span className="text-app-faint text-xs font-mono hidden sm:block">VASTU BLUEPRINT GENERATOR</span>
+      <header className="glass border-b sticky top-0 z-50">
+        <div className="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <div className="size-8 bg-primary rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
+              <span className="text-white font-bold text-lg leading-none">P</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-foreground font-bold text-sm tracking-tight">PLOT2PLAN</span>
+              <span className="text-muted-foreground text-[10px] font-mono leading-none">VASTU BLUEPRINT</span>
+            </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" className="flex items-center gap-2 text-app-soft hover:text-app-text">
-                  <Avatar className="h-7 w-7">
-                    <AvatarFallback className="bg-app-accent text-white text-xs">{initials}</AvatarFallback>
-                  </Avatar>
-                  <span className="hidden sm:block text-sm">{session.user.name}</span>
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end" className="bg-app-card border border-white/10 shadow-xl">
-              <DropdownMenuItem className="text-app-soft text-xs font-mono">
-                {session.user.email}
-              </DropdownMenuItem>
-              <form
-                action={async () => {
-                  'use server'
-                  await signOut({ redirectTo: '/login' })
-                }}
-              >
-                <DropdownMenuItem
-                  render={
-                    <button
-                      type="submit"
-                      className="w-full text-left text-app-danger hover:text-red-300 hover:bg-red-950/30 cursor-pointer"
-                    />
-                  }
+          
+          <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 overflow-hidden border bg-muted/50 hover:bg-muted transition-all">
+                    <Avatar className="h-full w-full">
+                      <AvatarFallback className="bg-primary text-white text-xs font-semibold">{initials}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="end" className="w-56 mt-2">
+                <div className="px-2 py-2 mb-1">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 px-2">Account</p>
+                  <p className="text-sm font-semibold truncate px-2">{session.user.name}</p>
+                  <p className="text-xs text-muted-foreground truncate px-2">{session.user.email}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <form
+                  action={async () => {
+                    'use server'
+                    await signOut({ redirectTo: '/login' })
+                  }}
                 >
-                  Sign Out
-                </DropdownMenuItem>
-              </form>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <DropdownMenuItem
+                    render={
+                      <button
+                        type="submit"
+                        className="w-full text-left text-destructive flex items-center gap-2"
+                      />
+                    }
+                  >
+                    Sign Out
+                  </DropdownMenuItem>
+                </form>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
-      <main>{children}</main>
+      <main className="max-w-screen-2xl mx-auto p-6">{children}</main>
     </div>
   )
 }

@@ -51,19 +51,22 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
   }
 
   if (loading) return (
-    <div className="p-4 text-app-faint text-xs font-mono animate-pulse">LOADING HISTORY...</div>
+    <div className="p-8 text-muted-foreground text-[10px] font-bold tracking-widest animate-pulse flex items-center gap-2">
+       <ClockCounterClockwise size={16} className="animate-spin-slow" /> LOADING HISTORY...
+    </div>
   )
 
   if (comparing) {
     return (
-      <div>
-        <div className="p-4 border-b border-white/6">
+      <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
+        <div className="p-4 border-b bg-muted/30 flex items-center justify-between">
           <Button size="sm" variant="ghost" onClick={() => setComparing(null)}
-            className="text-app-faint hover:text-app-text text-xs gap-1">
-            <ArrowCounterClockwise size={12} />Back
+            className="text-muted-foreground hover:text-foreground text-xs font-bold gap-2 rounded-xl">
+            <ArrowCounterClockwise size={14} weight="bold" /> BACK TO LOG
           </Button>
+          <span className="text-[10px] font-black text-primary uppercase tracking-widest">Diff View</span>
         </div>
-        <div className="p-4">
+        <div className="flex-1 overflow-y-auto p-6">
           <CompareView projectId={projectId} revIdA={comparing[0]} revIdB={comparing[1]} />
         </div>
       </div>
@@ -71,63 +74,77 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
   }
 
   return (
-    <div className="space-y-0">
-      {/* Panel header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/6">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-app-accent/15 rounded-lg flex items-center justify-center">
-            <ClockCounterClockwise className="w-4 h-4 text-app-accent" />
+    <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
+      <div className="p-6 space-y-6">
+        {/* Helper text / action box */}
+        <div className="bg-muted/30 border border-dashed rounded-2xl p-4 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <p className="text-xs font-bold text-foreground">Compare States</p>
+            <p className="text-[10px] text-muted-foreground font-medium">Select 2 items to diff ({selected.length}/2)</p>
           </div>
-          <span className="text-app-text text-sm font-medium">Revision History</span>
+          {selected.length === 2 && (
+            <Button size="sm" 
+              onClick={() => setComparing([selected[0], selected[1]])}
+              className="rounded-xl text-[10px] font-black h-8 gap-2 shadow-premium animate-in zoom-in-95">
+              <GitDiff size={14} weight="bold" /> COMPARE
+            </Button>
+          )}
         </div>
-        {selected.length === 2 && (
-          <Button size="sm" variant="outline"
-            onClick={() => setComparing([selected[0], selected[1]])}
-            className="border border-white/10 text-app-violet hover:border-app-accent/40 rounded-xl text-xs h-8 gap-1 px-3">
-            <GitDiff size={12} />
-            Compare
-          </Button>
-        )}
-      </div>
 
-      <div className="p-4 space-y-3">
-        {selected.length > 0 && (
-          <p className="text-app-faint text-[10px]">Select 2 revisions to compare ({selected.length}/2 selected)</p>
-        )}
-        <ScrollArea className="h-96">
-          <div className="space-y-2 pr-2">
-            {revisions.map(rev => (
+        <ScrollArea className="h-[calc(100vh-280px)]">
+          <div className="space-y-3 pr-4">
+            {revisions.map((rev, idx) => (
               <div key={rev.id}
                 onClick={() => toggleSelect(rev.id)}
-                className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                className={`group relative p-4 rounded-2xl border transition-all duration-300 cursor-pointer ${
                   selected.includes(rev.id)
-                    ? 'border-app-accent/40 bg-app-accent/8'
-                    : 'border-white/8 bg-app-input/40 hover:border-white/14'
+                    ? 'border-primary bg-primary/5 shadow-premium ring-1 ring-primary/20'
+                    : 'bg-card hover:border-primary/20 hover:bg-muted/20 hover:shadow-sm'
                 }`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-app-card border border-white/10 text-app-faint font-mono text-[10px] rounded-lg px-1.5 py-0.5">
-                      v{rev.version}
+                
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
+                      selected.includes(rev.id) ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border'
+                    }`}>
+                      V{revisions.length - idx}
                     </span>
-                    <span className="text-app-text text-xs">{rev.label || 'Auto-save'}</span>
+                    <span className="text-sm font-bold text-foreground truncate max-w-[140px]">
+                      {rev.label || 'Auto-save Point'}
+                    </span>
                   </div>
+                  
                   <Button
                     size="sm"
                     variant="ghost"
                     disabled={restoring === rev.id}
                     onClick={(e) => { e.stopPropagation(); handleRestore(rev.id) }}
-                    className="h-6 px-2 text-app-faint hover:text-app-violet"
+                    className="h-8 w-8 p-0 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
+                    title="Restore version"
                   >
-                    <ArrowCounterClockwise size={12} />
+                    <ArrowCounterClockwise size={16} weight="bold" />
                   </Button>
                 </div>
-                <div className="text-app-faint text-[10px] font-mono mt-1">
-                  {new Date(rev.createdAt).toLocaleString()}
+
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center gap-1.5">
+                    <div className="size-1.5 rounded-full bg-primary/40" />
+                    <span className="text-[10px] text-muted-foreground font-bold font-mono">
+                      {new Date(rev.createdAt).toLocaleDateString()} · {new Date(rev.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  {idx === 0 && (
+                    <span className="text-[9px] font-black text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Current</span>
+                  )}
                 </div>
               </div>
             ))}
+            
             {revisions.length === 0 && (
-              <div className="text-app-faint text-xs text-center py-8">No revisions yet</div>
+              <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">
+                <ClockCounterClockwise size={48} weight="thin" className="mb-4 text-muted-foreground" />
+                <p className="text-sm font-medium">No activity log found<br/>for this workspace yet</p>
+              </div>
             )}
           </div>
         </ScrollArea>
