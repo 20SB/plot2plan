@@ -1,26 +1,25 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  ArrowLeft, 
-  FloppyDisk, 
-  FilePdf, 
-  FileCode, 
-  Compass, 
-  Robot, 
-  Clock, 
+import {
+  ArrowLeft,
+  FilePdf,
+  FileCode,
+  Compass,
+  Robot,
+  Clock,
   Coins,
   MagnifyingGlassPlus,
   MagnifyingGlassMinus,
   ArrowsIn,
-  IdentificationCard,
   Drop,
   Cube,
-  AppWindow
+  AppWindow,
+  CaretDoubleLeft,
 } from '@phosphor-icons/react'
 import { FloorPlanCanvas } from '@/components/canvas/FloorPlanCanvas'
 import { VastuScorePanel } from '@/components/panels/VastuScorePanel'
@@ -43,6 +42,7 @@ export default function ProjectPage() {
   const [saving, setSaving] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [zoom, setZoom] = useState(1)
+  const [sidebarExpanded, setSidebarExpanded] = useState(false)
   
   // Refs
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -175,19 +175,19 @@ export default function ProjectPage() {
         <TabsList className="w-full grid grid-cols-4 p-1 rounded-2xl bg-white/[0.03]">
           <TabsTrigger value="vastu" className="flex flex-col items-center gap-1 py-2.5 rounded-xl data-[state=active]:bg-accent data-[state=active]:text-white">
             <Compass weight="bold" size={16} />
-            <span className="text-[9px] uppercase font-bold tracking-wider">Vastu</span>
+            <span className="text-[11px] uppercase font-bold tracking-wider">Vastu</span>
           </TabsTrigger>
           <TabsTrigger value="cost" className="flex flex-col items-center gap-1 py-2.5 rounded-xl data-[state=active]:bg-accent data-[state=active]:text-white">
             <Coins weight="bold" size={16} />
-            <span className="text-[9px] uppercase font-bold tracking-wider">Cost</span>
+            <span className="text-[11px] uppercase font-bold tracking-wider">Cost</span>
           </TabsTrigger>
           <TabsTrigger value="ai" className="flex flex-col items-center gap-1 py-2.5 rounded-xl data-[state=active]:bg-accent data-[state=active]:text-white">
             <Robot weight="bold" size={16} />
-            <span className="text-[9px] uppercase font-bold tracking-wider">AI</span>
+            <span className="text-[11px] uppercase font-bold tracking-wider">AI</span>
           </TabsTrigger>
           <TabsTrigger value="history" className="flex flex-col items-center gap-1 py-2.5 rounded-xl data-[state=active]:bg-accent data-[state=active]:text-white">
             <Clock weight="bold" size={16} />
-            <span className="text-[9px] uppercase font-bold tracking-wider">Log</span>
+            <span className="text-[11px] uppercase font-bold tracking-wider">Log</span>
           </TabsTrigger>
         </TabsList>
       </div>
@@ -209,117 +209,101 @@ export default function ProjectPage() {
   )
 
   const VerticalToolbar = (
-    <TooltipProvider delayDuration={0}>
-      <aside className="hidden lg:flex flex-col w-[72px] bg-white/[0.01] border-r border-white/[0.06] backdrop-blur-3xl shrink-0 z-40 relative group/toolbar">
-        {/* Top: Branding/Back */}
-        <div className="flex flex-col items-center py-6 gap-6">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => router.push('/')}
-                className="size-10 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-rose-500/10 hover:text-rose-400 group transition-all"
-              >
-                <ArrowLeft size={20} className="transition-transform group-hover:-translate-x-1" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Back to Projects</TooltipContent>
-          </Tooltip>
+    <TooltipProvider delayDuration={300}>
+      <aside
+        className={`hidden lg:flex flex-col border-r border-white/[0.06] bg-[#020203] shrink-0 z-40 overflow-hidden transition-[width] duration-300 ease-in-out ${
+          sidebarExpanded ? 'w-[220px]' : 'w-16'
+        }`}
+      >
+        {/* Top section */}
+        <div className="flex flex-col gap-0.5 p-2 pt-3">
+          {/* Back */}
+          <SidebarItem
+            icon={<ArrowLeft size={18} weight="bold" />}
+            label="Back to Projects"
+            expanded={sidebarExpanded}
+            onClick={() => router.push('/')}
+            tooltip="Back to Projects"
+            hoverVariant="danger"
+          />
 
-          <Separator className="bg-white/5 w-8" />
+          <div className="h-px bg-white/[0.06] mx-2 my-2" />
 
-          {/* Layer Toggle Stack */}
-          <div className="flex flex-col gap-2 p-1 bg-white/[0.03] rounded-2xl border border-white/[0.06]">
-            {(['ARCH', 'PLMB', 'ELEC'] as LayerType[]).map(layer => {
-              const Icon = layer === 'ARCH' ? AppWindow : layer === 'PLMB' ? Drop : Cube
-              return (
-                <Tooltip key={layer}>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={() => setActiveLayer(layer)}
-                      className={`size-10 rounded-[14px] flex flex-col items-center justify-center transition-all ${
-                        activeLayer === layer
-                          ? 'bg-accent text-white shadow-accent-glow ring-1 ring-white/10'
-                          : 'text-foreground-subtle hover:text-foreground hover:bg-white/[0.08]'
-                      }`}
-                    >
-                      <Icon size={18} weight={activeLayer === layer ? 'bold' : 'duotone'} />
-                      <span className="text-[7px] font-bold mt-0.5 tracking-tighter">{layer}</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">{layer} Mode</TooltipContent>
-                </Tooltip>
-              )
-            })}
-          </div>
-
-          <Separator className="bg-white/5 w-8" />
-
-          {/* Export Actions */}
-          <div className="flex flex-col gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" disabled={exporting} onClick={handleExportPdf}
-                  className="size-10 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-accent/10 hover:text-accent transition-all">
-                  <FilePdf size={20} weight="bold" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">Export PDF</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" disabled={exporting} onClick={handleExportDxf}
-                  className="size-10 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-accent/10 hover:text-accent transition-all">
-                  <FileCode size={20} weight="bold" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">Export DXF</TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-
-        {/* Center: Title / Metadata (Rotated) */}
-        <div className="flex-1 flex flex-col items-center justify-center pointer-events-none overflow-hidden">
-           <div className="rotate-[-90deg] whitespace-nowrap flex items-center gap-6">
-              <span className="text-xl font-bold tracking-tighter text-white opacity-40 uppercase">{project.title}</span>
-              <div className="flex items-center gap-3">
-                 <span className="text-[10px] font-mono font-bold text-foreground-subtle uppercase border border-white/5 px-2 py-0.5 rounded-full">
-                    {project.plotWidth}×{project.plotHeight} {project.plotUnit}
-                 </span>
-                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    project.vastuScore >= 75 ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
-                    project.vastuScore >= 50 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 
-                                               'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                  }`}>
-                    Vastu {Math.round(project.vastuScore)}%
-                 </span>
-              </div>
-           </div>
-        </div>
-
-        {/* Bottom: Insights */}
-        <div className="p-4 mt-auto border-t border-white/[0.04] bg-white/[0.01] flex flex-col items-center gap-4">
-          {saving && (
-             <div className="flex flex-col items-center gap-1.5 animate-pulse">
-                <div className="size-1.5 rounded-full bg-accent shadow-accent-glow" />
-                <span className="text-[8px] font-bold text-accent uppercase tracking-widest rotate-[-90deg] origin-center mb-4 mt-2">Saving</span>
-             </div>
+          {/* Layers section */}
+          {sidebarExpanded && (
+            <p className="px-3 pb-1 text-[11px] font-medium tracking-[0.06em] uppercase text-foreground-muted select-none">
+              Layers
+            </p>
           )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="accent" 
-                size="icon" 
-                onClick={() => router.push(`/project/${id}/analytics`)}
-                className="size-12 rounded-[18px] shadow-accent-glow"
-              >
-                <Compass weight="bold" size={24} className="animate-pulse" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Quantum Insights</TooltipContent>
-          </Tooltip>
+          {(['ARCH', 'PLMB', 'ELEC'] as LayerType[]).map(layer => {
+            const Icon = layer === 'ARCH' ? AppWindow : layer === 'PLMB' ? Drop : Cube
+            const layerLabel = layer === 'ARCH' ? 'Architecture' : layer === 'PLMB' ? 'Plumbing' : 'Electrical'
+            return (
+              <SidebarItem
+                key={layer}
+                icon={<Icon size={18} weight={activeLayer === layer ? 'bold' : 'regular'} />}
+                label={layerLabel}
+                expanded={sidebarExpanded}
+                onClick={() => setActiveLayer(layer)}
+                active={activeLayer === layer}
+                tooltip={`${layerLabel} layer`}
+              />
+            )
+          })}
+
+          <div className="h-px bg-white/[0.06] mx-2 my-2" />
+
+          {/* Export section */}
+          {sidebarExpanded && (
+            <p className="px-3 pb-1 text-[11px] font-medium tracking-[0.06em] uppercase text-foreground-muted select-none">
+              Export
+            </p>
+          )}
+          <SidebarItem
+            icon={<FilePdf size={18} weight="bold" />}
+            label="Export PDF"
+            expanded={sidebarExpanded}
+            onClick={handleExportPdf}
+            disabled={exporting}
+            tooltip="Export PDF"
+          />
+          <SidebarItem
+            icon={<FileCode size={18} weight="bold" />}
+            label="Export DXF"
+            expanded={sidebarExpanded}
+            onClick={handleExportDxf}
+            disabled={exporting}
+            tooltip="Export DXF"
+          />
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Bottom section */}
+        <div className="flex flex-col gap-0.5 p-2 pb-3 border-t border-white/[0.06]">
+          <SidebarItem
+            icon={<Compass size={18} weight="bold" />}
+            label="Vastu Insights"
+            expanded={sidebarExpanded}
+            onClick={() => router.push(`/project/${id}/analytics`)}
+            tooltip="Vastu Insights"
+            hoverVariant="accent"
+          />
+
+          {/* Collapse toggle */}
+          <button
+            onClick={() => setSidebarExpanded(v => !v)}
+            className={`flex items-center rounded-xl transition-all duration-200 px-3 py-2.5 text-foreground-muted hover:text-foreground hover:bg-white/[0.06] ${
+              sidebarExpanded ? 'gap-3' : 'justify-center'
+            }`}
+          >
+            <CaretDoubleLeft
+              size={16}
+              weight="bold"
+              className={`shrink-0 transition-transform duration-300 ${sidebarExpanded ? '' : 'rotate-180'}`}
+            />
+            {sidebarExpanded && <span className="text-sm font-medium">Collapse</span>}
+          </button>
         </div>
       </aside>
     </TooltipProvider>
@@ -333,7 +317,7 @@ export default function ProjectPage() {
           </Button>
           <div className="min-w-0">
              <h2 className="text-white font-bold text-sm truncate">{project.title}</h2>
-             <span className="text-[10px] text-foreground-subtle font-mono">{project.plotWidth}x{project.plotHeight}</span>
+             <span className="text-[11px] text-foreground-subtle font-mono">{project.plotWidth}x{project.plotHeight}</span>
           </div>
         </div>
         <Sheet>
@@ -362,7 +346,7 @@ export default function ProjectPage() {
             className="flex-1 overflow-auto bg-transparent flex items-start justify-center pattern-grid-slate-200 relative group/viewport custom-scrollbar"
           >
             {/* Zoom Controls HUD */}
-            <div className="absolute top-6 left-6 z-40 flex flex-col gap-1.5 p-1 glass-surface border-white/[0.08] rounded-2xl shadow-linear animate-in slide-in-from-left-4 duration-500 opacity-0 group-hover/viewport:opacity-100 transition-opacity">
+            <div className="absolute top-6 left-6 z-40 flex flex-col gap-1.5 p-1 glass-surface border-white/[0.08] rounded-2xl shadow-linear animate-in slide-in-from-left-4 duration-500 transition-opacity">
               <Button
                 variant="ghost" size="icon" onClick={() => setZoom(z => Math.min(3, z + 0.1))}
                 className="size-9 rounded-xl text-foreground-muted hover:text-accent hover:bg-accent/10 transition-all"
@@ -385,8 +369,8 @@ export default function ProjectPage() {
             </div>
 
             {/* Zoom Indicator */}
-            <div className="absolute bottom-6 left-6 z-40 px-3 py-1.5 glass-surface border-white/[0.08] rounded-full shadow-linear animate-in slide-in-from-bottom-4 duration-500 opacity-0 group-hover/viewport:opacity-100 transition-opacity">
-              <span className="text-[10px] font-mono font-bold text-foreground-subtle tracking-widest uppercase text-center min-w-[3.5rem]">
+            <div className="absolute bottom-6 left-6 z-40 px-3 py-1.5 glass-surface border-white/[0.08] rounded-full shadow-linear animate-in slide-in-from-bottom-4 duration-500 transition-opacity">
+              <span className="text-[11px] font-mono font-bold text-foreground-subtle tracking-widest uppercase text-center min-w-[3.5rem]">
                 Scale: {Math.round(zoom * 100)}%
               </span>
             </div>
@@ -419,10 +403,72 @@ export default function ProjectPage() {
           </aside>
         </div>
       </div>
+      {saving && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 glass-surface border border-white/10 rounded-full shadow-accent-glow flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="size-2 rounded-full bg-accent animate-pulse shadow-accent-glow" />
+          <span className="text-[11px] font-medium tracking-wide uppercase">Atmospheric Sync: Saving Changes...</span>
+        </div>
+      )}
     </div>
   )
 }
 
 function Separator({ className, w }: { className?: string, w?: string }) {
   return <div className={`h-px ${w || 'w-full'} ${className}`} />
+}
+
+function SidebarItem({
+  icon,
+  label,
+  expanded,
+  onClick,
+  active,
+  disabled,
+  tooltip,
+  hoverVariant,
+}: {
+  icon: React.ReactNode
+  label: string
+  expanded: boolean
+  onClick: () => void
+  active?: boolean
+  disabled?: boolean
+  tooltip?: string
+  hoverVariant?: 'danger' | 'accent'
+}) {
+  const hoverCls =
+    hoverVariant === 'danger'
+      ? 'hover:bg-rose-500/10 hover:text-rose-400'
+      : hoverVariant === 'accent'
+        ? 'hover:bg-accent/10 hover:text-accent'
+        : 'hover:bg-white/[0.06] hover:text-foreground'
+
+  const btn = (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`w-full flex items-center rounded-xl transition-all duration-200 px-3 py-2.5 ${
+        expanded ? 'gap-3' : 'justify-center'
+      } ${
+        active
+          ? 'bg-accent text-white shadow-accent-glow'
+          : `text-foreground-muted ${hoverCls}`
+      } ${disabled ? 'opacity-40 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}`}
+    >
+      <span className="shrink-0">{icon}</span>
+      {expanded && (
+        <span className="text-sm font-medium truncate leading-none">{label}</span>
+      )}
+    </button>
+  )
+
+  if (!expanded && tooltip) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{btn}</TooltipTrigger>
+        <TooltipContent side="right">{tooltip}</TooltipContent>
+      </Tooltip>
+    )
+  }
+  return btn
 }

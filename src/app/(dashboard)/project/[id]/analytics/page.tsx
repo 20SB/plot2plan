@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-4">
           <div className="size-10 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
-          <span className="text-foreground-muted font-mono text-[10px] uppercase tracking-[0.2em]">Atmospheric Calibration...</span>
+          <span className="text-foreground-muted font-mono text-[11px] uppercase tracking-[0.2em]">Atmospheric Calibration...</span>
         </div>
       </div>
     )
@@ -78,7 +78,7 @@ export default function AnalyticsPage() {
           </Button>
           <div className="flex items-center gap-3">
             <h1 className="text-3xl md:text-4xl font-semibold tracking-tighter text-gradient">Energy Analytics</h1>
-            <div className="px-2 py-0.5 bg-accent/10 border border-accent/20 rounded-full text-[9px] font-bold text-accent uppercase tracking-widest">Alpha</div>
+            <div className="px-2 py-0.5 bg-accent/10 border border-accent/20 rounded-full text-[11px] font-bold text-accent uppercase tracking-widest">Alpha</div>
           </div>
           <p className="text-foreground-muted text-sm max-w-xl leading-relaxed">
              Technical analysis of elemental harmony for <span className="text-foreground font-semibold uppercase">{project.title}</span>.
@@ -87,7 +87,7 @@ export default function AnalyticsPage() {
         
         <SpotlightCard className="p-5 flex items-center gap-6 bg-white/[0.02] border-white/[0.08]">
            <div>
-             <div className="text-[9px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em] mb-1">Global Harmony</div>
+             <div className="text-[11px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em] mb-1">Global Harmony</div>
              <div className="text-3xl font-bold text-gradient-accent">{project.vastuScore}%</div>
            </div>
            <div className="size-12 rounded-xl bg-accent shadow-accent-glow flex items-center justify-center text-white">
@@ -110,12 +110,12 @@ export default function AnalyticsPage() {
              <Wind size={60} weight="thin" />
           </div>
           <div>
-            <div className="text-[9px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
+            <div className="text-[11px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
               <Lightning size={12} weight="bold" className="text-accent" /> Flow Efficiency
             </div>
             <div className="text-4xl font-semibold tracking-tighter">{flowIndex}%</div>
           </div>
-          <p className="text-[10px] text-foreground-muted leading-relaxed font-medium">
+          <p className="text-[11px] text-foreground-muted leading-relaxed font-medium">
             Frictionless movement of energy through transition zones.
           </p>
         </SpotlightCard>
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
         {/* Insight: Zen Quotient */}
         <SpotlightCard className="md:col-span-2 row-span-1 p-6 flex flex-col justify-between bg-gradient-to-br from-accent/5 to-transparent border-white/[0.08]">
           <div>
-            <div className="text-[9px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em] mb-1">Zen Quotient</div>
+            <div className="text-[11px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em] mb-1">Zen Quotient</div>
             <div className="text-4xl font-semibold tracking-tighter">{zenQuotient}</div>
           </div>
           <div className="flex items-center gap-1.5">
@@ -145,8 +145,8 @@ export default function AnalyticsPage() {
              <SpotlightCard key={el.name} className="flex flex-col items-center justify-center p-4 gap-2 group border-white/[0.08]">
                 <el.icon size={28} weight="thin" className={`${el.color} opacity-40 group-hover:opacity-100 transition-opacity`} />
                 <div className="text-center">
-                  <div className="text-[10px] font-bold uppercase tracking-widest">{el.name}</div>
-                  <div className="text-[8px] text-foreground-subtle font-mono font-bold">{el.val} ZONE</div>
+                  <div className="text-[11px] font-bold uppercase tracking-widest">{el.name}</div>
+                  <div className="text-[11px] text-foreground-subtle font-mono font-bold">{el.val} ZONE</div>
                 </div>
              </SpotlightCard>
            ))}
@@ -170,10 +170,10 @@ export default function AnalyticsPage() {
         {/* Real-time Health */}
         <SpotlightCard className="md:col-span-2 row-span-1 p-6 overflow-hidden relative group border-white/[0.08]">
            <Pulse className="absolute -bottom-4 -right-4 size-24 text-accent opacity-5 group-hover:opacity-10 transition-opacity" />
-           <div className="text-[9px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em] mb-1">Kinetic Health</div>
+           <div className="text-[11px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em] mb-1">Kinetic Health</div>
            <div className="text-xl font-semibold mb-4 tracking-tight">Optimized</div>
            <div className="space-y-3">
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+              <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
                  <span className="text-foreground-subtle">Symmetry</span>
                  <span className="font-mono text-accent">88.4</span>
               </div>

@@ -126,7 +126,7 @@ export function PlotInputForm({ open, onClose }: Props) {
         <form onSubmit={handleSubmit(onSubmit)} className="p-10 space-y-8 bg-background">
           {/* BHK Category */}
           <div className="space-y-4">
-            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">
+            <label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1">
               Home Configuration
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -146,7 +146,7 @@ export function PlotInputForm({ open, onClose }: Props) {
                   }`}
                 >
                   <span className={`block text-sm font-black italic tracking-tighter ${selectedBHK === template.bhkType ? 'text-primary' : 'text-foreground'}`}>{template.label}</span>
-                  <span className="block text-[10px] font-bold text-muted-foreground mt-1 uppercase">
+                  <span className="block text-[11px] font-bold text-muted-foreground mt-1 uppercase">
                     {template.rooms.filter(r => r.type !== 'foyer' && r.type !== 'utility').length} Zones
                   </span>
                   {selectedBHK === template.bhkType && (
@@ -156,7 +156,7 @@ export function PlotInputForm({ open, onClose }: Props) {
               ))}
             </div>
             <div className="px-1">
-               <p className="text-muted-foreground text-[10px] font-bold italic">
+               <p className="text-muted-foreground text-[11px] font-bold italic">
                 &quot;{BHK_TEMPLATES.find(t => t.bhkType === selectedBHK)?.description}&quot;
               </p>
             </div>
@@ -165,25 +165,25 @@ export function PlotInputForm({ open, onClose }: Props) {
           <div className="space-y-6">
             <div className="flex items-center gap-2 mb-4">
                <span className="h-px flex-1 bg-border" />
-               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest whitespace-nowrap">Plot Intelligence</span>
+               <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest whitespace-nowrap">Plot Intelligence</span>
                <span className="h-px flex-1 bg-border" />
             </div>
 
             {/* Title */}
             <div>
-              <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Project Title</Label>
+              <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Project Title</Label>
               <Input
                 {...register('title')}
                 placeholder="The Riverside Villa"
                 className="h-12 rounded-xl text-lg font-bold"
               />
-              {errors.title && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.title.message}</p>}
+              {errors.title && <p className="text-destructive text-[11px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.title.message}</p>}
             </div>
 
             {/* Plot dimensions */}
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-1">
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Width</Label>
+                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Width</Label>
                 <Input
                   {...register('plotWidth')}
                   type="number"
@@ -191,7 +191,7 @@ export function PlotInputForm({ open, onClose }: Props) {
                 />
               </div>
               <div className="col-span-1">
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Length</Label>
+                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Length</Label>
                 <Input
                   {...register('plotHeight')}
                   type="number"
@@ -199,7 +199,7 @@ export function PlotInputForm({ open, onClose }: Props) {
                 />
               </div>
               <div className="col-span-1">
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Unit</Label>
+                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Unit</Label>
                 <Controller
                   name="plotUnit"
                   control={control}
@@ -221,7 +221,7 @@ export function PlotInputForm({ open, onClose }: Props) {
             {/* Floors and Facing */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Floors</Label>
+                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Floors</Label>
                 <Input
                   {...register('numFloors')}
                   type="number"
@@ -229,7 +229,7 @@ export function PlotInputForm({ open, onClose }: Props) {
                 />
               </div>
               <div>
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Plot Facing</Label>
+                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Plot Facing</Label>
                 <Controller
                   name="facing"
                   control={control}
@@ -251,7 +251,7 @@ export function PlotInputForm({ open, onClose }: Props) {
 
             {/* Style */}
             <div>
-              <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Architectural Aura</Label>
+              <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Architectural Aura</Label>
               <Controller
                 name="style"
                 control={control}
@@ -272,13 +272,13 @@ export function PlotInputForm({ open, onClose }: Props) {
 
             {/* Rooms */}
             <div>
-              <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-3 block">Selected Zones</Label>
+              <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-3 block">Selected Zones</Label>
               <div className="flex flex-wrap gap-2">
                 {ROOM_OPTIONS.map(room => (
                   <span
                     key={room}
                     onClick={() => toggleRoom(room)}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer border transition-all duration-300 shadow-sm ${
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold cursor-pointer border transition-all duration-300 shadow-sm ${
                       selectedRooms.includes(room)
                         ? 'bg-primary text-white border-primary border-2 scale-105'
                         : 'bg-muted/40 text-muted-foreground border-border hover:border-primary/50'
@@ -289,8 +289,8 @@ export function PlotInputForm({ open, onClose }: Props) {
                 ))}
               </div>
               <div className="mt-4 px-1 flex items-center justify-between">
-                 <span className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase">{selectedRooms.length} Zones Locked</span>
-                 <Button variant="link" size="sm" type="button" onClick={() => setSelectedRooms([])} className="h-auto p-0 text-[10px] h-auto p-0 font-bold text-destructive uppercase tracking-widest">Clear All</Button>
+                 <span className="text-[11px] font-bold text-muted-foreground tracking-widest uppercase">{selectedRooms.length} Zones Locked</span>
+                 <Button variant="link" size="sm" type="button" onClick={() => setSelectedRooms([])} className="h-auto p-0 text-[11px] h-auto p-0 font-bold text-destructive uppercase tracking-widest">Clear All</Button>
               </div>
             </div>
           </div>

@@ -62,46 +62,46 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="space-y-1.5">
-          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Full Name</label>
+          <label className="text-[11px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Full Name</label>
           <Input
             {...register('name')}
             placeholder="Jane Architect"
             className="h-11 rounded-xl"
           />
-          {errors.name && <p className="text-destructive text-[10px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.name.message}</p>}
+          {errors.name && <p className="text-destructive text-[11px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Email Address</label>
+          <label className="text-[11px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Email Address</label>
           <Input
             {...register('email')}
             type="email"
             placeholder="name@studio.com"
             className="h-11 rounded-xl"
           />
-          {errors.email && <p className="text-destructive text-[10px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.email.message}</p>}
+          {errors.email && <p className="text-destructive text-[11px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Safe Password</label>
+          <label className="text-[11px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Safe Password</label>
           <Input
             {...register('password')}
             type="password"
             placeholder="••••••••"
             className="h-11 rounded-xl"
           />
-          {errors.password && <p className="text-destructive text-[10px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.password.message}</p>}
+          {errors.password && <p className="text-destructive text-[11px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.password.message}</p>}
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Verify Password</label>
+          <label className="text-[11px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Verify Password</label>
           <Input
             {...register('confirmPassword')}
             type="password"
             placeholder="••••••••"
             className="h-11 rounded-xl"
           />
-          {errors.confirmPassword && <p className="text-destructive text-[10px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && <p className="text-destructive text-[11px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.confirmPassword.message}</p>}
         </div>
 
         <Button

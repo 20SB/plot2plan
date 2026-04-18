@@ -51,20 +51,20 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
-          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Email Address</label>
+          <label className="text-[11px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Email Address</label>
           <Input
             {...register('email')}
             type="email"
             placeholder="name@studio.com"
             className="h-12 rounded-xl text-base"
           />
-          {errors.email && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.email.message}</p>}
+          {errors.email && <p className="text-destructive text-[11px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest">Password</label>
-            <Link href="#" className="text-[10px] font-mono font-bold text-accent uppercase tracking-widest hover:underline transition-all">Forgot?</Link>
+            <label className="text-[11px] font-mono font-medium text-foreground-subtle uppercase tracking-widest">Password</label>
+            <Link href="#" className="text-[11px] font-mono font-bold text-accent uppercase tracking-widest hover:underline transition-all">Forgot?</Link>
           </div>
           <Input
             {...register('password')}
@@ -72,7 +72,7 @@ export default function LoginPage() {
             placeholder="••••••••"
             className="h-12 rounded-xl text-base"
           />
-          {errors.password && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.password.message}</p>}
+          {errors.password && <p className="text-destructive text-[11px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.password.message}</p>}
         </div>
 
         <Button

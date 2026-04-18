@@ -161,8 +161,8 @@ export default function StyleGuidePage() {
 
              <SpotlightCard className="p-8 space-y-6">
                 <div className="flex justify-between items-center">
-                   <span className="text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">Zone Status</span>
-                   <span className="text-[10px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">MANIFESTED</span>
+                   <span className="text-[11px] font-mono text-foreground-subtle uppercase tracking-widest">Zone Status</span>
+                   <span className="text-[11px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">MANIFESTED</span>
                 </div>
                 <div className="space-y-4">
                    {[

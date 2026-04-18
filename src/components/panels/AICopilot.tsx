@@ -89,7 +89,7 @@ export function AICopilot({ projectId }: Props) {
               <div className="size-8 bg-white/[0.05] border border-white/[0.1] rounded-lg flex items-center justify-center">
                 <Robot size={18} weight="duotone" className="text-accent" />
               </div>
-              <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl rounded-tl-none p-3 text-[10px] text-accent font-mono tracking-widest uppercase italic bg-accent/5">
+              <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl rounded-tl-none p-3 text-[11px] text-accent font-mono tracking-widest uppercase italic bg-accent/5">
                 Architectural AI is synthesizing...
               </div>
             </div>

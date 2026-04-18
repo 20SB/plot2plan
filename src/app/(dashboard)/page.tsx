@@ -48,11 +48,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10 space-y-12 relative z-10">
+    <div className="space-y-12 relative z-10 antialiased">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-5xl font-semibold tracking-tight text-gradient">My Projects</h1>
+          <h1 className="text-[32px] font-semibold tracking-[-0.02em] text-gradient">My Projects</h1>
           <p className="text-foreground-muted text-lg">Design and manage your Vastu-compliant floor plans</p>
         </div>
         <Button
@@ -66,7 +66,7 @@ export default function DashboardPage() {
 
       {/* Project grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="glass-surface h-52 rounded-2xl animate-pulse" />
           ))}
@@ -89,7 +89,7 @@ export default function DashboardPage() {
           </Button>
         </SpotlightCard>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map(project => (
             <SpotlightCard
               key={project.id}
@@ -99,7 +99,7 @@ export default function DashboardPage() {
               <div className="p-5 h-full flex flex-col relative">
                 {/* Vastu score badge float */}
                 <div className="absolute top-4 right-4 z-20">
-                  <span className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-full border shadow-linear backdrop-blur-md transition-shadow group-hover:shadow-accent-glow ${
+                  <span className={`text-[11px] font-mono font-bold px-1.5 py-0.5 rounded-full border shadow-linear backdrop-blur-md transition-shadow group-hover:shadow-accent-glow ${
                     (project.vastuScore ?? 0) >= 75 ? 'bg-green-500/10 text-green-400 border-green-500/20' :
                     (project.vastuScore ?? 0) >= 50 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
                                                       'bg-rose-500/10 text-rose-400 border-rose-500/20'
@@ -118,10 +118,10 @@ export default function DashboardPage() {
                       {project.title}
                     </h3>
                     <div className="flex items-center gap-1.5 mt-1">
-                      <span className="text-[8px] font-mono px-1.5 py-0.5 bg-white/[0.04] border border-white/[0.06] rounded text-foreground-subtle uppercase tracking-widest font-bold">
+                      <span className="text-[11px] font-mono px-1.5 py-0.5 bg-white/[0.04] border border-white/[0.06] rounded text-foreground-subtle uppercase tracking-widest font-bold">
                         {project.plotWidth}×{project.plotHeight}
                       </span>
-                      <span className="text-[8px] font-mono px-1.5 py-0.5 bg-white/[0.04] border border-white/[0.06] rounded text-foreground-subtle uppercase tracking-widest font-bold">
+                      <span className="text-[11px] font-mono px-1.5 py-0.5 bg-white/[0.04] border border-white/[0.06] rounded text-foreground-subtle uppercase tracking-widest font-bold">
                         {project.numFloors}F
                       </span>
                     </div>
@@ -130,15 +130,15 @@ export default function DashboardPage() {
 
                 <div className="mt-auto flex items-center justify-between pt-4 border-t border-white/[0.04] mt-6">
                   <div className="flex flex-col">
-                    <span className="text-foreground-muted text-[10px] font-medium tracking-tight">
+                    <span className="text-foreground-muted text-[11px] font-medium tracking-tight">
                       {project.rooms?.length ?? 0} modules
                     </span>
-                    <span className="text-foreground-subtle text-[9px] font-mono uppercase tracking-widest opacity-60">
+                    <span className="text-foreground-muted text-[11px] font-mono uppercase tracking-widest">
                       {project.style}
                     </span>
                   </div>
                   <button
-                    className="text-foreground-subtle hover:text-rose-400 transition-all p-1.5 rounded-xl hover:bg-rose-500/10 active:scale-90"
+                    className="text-foreground-subtle hover:text-rose-400 transition-all p-2.5 rounded-xl hover:bg-rose-500/10 active:scale-90"
                     disabled={deleting === project.id}
                     onClick={(e) => { e.stopPropagation(); handleDelete(project.id) }}
                   >

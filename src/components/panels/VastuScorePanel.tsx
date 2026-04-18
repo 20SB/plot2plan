@@ -74,7 +74,7 @@ function ScoreRing({ score }: { score: number }) {
       </svg>
       <div className="absolute text-center">
         <div className="text-3xl font-bold text-white tracking-tighter drop-shadow-sm">{score}</div>
-        <div className="text-[10px] text-foreground-subtle font-mono font-bold uppercase tracking-widest mt-0.5">Energy</div>
+        <div className="text-[11px] text-foreground-subtle font-mono font-bold uppercase tracking-widest mt-0.5">Energy</div>
       </div>
     </div>
   )
@@ -83,7 +83,7 @@ function ScoreRing({ score }: { score: number }) {
 function DoshaBadge({ severity }: { severity: VastuDosha['severity'] }) {
   const cfg = SEVERITY_CONFIG[severity] || SEVERITY_CONFIG.NONE
   return (
-    <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border backdrop-blur-md transition-all ${cfg.color}`}>
+    <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border backdrop-blur-md transition-all ${cfg.color}`}>
       {cfg.icon}{cfg.label}
     </span>
   )
@@ -107,10 +107,10 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
           <div className="glass-surface p-4 border-rose-500/20 bg-rose-500/[0.02] rounded-xl animate-in slide-in-from-top-4 duration-500">
             <div className="flex items-center gap-2 mb-2">
               <Atom className="w-4 h-4 text-rose-400 animate-spin-slow" />
-              <span className="text-rose-400 font-bold text-[10px] uppercase tracking-widest leading-none">Disharmony</span>
+              <span className="text-rose-400 font-bold text-[11px] uppercase tracking-widest leading-none">Disharmony</span>
             </div>
             <p className="text-foreground text-[13px] font-medium tracking-tight leading-relaxed">
-              <span className="text-rose-400 font-bold uppercase text-[10px]">Brahmasthana</span> is compromised by {brahmasthanaViolators.map(r => r.name).join(', ')}.
+              <span className="text-rose-400 font-bold uppercase text-[11px]">Brahmasthana</span> is compromised by {brahmasthanaViolators.map(r => r.name).join(', ')}.
             </p>
           </div>
         )}
@@ -121,7 +121,7 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
             <ChartPolar size={60} weight="thin" />
           </div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-[9px] font-bold text-foreground-subtle uppercase tracking-[0.2em] font-mono">Dynamic Analysis</h3>
+            <h3 className="text-[11px] font-bold text-foreground-subtle uppercase tracking-[0.2em] font-mono">Dynamic Analysis</h3>
             <div className="flex items-center gap-1.5">
                <div className="size-1 rounded-full bg-accent animate-pulse shadow-accent-glow" />
             </div>
@@ -137,10 +137,10 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
                 <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(94,106,210,0.1)_100%)] animate-[spin_4s_linear_infinite]" />
                 
                 <Compass size={32} weight="thin" className="text-white opacity-20 group-hover:opacity-40 transition-opacity" />
-                <span className="absolute top-0 text-[8px] font-mono font-bold text-white/30">N</span>
-                <span className="absolute right-0 text-[8px] font-mono font-bold text-white/30">E</span>
-                <span className="absolute bottom-0 text-[8px] font-mono font-bold text-white/30">S</span>
-                <span className="absolute left-0 text-[8px] font-mono font-bold text-white/30">W</span>
+                <span className="absolute top-0 text-[11px] font-mono font-bold text-white/30">N</span>
+                <span className="absolute right-0 text-[11px] font-mono font-bold text-white/30">E</span>
+                <span className="absolute bottom-0 text-[11px] font-mono font-bold text-white/30">S</span>
+                <span className="absolute left-0 text-[11px] font-mono font-bold text-white/30">W</span>
 
                 {/* Data Points */}
                 {rooms.slice(0, 6).map((r, i) => (
@@ -165,7 +165,7 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
               Aligns with {score}% archetypes.
             </p>
             <div className="pt-2">
-                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[9px] font-bold bg-white/[0.03] text-foreground-subtle border border-white/5 uppercase tracking-widest">
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-bold bg-white/[0.03] text-foreground-subtle border border-white/5 uppercase tracking-widest">
                   <TrendUp size={12} className={score >= 50 ? 'text-green-400' : 'text-rose-400'} />
                   {criticalDoshas.length} Critical
               </span>
@@ -176,8 +176,8 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
         {/* Per-room analysis */}
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-[9px] font-bold text-foreground-subtle uppercase tracking-[0.2em] font-mono">Inventory</h3>
-            <span className="text-[9px] font-bold text-accent font-mono tracking-widest">{rooms.length} ZONES</span>
+            <h3 className="text-[11px] font-bold text-foreground-subtle uppercase tracking-[0.2em] font-mono">Inventory</h3>
+            <span className="text-[11px] font-bold text-accent font-mono tracking-widest">{rooms.length} ZONES</span>
           </div>
           
           <div className="space-y-2">
@@ -205,7 +205,7 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
                         </div>
                         <div className="truncate">
                           <span className="text-[14px] font-bold text-white block leading-none tracking-tight">{room.name}</span>
-                          <span className="text-[9px] text-foreground-subtle font-mono font-bold uppercase tracking-widest mt-1 block opacity-70">
+                          <span className="text-[11px] text-foreground-subtle font-mono font-bold uppercase tracking-widest mt-1 block opacity-70">
                             {room.direction} · {room.element || 'Neutral'}
                           </span>
                         </div>
@@ -234,8 +234,8 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
                           <div className="bg-white/[0.03] rounded-lg p-3 flex items-start gap-3 border border-white/[0.06]">
                             <FirstAidKit size={16} weight="bold" className="text-green-400 flex-shrink-0 mt-0.5" />
                             <div className="space-y-0.5">
-                              <span className="text-green-400 uppercase text-[8px] font-mono font-bold tracking-[0.2em] block">Remedy</span>
-                              <p className="text-foreground-muted text-[10px] leading-snug font-medium tracking-tight">{dosha.remedy}</p>
+                              <span className="text-green-400 uppercase text-[11px] font-mono font-bold tracking-[0.2em] block">Remedy</span>
+                              <p className="text-foreground-muted text-[11px] leading-snug font-medium tracking-tight">{dosha.remedy}</p>
                             </div>
                           </div>
                         </div>
@@ -253,7 +253,7 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
             <div className="size-20 bg-white/[0.02] border border-white/[0.06] rounded-[2rem] flex items-center justify-center mb-6">
                <Compass size={40} weight="thin" className="text-foreground-subtle opacity-30" />
             </div>
-            <p className="text-[10px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em]">Blueprint Pending Analysis</p>
+            <p className="text-[11px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em]">Blueprint Pending Analysis</p>
           </div>
         )}
       </div>

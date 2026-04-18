@@ -59,11 +59,11 @@ export function CompareView({ projectId, revIdA, revIdB }: Props) {
             <div className="absolute top-0 right-0 p-3 opacity-[0.05] pointer-events-none group-hover:scale-110 transition-transform">
                <span className="text-4xl font-mono font-bold">{i === 0 ? 'B' : 'A'}</span>
             </div>
-            <p className="text-foreground-subtle text-[10px] font-mono uppercase tracking-[0.2em] mb-2">
+            <p className="text-foreground-subtle text-[11px] font-mono uppercase tracking-[0.2em] mb-2">
               {i === 0 ? 'Before' : 'After'} · v{rev.version}
             </p>
             <p className="text-foreground font-semibold text-3xl tracking-tighter">{rev.vastuScore}%</p>
-            <div className="text-foreground-muted text-[10px] font-medium mt-1 uppercase tracking-wider">{rev.label || 'Auto-save'}</div>
+            <div className="text-foreground-muted text-[11px] font-medium mt-1 uppercase tracking-wider">{rev.label || 'Auto-save'}</div>
           </div>
         ))}
       </div>
@@ -81,7 +81,7 @@ export function CompareView({ projectId, revIdA, revIdB }: Props) {
         {/* Added rooms */}
         {added.length > 0 && (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-green-400 text-[10px] font-mono font-bold tracking-[0.2em] px-1 uppercase">
+            <div className="flex items-center gap-2 text-green-400 text-[11px] font-mono font-bold tracking-[0.2em] px-1 uppercase">
               <span className="size-1.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
               Manifested ({added.length})
             </div>
@@ -89,7 +89,7 @@ export function CompareView({ projectId, revIdA, revIdB }: Props) {
               {added.map(r => (
                 <div key={r.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl group hover:border-green-400/20 transition-colors">
                   <span className="text-foreground text-sm font-medium tracking-tight group-hover:text-green-400 transition-colors">{r.name}</span>
-                  <span className="bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-mono font-bold rounded-lg px-2 py-0.5 shadow-linear">{r.vastuScore}%</span>
+                  <span className="bg-green-500/10 border border-green-500/20 text-green-400 text-[11px] font-mono font-bold rounded-lg px-2 py-0.5 shadow-linear">{r.vastuScore}%</span>
                 </div>
               ))}
             </div>
@@ -99,7 +99,7 @@ export function CompareView({ projectId, revIdA, revIdB }: Props) {
         {/* Removed rooms */}
         {removed.length > 0 && (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-rose-400 text-[10px] font-mono font-bold tracking-[0.2em] px-1 uppercase">
+            <div className="flex items-center gap-2 text-rose-400 text-[11px] font-mono font-bold tracking-[0.2em] px-1 uppercase">
               <span className="size-1.5 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.5)]" />
               Dissipated ({removed.length})
             </div>
@@ -107,7 +107,7 @@ export function CompareView({ projectId, revIdA, revIdB }: Props) {
               {removed.map(r => (
                 <div key={r.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl group hover:border-rose-400/20 transition-colors">
                   <span className="text-foreground text-sm font-medium tracking-tight group-hover:text-rose-400 transition-colors line-through opacity-50">{r.name}</span>
-                  <span className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-mono font-bold rounded-lg px-2 py-0.5 opacity-50">{r.vastuScore}%</span>
+                  <span className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] font-mono font-bold rounded-lg px-2 py-0.5 opacity-50">{r.vastuScore}%</span>
                 </div>
               ))}
             </div>
@@ -117,7 +117,7 @@ export function CompareView({ projectId, revIdA, revIdB }: Props) {
         {/* Common rooms with score diff */}
         {common.length > 0 && (
           <div className="space-y-2">
-            <div className="text-foreground-subtle text-[10px] font-mono font-bold tracking-[0.2em] px-1 uppercase mb-3">Zone Shifts</div>
+            <div className="text-foreground-subtle text-[11px] font-mono font-bold tracking-[0.2em] px-1 uppercase mb-3">Zone Shifts</div>
             <div className="space-y-2">
               {common.map(rb => {
                 const ra = revA.rooms.find(r => r.name === rb.name)
@@ -126,11 +126,11 @@ export function CompareView({ projectId, revIdA, revIdB }: Props) {
                   <div key={rb.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/[0.04] group">
                     <span className="text-foreground-subtle text-sm font-medium tracking-tight group-hover:text-foreground transition-all">{rb.name}</span>
                     <div className="flex items-center gap-3">
-                      {ra && <span className="text-foreground-muted font-mono text-[10px]">{ra.vastuScore}%</span>}
+                      {ra && <span className="text-foreground-muted font-mono text-[11px]">{ra.vastuScore}%</span>}
                       <ArrowRightIcon className="text-white/20 size-3" />
                       <span className="text-foreground font-mono font-bold text-xs">{rb.vastuScore}%</span>
                       {diff !== 0 && (
-                        <div className={`flex items-center gap-0.5 font-mono text-[10px] px-1.5 py-0.5 rounded border ${
+                        <div className={`flex items-center gap-0.5 font-mono text-[11px] px-1.5 py-0.5 rounded border ${
                           diff > 0 
                             ? 'bg-green-500/10 text-green-400 border-green-500/20' 
                             : 'bg-rose-500/10 text-rose-400 border-rose-500/20'

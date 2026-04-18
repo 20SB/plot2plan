@@ -51,7 +51,7 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
   }
 
   if (loading) return (
-    <div className="p-8 text-muted-foreground text-[10px] font-bold tracking-widest animate-pulse flex items-center gap-2">
+    <div className="p-8 text-muted-foreground text-[11px] font-bold tracking-widest animate-pulse flex items-center gap-2">
        <ClockCounterClockwise size={16} className="animate-spin-slow" /> LOADING HISTORY...
     </div>
   )
@@ -64,7 +64,7 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
             className="text-muted-foreground hover:text-foreground text-xs font-bold gap-2 rounded-xl">
             <ArrowCounterClockwise size={14} weight="bold" /> BACK TO LOG
           </Button>
-          <span className="text-[10px] font-black text-primary uppercase tracking-widest">Diff View</span>
+          <span className="text-[11px] font-black text-primary uppercase tracking-widest">Diff View</span>
         </div>
         <div className="flex-1 overflow-y-auto p-6">
           <CompareView projectId={projectId} revIdA={comparing[0]} revIdB={comparing[1]} />
@@ -80,12 +80,12 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
         <div className="bg-white/[0.02] border border-white/[0.1] border-dashed rounded-2xl p-5 flex items-center justify-between backdrop-blur-md">
           <div className="space-y-1">
             <p className="text-sm font-semibold text-foreground tracking-tight">Compare State History</p>
-            <p className="text-[10px] text-foreground-muted font-medium font-mono uppercase tracking-widest">Select 2 items to diff ({selected.length}/2)</p>
+            <p className="text-[11px] text-foreground-muted font-medium font-mono uppercase tracking-widest">Select 2 items to diff ({selected.length}/2)</p>
           </div>
           {selected.length === 2 && (
             <Button size="sm" 
               onClick={() => setComparing([selected[0], selected[1]])}
-              className="rounded-xl text-[10px] font-bold h-8 gap-2 shadow-accent-glow animate-in zoom-in-95 bg-accent text-white border-none">
+              className="rounded-xl text-[11px] font-bold h-8 gap-2 shadow-accent-glow animate-in zoom-in-95 bg-accent text-white border-none">
               <GitDiff size={14} weight="bold" /> COMPARE
             </Button>
           )}
@@ -104,7 +104,7 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
                 
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
-                    <span className={`text-[10px] font-mono font-bold px-2 py-1 rounded border transition-colors ${
+                    <span className={`text-[11px] font-mono font-bold px-2 py-1 rounded border transition-colors ${
                       selected.includes(rev.id) ? 'bg-accent text-white border-accent' : 'bg-white/[0.05] text-foreground-muted border-white/[0.1]'
                     }`}>
                       V{revisions.length - idx}
@@ -129,12 +129,12 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="size-1.5 rounded-full bg-accent animate-pulse" />
-                    <span className="text-[10px] text-foreground-muted font-medium font-mono tracking-wider">
+                    <span className="text-[11px] text-foreground-muted font-medium font-mono tracking-wider">
                       {new Date(rev.createdAt).toLocaleDateString()} · {new Date(rev.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                   {idx === 0 && (
-                    <span className="text-[9px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20 uppercase tracking-widest shadow-linear">Current</span>
+                    <span className="text-[11px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20 uppercase tracking-widest shadow-linear">Current</span>
                   )}
                 </div>
               </div>

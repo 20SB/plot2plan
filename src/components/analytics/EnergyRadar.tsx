@@ -34,7 +34,7 @@ export function EnergyRadar({ rooms }: Props) {
   return (
     <SpotlightCard className="col-span-1 md:col-span-2 h-full flex flex-col items-center justify-center p-0 border-white/[0.08] overflow-hidden group">
       <div className="w-full p-5 border-b border-white/[0.04] bg-white/[0.01]">
-        <h3 className="text-[10px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em]">Elemental Balance</h3>
+        <h3 className="text-[11px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em]">Elemental Balance</h3>
       </div>
       
       <div className="flex-1 w-full h-[320px] pt-4 px-2">
