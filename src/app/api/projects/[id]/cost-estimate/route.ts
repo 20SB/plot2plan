@@ -32,20 +32,26 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const items = project.rooms.map(r => {
-    const area = (r.width * r.height)
+    const area = r.width * r.height
+    const sqftArea = project.plotUnit === 'm' ? area * 10.7639 : area
     const rate = RATES_PER_SQFT[r.type] ?? RATES_PER_SQFT.default
     return {
       roomName: r.name,
       roomType: r.type,
-      area: Math.round(area * 10) / 10,
+      area: Math.round(area * 10) / 10,           // display in original units
       unit: project.plotUnit,
       ratePerSqft: rate,
-      subtotal: Math.round(area * rate),
+      subtotal: Math.round(sqftArea * rate),        // cost always in sqft basis
     }
   })
 
   const totalArea = items.reduce((s, i) => s + i.area, 0)
-  const totalCost = items.reduce((s, i) => s + i.subtotal, 0)
+  const totalCost = project.rooms.reduce((s, r) => {
+    const area = r.width * r.height
+    const sqftArea = project.plotUnit === 'm' ? area * 10.7639 : area
+    const rate = RATES_PER_SQFT[r.type] ?? RATES_PER_SQFT.default
+    return s + Math.round(sqftArea * rate)
+  }, 0)
 
   return NextResponse.json({ items, totalArea: Math.round(totalArea * 10) / 10, totalCost, currency: 'INR' })
 }

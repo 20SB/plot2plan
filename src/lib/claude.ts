@@ -71,21 +71,23 @@ Room types must be one of: master_bedroom, bedroom, living_room, kitchen, bathro
 
   const text = message.content[0].type === 'text' ? message.content[0].text : ''
 
-  // Extract JSON array from response
-  const jsonMatch = text.match(/\[[\s\S]*\]/)
-  if (!jsonMatch) {
-    return getFallbackLayout(input)
-  }
-
+  // Try to find the JSON array with a more robust approach
+  let rooms: GeneratedRoom[] = []
   try {
-    const rooms = JSON.parse(jsonMatch[0]) as GeneratedRoom[]
-    return rooms.map(r => ({
-      ...r,
-      floor: r.floor || 1,
-    }))
+    // First try: direct JSON parse of the whole response
+    rooms = JSON.parse(text)
   } catch {
-    return getFallbackLayout(input)
+    try {
+      // Second try: extract first complete JSON array
+      const match = text.match(/\[[\s\S]*?\](?=\s*$|\s*\n\s*$|\s*```)/) ||
+                    text.match(/\[[\s\S]*\]/)
+      if (match) rooms = JSON.parse(match[0])
+      else return getFallbackLayout(input)
+    } catch {
+      return getFallbackLayout(input)
+    }
   }
+  return rooms.map(r => ({ ...r, floor: r.floor || 1 }))
 }
 
 function getFallbackLayout(input: { plotWidth: number; plotHeight: number; rooms: string[]; numFloors: number }): GeneratedRoom[] {

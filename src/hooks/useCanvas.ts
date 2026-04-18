@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import type { Room } from '@/types'
 
 const SCALE = 8
@@ -23,6 +23,12 @@ export function useCanvas(rooms: Room[], onRoomsChange?: (rooms: Room[]) => void
   const [localRooms, setLocalRooms] = useState<Room[]>(rooms)
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
   const dragRef = useRef<DragState | null>(null)
+  const localRoomsRef = useRef<Room[]>(rooms)
+
+  // Keep ref in sync whenever localRooms state changes
+  useEffect(() => {
+    localRoomsRef.current = localRooms
+  }, [localRooms])
 
   // Sync external rooms into local state
   const syncRooms = useCallback((newRooms: Room[]) => {
@@ -162,10 +168,10 @@ export function useCanvas(rooms: Room[], onRoomsChange?: (rooms: Room[]) => void
   const onMouseUp = useCallback(() => {
     if (dragRef.current) {
       dragRef.current = null
-      // Notify parent with final positions
-      onRoomsChange?.(localRooms)
+      // Notify parent with final positions using ref to avoid stale closure
+      onRoomsChange?.(localRoomsRef.current)
     }
-  }, [localRooms, onRoomsChange])
+  }, [onRoomsChange])
 
   return { localRooms, syncRooms, selectedRoomId, onMouseDown, onMouseMove, onMouseUp }
 }

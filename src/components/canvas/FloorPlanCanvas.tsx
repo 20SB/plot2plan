@@ -205,11 +205,12 @@ export function FloorPlanCanvas({
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawGrid(ctx, plotWidth, plotHeight)
 
-    if (activeLayer === 'ARCH' || activeLayer === 'PLMB' || activeLayer === 'ELEC') {
-      for (const room of visibleRooms) {
-        drawRoom(ctx, room, room.id === selectedRoomId)
-      }
+    // Draw rooms (always, but dimmed when on PLMB/ELEC layer)
+    ctx.globalAlpha = activeLayer === 'ARCH' ? 1.0 : 0.3
+    for (const room of visibleRooms) {
+      drawRoom(ctx, room, room.id === selectedRoomId)
     }
+    ctx.globalAlpha = 1.0
 
     if (activeLayer === 'PLMB') {
       drawPlumbing(ctx, visiblePlumbing)

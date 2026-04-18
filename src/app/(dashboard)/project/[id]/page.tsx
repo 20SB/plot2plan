@@ -25,6 +25,8 @@ export default function ProjectPage() {
   const [saving, setSaving] = useState(false)
   const [exporting, setExporting] = useState(false)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isMountedRef = useRef(true)
+  useEffect(() => { return () => { isMountedRef.current = false } }, [])
 
   const fetchProject = useCallback(async () => {
     try {
@@ -40,13 +42,20 @@ export default function ProjectPage() {
 
   useEffect(() => { fetchProject() }, [fetchProject])
 
+  // Cleanup save timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    }
+  }, [])
+
   // Debounced save — fires 800ms after last room change
   const handleRoomsChange = useCallback((rooms: Room[]) => {
     if (!project) return
 
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(async () => {
-      setSaving(true)
+      if (isMountedRef.current) setSaving(true)
       try {
         const res = await fetch(`/api/projects/${id}/rooms`, {
           method: 'PUT',
@@ -55,11 +64,13 @@ export default function ProjectPage() {
         })
         if (!res.ok) throw new Error('Save failed')
         const data = await res.json()
-        setProject(prev => prev ? { ...prev, rooms: data.rooms, vastuScore: data.vastuScore } : prev)
+        if (isMountedRef.current) {
+          setProject(prev => prev ? { ...prev, rooms: data.rooms, vastuScore: data.vastuScore } : prev)
+          setSaving(false)
+        }
       } catch {
         toast.error('Failed to save changes')
-      } finally {
-        setSaving(false)
+        if (isMountedRef.current) setSaving(false)
       }
     }, 800)
   }, [id, project])

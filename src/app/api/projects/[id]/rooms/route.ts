@@ -41,21 +41,43 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   // Replace all rooms
   await db.room.deleteMany({ where: { projectId: id } })
-  const newRooms = await db.room.createManyAndReturn({
-    data: scoredRooms.map(r => ({
-      projectId: id,
-      name: r.name,
-      type: r.type,
-      x: r.x,
-      y: r.y,
-      width: r.width,
-      height: r.height,
-      floor: r.floor,
-      direction: r.direction,
-      vastuScore: r.vastuScore,
-      warnings: r.warnings,
-    })),
-  })
+  let newRooms
+  try {
+    newRooms = await db.room.createManyAndReturn({
+      data: scoredRooms.map(r => ({
+        projectId: id,
+        name: r.name,
+        type: r.type,
+        x: r.x,
+        y: r.y,
+        width: r.width,
+        height: r.height,
+        floor: r.floor,
+        direction: r.direction,
+        vastuScore: r.vastuScore,
+        warnings: r.warnings,
+      })),
+    })
+  } catch {
+    // Fallback for Prisma versions that don't support createManyAndReturn
+    newRooms = await Promise.all(
+      scoredRooms.map(r => db.room.create({
+        data: {
+          projectId: id,
+          name: r.name,
+          type: r.type,
+          x: r.x,
+          y: r.y,
+          width: r.width,
+          height: r.height,
+          floor: r.floor,
+          direction: r.direction,
+          vastuScore: r.vastuScore,
+          warnings: r.warnings,
+        },
+      }))
+    )
+  }
 
   // Update project score
   await db.project.update({ where: { id }, data: { vastuScore: overallScore } })

@@ -73,15 +73,21 @@ function angleToDirection(angleDeg: number): Direction {
 
 function directionScore(actual: Direction, ideal: Direction[]): number {
   if (ideal.includes(actual)) return 100
-  // Score by angular distance — each 45° sector away = -15 points
+
   const actualAngle = DIRECTION_ANGLES[actual]
-  let minDist = Infinity
+  let minAngularDist = Infinity
+
   for (const d of ideal) {
-    let diff = Math.abs(DIRECTION_ANGLES[d] - actualAngle)
+    const idealAngle = DIRECTION_ANGLES[d]
+    let diff = Math.abs(actualAngle - idealAngle)
+    // Correct circular wrap: shortest path around the circle
     if (diff > 180) diff = 360 - diff
-    minDist = Math.min(minDist, diff)
+    minAngularDist = Math.min(minAngularDist, diff)
   }
-  return Math.max(0, 100 - (minDist / 45) * 20)
+
+  // Vastu scoring: each 45° sector = -20 points, min 0
+  const sectorsAway = Math.round(minAngularDist / 45)
+  return Math.max(0, 100 - sectorsAway * 20)
 }
 
 export interface VastuResult {
