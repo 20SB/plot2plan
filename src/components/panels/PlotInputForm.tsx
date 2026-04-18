@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { BHK_TEMPLATES, type BHKTemplate } from '@/lib/floor-plan-engine'
 import {
   Dialog,
   DialogContent,
@@ -53,6 +54,7 @@ interface Props {
 
 export function PlotInputForm({ open, onClose }: Props) {
   const router = useRouter()
+  const [selectedBHK, setSelectedBHK] = useState<BHKTemplate['bhkType']>('2BHK')
   const [selectedRooms, setSelectedRooms] = useState<string[]>([
     'Living Room', 'Master Bedroom', 'Kitchen', 'Bathroom',
   ])
@@ -84,7 +86,7 @@ export function PlotInputForm({ open, onClose }: Props) {
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, rooms: selectedRooms }),
+        body: JSON.stringify({ ...data, rooms: selectedRooms, bhkType: selectedBHK }),
       })
       const json = await res.json()
       if (!res.ok) {
@@ -112,6 +114,40 @@ export function PlotInputForm({ open, onClose }: Props) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-2">
+          {/* BHK Category */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-app-soft uppercase tracking-wider">
+              Home Configuration
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {BHK_TEMPLATES.map((template) => (
+                <button
+                  key={template.bhkType}
+                  type="button"
+                  onClick={() => {
+                    setSelectedBHK(template.bhkType)
+                    // Auto-populate rooms from template using display names
+                    const templateRooms = template.rooms.map(r => r.name)
+                    setSelectedRooms(templateRooms)
+                  }}
+                  className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                    selectedBHK === template.bhkType
+                      ? 'bg-app-accent text-white shadow-[0_0_12px_rgba(99,102,241,0.25)]'
+                      : 'bg-app-input border border-white/8 text-app-soft hover:border-white/16 hover:text-app-text'
+                  }`}
+                >
+                  <span className="block font-semibold">{template.label}</span>
+                  <span className="block text-[10px] opacity-70 mt-0.5">
+                    {template.rooms.filter(r => r.type !== 'foyer' && r.type !== 'utility').length} rooms
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p className="text-app-faint text-[10px]">
+              {BHK_TEMPLATES.find(t => t.bhkType === selectedBHK)?.description}
+            </p>
+          </div>
+
           {/* Title */}
           <div>
             <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Project Title</Label>
