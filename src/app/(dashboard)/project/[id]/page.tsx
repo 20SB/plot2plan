@@ -173,29 +173,29 @@ export default function ProjectPage() {
   )
 
   const ToolbarContent = (
-    <div className="glass border-b px-4 md:px-6 py-3 flex items-center justify-between gap-4 flex-wrap z-10">
+    <div className="glass-surface border-b px-4 md:px-6 py-3 flex items-center justify-between gap-4 flex-wrap z-30 mb-px rounded-none border-x-0 border-t-0">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => router.push('/')}
-          className="text-muted-foreground hover:text-foreground transition-all gap-2 h-9 px-2 md:px-3 rounded-xl border group">
+          className="text-foreground-muted hover:text-foreground transition-all gap-2 h-9 px-2 md:px-3 rounded-xl border border-white/[0.06] group">
           <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
           <span className="hidden sm:inline font-medium">Projects</span>
         </Button>
         <div className="min-w-0">
-          <h2 className="text-foreground font-bold text-sm md:text-lg truncate tracking-tight">{project.title}</h2>
+          <h2 className="text-gradient font-semibold text-sm md:text-lg truncate tracking-tight">{project.title}</h2>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-muted-foreground text-[10px] md:text-xs font-mono bg-muted px-1.5 py-0.5 rounded">
+            <span className="text-foreground-muted text-[10px] md:text-xs font-mono bg-white/[0.05] border border-white/[0.06] px-1.5 py-0.5 rounded">
               {project.plotWidth}×{project.plotHeight} {project.plotUnit}
             </span>
             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-              project.vastuScore >= 75 ? 'bg-green-500/10 text-green-600 border-green-500/20' : 
-              project.vastuScore >= 50 ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 
-                                         'bg-rose-500/10 text-rose-600 border-rose-500/20'
+              project.vastuScore >= 75 ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
+              project.vastuScore >= 50 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 
+                                         'bg-rose-500/10 text-rose-400 border-rose-500/20'
             }`}>
               Vastu: {Math.round(project.vastuScore)}
             </span>
             {saving && (
-              <span className="text-primary text-[10px] font-bold tracking-widest flex items-center gap-1 animate-pulse uppercase">
-                <div className="size-1 rounded-full bg-primary" /> Saving
+              <span className="text-accent text-[10px] font-bold tracking-widest flex items-center gap-1 animate-pulse uppercase">
+                <div className="size-1 rounded-full bg-accent" /> Saving
               </span>
             )}
           </div>
@@ -203,13 +203,13 @@ export default function ProjectPage() {
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        <div className="hidden md:flex items-center gap-1.5 bg-muted/50 p-1 rounded-2xl border">
+        <div className="hidden md:flex items-center gap-1.5 bg-white/[0.03] p-1 rounded-2xl border border-white/[0.06]">
           {(['ARCH', 'PLMB', 'ELEC'] as LayerType[]).map(layer => (
             <button key={layer} onClick={() => setActiveLayer(layer)}
               className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeLayer === layer
-                  ? 'bg-background text-primary shadow-sm ring-1 ring-border'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                  ? 'bg-white/[0.08] text-white shadow-linear ring-1 ring-white/10'
+                  : 'text-foreground-muted hover:text-foreground hover:bg-white/[0.05]'
               }`}>
               {layer}
             </button>
@@ -218,12 +218,22 @@ export default function ProjectPage() {
 
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" disabled={exporting} onClick={handleExportPdf}
-            className="rounded-xl h-9 px-3 font-semibold hover:bg-primary hover:text-white transition-all gap-2 border shadow-sm">
+            className="rounded-xl h-9 px-3 font-semibold transition-all gap-2 border border-white/10">
             <FilePdf weight="bold" /> <span className="hidden sm:inline">PDF</span>
           </Button>
           <Button variant="outline" size="sm" disabled={exporting} onClick={handleExportDxf}
-            className="rounded-xl h-9 px-3 font-semibold hover:bg-primary hover:text-white transition-all gap-2 border shadow-sm">
+            className="rounded-xl h-9 px-3 font-semibold transition-all gap-2 border border-white/10">
             <FileCode weight="bold" /> <span className="hidden sm:inline">DXF</span>
+          </Button>
+
+          <Button 
+            variant="accent" 
+            size="sm" 
+            onClick={() => router.push(`/project/${id}/analytics`)}
+            className="rounded-xl h-9 px-4 gap-2 shadow-accent-glow"
+          >
+            <Compass weight="bold" size={16} className="animate-pulse" />
+            <span className="font-semibold">Insights</span>
           </Button>
           
           <Sheet>
@@ -232,8 +242,8 @@ export default function ProjectPage() {
                 <Compass weight="bold" /> Analysis
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="p-0 w-[90%] sm:w-[380px]">
-              <aside className="h-full bg-background flex flex-col">
+            <SheetContent side="right" className="p-0 w-[90%] sm:w-[380px] bg-bg-base/95 backdrop-blur-xl border-l border-white/[0.06]">
+              <aside className="h-full flex flex-col">
                 {SidebarContent}
               </aside>
             </SheetContent>
@@ -244,12 +254,13 @@ export default function ProjectPage() {
   )
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] bg-background animate-in overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-transparent animate-in overflow-hidden relative z-10">
       {ToolbarContent}
 
       <div className="flex flex-1 overflow-hidden relative">
-        <div className="flex-1 overflow-auto bg-muted/30 p-4 md:p-8 flex items-start justify-center pattern-grid-slate-200">
-          <div className="bg-background rounded-2xl md:rounded-3xl shadow-premium border p-2 md:p-4 scale-[0.6] sm:scale-[0.8] md:scale-100 origin-top transform-gpu transition-transform">
+        <div className="flex-1 overflow-auto bg-transparent p-4 md:p-8 flex items-start justify-center pattern-grid-slate-200">
+          <div className="glass-surface rounded-2xl md:rounded-3xl shadow-linear p-2 md:p-4 scale-[0.6] sm:scale-[0.8] md:scale-100 origin-top transform-gpu transition-all hover:border-white/10 hover:shadow-linear-hover group/canvas relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
             <FloorPlanCanvas
               plotWidth={project.plotWidth}
               plotHeight={project.plotHeight}
@@ -264,7 +275,7 @@ export default function ProjectPage() {
           </div>
         </div>
 
-        <aside className="hidden lg:flex w-[380px] border-l bg-background flex-col overflow-hidden flex-shrink-0 animate-in fade-in slide-in-from-right-4 duration-500">
+        <aside className="hidden lg:flex w-[380px] border-l border-white/[0.06] bg-white/[0.02] backdrop-blur-md flex-col overflow-hidden flex-shrink-0 animate-in fade-in slide-in-from-right-4 duration-500">
           {SidebarContent}
         </aside>
       </div>

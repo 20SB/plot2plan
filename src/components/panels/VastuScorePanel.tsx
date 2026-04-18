@@ -3,7 +3,18 @@
 import { useState } from 'react'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
-import { Warning, CheckCircle, XCircle, Info, FirstAidKit, Atom, Compass } from '@phosphor-icons/react'
+import { 
+  Warning, 
+  CheckCircle, 
+  XCircle, 
+  Info, 
+  FirstAidKit, 
+  Atom, 
+  Compass, 
+  ChartPolar, 
+  ShieldCheck,
+  TrendUp
+} from '@phosphor-icons/react'
 import type { Room } from '@/types'
 
 interface VastuDosha {
@@ -26,36 +37,44 @@ interface Props {
 }
 
 const SEVERITY_CONFIG = {
-  CRITICAL: { color: 'bg-destructive/10 text-destructive border-destructive/20', icon: <XCircle size={14} weight="bold" />, label: 'CRITICAL' },
-  SEVERE: { color: 'bg-orange-500/10 text-orange-600 border-orange-500/20', icon: <Warning size={14} weight="bold" />, label: 'SEVERE' },
-  MODERATE: { color: 'bg-amber-500/10 text-amber-600 border-amber-500/20', icon: <Warning size={14} weight="bold" />, label: 'MODERATE' },
-  MILD: { color: 'bg-blue-500/10 text-blue-600 border-blue-500/20', icon: <Info size={14} weight="bold" />, label: 'MILD' },
-  NONE: { color: 'bg-green-500/10 text-green-600 border-green-500/20', icon: <CheckCircle size={14} weight="bold" />, label: 'CLEAR' },
+  CRITICAL: { color: 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-[0_0_10px_rgba(251,113,133,0.15)]', icon: <XCircle size={12} weight="bold" />, label: 'CRITICAL' },
+  SEVERE: { color: 'bg-orange-500/10 text-orange-400 border-orange-500/20', icon: <Warning size={12} weight="bold" />, label: 'SEVERE' },
+  MODERATE: { color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', icon: <Warning size={12} weight="bold" />, label: 'MODERATE' },
+  MILD: { color: 'bg-blue-500/10 text-blue-400 border-blue-500/20', icon: <Info size={12} weight="bold" />, label: 'MILD' },
+  NONE: { color: 'bg-green-500/10 text-green-400 border-green-500/20', icon: <CheckCircle size={12} weight="bold" />, label: 'OPTIMAL' },
 }
 
 const ELEMENT_CONFIG: Record<string, { emoji: string; color: string; bg: string }> = {
-  FIRE: { emoji: '🔥', color: 'text-orange-500', bg: 'bg-orange-500/10' },
+  FIRE: { emoji: '🔥', color: 'text-rose-500', bg: 'bg-rose-500/10' },
   WATER: { emoji: '💧', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  EARTH: { emoji: '🌍', color: 'text-emerald-700', bg: 'bg-emerald-500/10' },
-  AIR: { emoji: '💨', color: 'text-slate-500', bg: 'bg-slate-500/10' },
-  SPACE: { emoji: '✨', color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+  EARTH: { emoji: '🌍', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+  AIR: { emoji: '💨', color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
+  SPACE: { emoji: '✨', color: 'text-accent', bg: 'bg-accent/10' },
 }
 
 function ScoreRing({ score }: { score: number }) {
-  const color = score >= 75 ? 'hsl(142, 71%, 45%)' : score >= 50 ? 'hsl(48, 96%, 48%)' : 'hsl(0, 84%, 60%)'
+  const color = score >= 75 ? '#4ade80' : score >= 50 ? '#fbbf24' : '#fb7185'
+  const glow = score >= 75 ? 'rgba(74, 222, 128, 0.3)' : score >= 50 ? 'rgba(251, 191, 36, 0.3)' : 'rgba(251, 113, 133, 0.3)'
   const r = 38
   const circ = 2 * Math.PI * r
   const dash = (score / 100) * circ
+  
   return (
-    <div className="relative flex items-center justify-center w-28 h-28 flex-shrink-0 animate-in zoom-in-95 duration-500">
-      <svg width="112" height="112" className="rotate-[-90deg]">
-        <circle cx="56" cy="56" r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth="10" />
-        <circle cx="56" cy="56" r={r} fill="none" stroke={color} strokeWidth="10"
-          strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+    <div className="relative flex items-center justify-center size-28 flex-shrink-0 group">
+      <div className="absolute inset-0 rounded-full border border-white/[0.04]" />
+      <svg width="112" height="112" className="rotate-[-90deg] drop-shadow-[0_0_8px_var(--glow)]" style={{ '--glow': glow } as any}>
+        <circle cx="56" cy="56" r={r} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="8" />
+        <circle 
+          cx="56" cy="56" r={r} fill="none" 
+          stroke={color} strokeWidth="8"
+          strokeDasharray={`${dash} ${circ}`} 
+          strokeLinecap="round" 
+          className="transition-all duration-1000 ease-in-out" 
+        />
       </svg>
       <div className="absolute text-center">
-        <div className="text-3xl font-black text-foreground tracking-tighter">{score}</div>
-        <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Score</div>
+        <div className="text-3xl font-bold text-white tracking-tighter drop-shadow-sm">{score}</div>
+        <div className="text-[10px] text-foreground-subtle font-mono font-bold uppercase tracking-widest mt-0.5">Energy</div>
       </div>
     </div>
   )
@@ -64,7 +83,7 @@ function ScoreRing({ score }: { score: number }) {
 function DoshaBadge({ severity }: { severity: VastuDosha['severity'] }) {
   const cfg = SEVERITY_CONFIG[severity] || SEVERITY_CONFIG.NONE
   return (
-    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${cfg.color}`}>
+    <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border backdrop-blur-md transition-all ${cfg.color}`}>
       {cfg.icon}{cfg.label}
     </span>
   )
@@ -73,7 +92,7 @@ function DoshaBadge({ severity }: { severity: VastuDosha['severity'] }) {
 export function VastuScorePanel({ rooms, overallScore }: Props) {
   const score = Math.round(overallScore)
   const label = score >= 75 ? 'EXCELLENT' : score >= 50 ? 'MODERATE' : 'CRITICAL'
-  const labelColor = score >= 75 ? 'text-emerald-600' : score >= 50 ? 'text-amber-600' : 'text-rose-600'
+  const labelColor = score >= 75 ? 'text-green-400' : score >= 50 ? 'text-amber-400' : 'text-rose-400'
   const [expandedRoom, setExpandedRoom] = useState<string | null>(null)
 
   const brahmasthanaViolators = rooms.filter(r => r.isInBrahmasthana)
@@ -81,96 +100,87 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
   const criticalDoshas = allDoshas.filter(d => d.severity === 'CRITICAL' || d.severity === 'SEVERE')
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <div className="p-6 space-y-8 scroll-smooth overflow-y-auto">
+    <div className="flex flex-col h-full bg-transparent scrollbar-hide">
+      <div className="p-4 space-y-4 overflow-y-auto">
         {/* Brahmasthana Alert */}
-        {brahmasthanaViolators.length > 0 ? (
-          <div className="p-5 bg-destructive/5 border-2 border-destructive/20 rounded-2xl animate-in slide-in-from-top-4 duration-500">
+        {brahmasthanaViolators.length > 0 && (
+          <div className="glass-surface p-4 border-rose-500/20 bg-rose-500/[0.02] rounded-xl animate-in slide-in-from-top-4 duration-500">
             <div className="flex items-center gap-2 mb-2">
-              <Atom className="w-5 h-5 text-destructive" />
-              <span className="text-destructive font-black text-xs uppercase tracking-widest">Architectural Void</span>
+              <Atom className="w-4 h-4 text-rose-400 animate-spin-slow" />
+              <span className="text-rose-400 font-bold text-[10px] uppercase tracking-widest leading-none">Disharmony</span>
             </div>
-            <p className="text-foreground text-xs leading-relaxed font-semibold">
-              The sacred center (Brahmasthana) is blocked by {brahmasthanaViolators.map(r => r.name).join(', ')}.
+            <p className="text-foreground text-[13px] font-medium tracking-tight leading-relaxed">
+              <span className="text-rose-400 font-bold uppercase text-[10px]">Brahmasthana</span> is compromised by {brahmasthanaViolators.map(r => r.name).join(', ')}.
             </p>
-            <div className="mt-4 bg-destructive text-white p-3 rounded-xl flex items-start gap-3 shadow-lg">
-              <FirstAidKit size={16} weight="bold" className="flex-shrink-0" />
-              <p className="font-bold text-[10px] uppercase leading-tight">MANDATORY REMEDY: Restore the central 1/9th zone to open space immediately.</p>
-            </div>
           </div>
-        ) : null}
+        )}
 
         {/* Energy Map Visual */}
-        <div className="bg-white rounded-[2rem] p-6 border shadow-premium overflow-hidden relative group">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest pl-1">Vastu Energy Map</h3>
-            <div className="size-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
+        <div className="glass-surface p-4 rounded-[1.5rem] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-3 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity">
+            <ChartPolar size={60} weight="thin" />
           </div>
-          <div className="flex items-center justify-center py-4">
-             <div className="relative size-48 flex items-center justify-center">
-                {/* Simulated Energy Grid */}
-                <div className="absolute inset-0 border border-slate-100 rounded-full" />
-                <div className="absolute inset-4 border border-slate-100 rounded-full" />
-                <div className="absolute inset-8 border border-slate-50 rounded-full" />
-                <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 opacity-20">
-                  <div className="border-r border-b border-indigo-200" />
-                  <div className="border-b border-indigo-200" />
-                  <div className="border-r border-indigo-200" />
-                  <div />
-                </div>
-                {/* The Radar Pulse */}
-                <div className="absolute size-32 bg-primary/5 rounded-full animate-ping duration-[3s]" />
-                <div className="absolute size-40 bg-indigo-500/5 rounded-full" />
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-[9px] font-bold text-foreground-subtle uppercase tracking-[0.2em] font-mono">Dynamic Analysis</h3>
+            <div className="flex items-center gap-1.5">
+               <div className="size-1 rounded-full bg-accent animate-pulse shadow-accent-glow" />
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center py-2">
+             <div className="relative size-32 flex items-center justify-center">
+                {/* HUD Elements */}
+                <div className="absolute inset-0 border border-white/[0.04] rounded-full animate-spin-slow duration-[30s]" />
+                <div className="absolute inset-3 border border-white/[0.06] rounded-full" />
                 
-                {/* Direction Labels */}
-                <span className="absolute top-0 text-[8px] font-black text-slate-400">N</span>
-                <span className="absolute right-0 text-[8px] font-black text-slate-400">E</span>
-                <span className="absolute bottom-0 text-[8px] font-black text-slate-400">S</span>
-                <span className="absolute left-0 text-[8px] font-black text-slate-400">W</span>
+                {/* Radar Line */}
+                <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(94,106,210,0.1)_100%)] animate-[spin_4s_linear_infinite]" />
+                
+                <Compass size={32} weight="thin" className="text-white opacity-20 group-hover:opacity-40 transition-opacity" />
+                <span className="absolute top-0 text-[8px] font-mono font-bold text-white/30">N</span>
+                <span className="absolute right-0 text-[8px] font-mono font-bold text-white/30">E</span>
+                <span className="absolute bottom-0 text-[8px] font-mono font-bold text-white/30">S</span>
+                <span className="absolute left-0 text-[8px] font-mono font-bold text-white/30">W</span>
 
-                <Compass size={48} weight="thin" className="text-primary/20 group-hover:text-primary/40 transition-colors" />
-                
-                {/* Active Points (Room hotspots) */}
-                {rooms.slice(0, 4).map((r, i) => (
+                {/* Data Points */}
+                {rooms.slice(0, 6).map((r, i) => (
                    <div key={r.id} 
-                    className={`absolute size-1.5 rounded-full shadow-sm transition-all duration-700 ${r.vastuScore >= 70 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                    className={`absolute size-1.5 rounded-full border border-white/20 shadow-lg transition-all duration-1000 ${r.vastuScore >= 70 ? 'bg-green-400' : 'bg-rose-400'}`}
                     style={{ 
-                      top: `${30 + Math.sin(i * 1.5) * 20}%`, 
-                      left: `${40 + Math.cos(i * 1.5) * 25}%` 
+                      top: `${35 + Math.sin(i * 1.5) * 20}%`, 
+                      left: `${45 + Math.cos(i * 1.5) * 25}%` 
                     }} 
                    />
                 ))}
              </div>
           </div>
-          <p className="text-center text-[10px] font-bold text-muted-foreground mt-4 uppercase tracking-tighter opacity-60">
-            Quantum energy analysis of {rooms.length} zones
-          </p>
         </div>
 
         {/* Overall score */}
-        <div className="bg-slate-50/50 rounded-[2rem] p-8 border border-indigo-100/50 flex items-center gap-8 animate-in fade-in duration-700">
+        <div className="glass-surface p-5 rounded-[1.5rem] flex items-center gap-6 relative overflow-hidden">
           <ScoreRing score={score} />
-          <div className="flex-1 space-y-2">
-            <div className={`font-black text-3xl tracking-tighter ${labelColor}`}>{label}</div>
-            <p className="text-slate-600 text-xs font-bold leading-snug">
-              Architecture aligns with {score}% of celestial archetypes.
+          <div className="flex-1 space-y-1 relative z-10">
+            <div className={`font-bold text-2xl tracking-tight leading-none ${labelColor}`}>{label}</div>
+            <p className="text-foreground-muted text-[11px] font-medium leading-tight tracking-tight">
+              Aligns with {score}% archetypes.
             </p>
             <div className="pt-2">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black bg-white shadow-sm text-muted-foreground border border-slate-100 uppercase tracking-widest">
-                {criticalDoshas.length} Critical Issues
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[9px] font-bold bg-white/[0.03] text-foreground-subtle border border-white/5 uppercase tracking-widest">
+                  <TrendUp size={12} className={score >= 50 ? 'text-green-400' : 'text-rose-400'} />
+                  {criticalDoshas.length} Critical
               </span>
             </div>
           </div>
         </div>
 
         {/* Per-room analysis */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Detailed Zone Audit</h3>
-            <span className="text-[10px] font-black text-primary uppercase tracking-widest">{rooms.length} ZONES</span>
+            <h3 className="text-[9px] font-bold text-foreground-subtle uppercase tracking-[0.2em] font-mono">Inventory</h3>
+            <span className="text-[9px] font-bold text-accent font-mono tracking-widest">{rooms.length} ZONES</span>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-2">
             {rooms.map((room) => {
               const roomDoshas = room.doshas || []
               const maxSeverity = roomDoshas.length > 0 
@@ -183,49 +193,49 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
               const isExpanded = expandedRoom === room.id
 
               return (
-                <div key={room.id} className={`rounded-2xl border bg-white transition-all duration-300 ${isExpanded ? 'border-primary shadow-premium ring-1 ring-primary/10' : 'hover:border-primary/30 shadow-sm'}`}>
+                <div key={room.id} className={`glass-surface transition-all duration-500 overflow-hidden ${isExpanded ? 'ring-1 ring-accent/30 ' : 'hover:border-white/10 group'}`}>
                   <button
                     onClick={() => setExpandedRoom(isExpanded ? null : room.id)}
-                    className="w-full text-left p-5"
+                    className="w-full text-left p-4"
                   >
-                    <div className="flex items-center justify-between gap-4 mb-4">
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className={`size-12 rounded-2xl ${element?.bg || 'bg-slate-100'} flex items-center justify-center text-2xl shadow-sm border border-black/5`}>
+                    <div className="flex items-center justify-between gap-4 mb-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`size-9 rounded-xl ${element?.bg || 'bg-white/[0.03]'} border border-white/[0.08] flex items-center justify-center text-xl`}>
                           {element?.emoji || '🏠'}
                         </div>
                         <div className="truncate">
-                          <span className="text-base font-black text-foreground block leading-none tracking-tight">{room.name}</span>
-                          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-1.5 block">
+                          <span className="text-[14px] font-bold text-white block leading-none tracking-tight">{room.name}</span>
+                          <span className="text-[9px] text-foreground-subtle font-mono font-bold uppercase tracking-widest mt-1 block opacity-70">
                             {room.direction} · {room.element || 'Neutral'}
                           </span>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                         <span className={`text-lg font-black italic tracking-tighter ${room.vastuScore >= 75 ? 'text-emerald-600' : room.vastuScore >= 50 ? 'text-amber-600' : 'text-rose-600'}`}>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                         <span className={`text-base font-bold tracking-tighter ${room.vastuScore >= 75 ? 'text-green-400' : room.vastuScore >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>
                           {room.vastuScore}%
                         </span>
                         <DoshaBadge severity={maxSeverity as VastuDosha['severity']} />
                       </div>
                     </div>
-                    <Progress value={room.vastuScore} className="h-2 rounded-full bg-slate-100" />
+                    <div className="h-1 w-full bg-white/[0.03] rounded-full overflow-hidden">
+                       <div className={`h-full transition-all duration-1000 ${room.vastuScore >= 75 ? 'bg-green-400' : room.vastuScore >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`} style={{ width: `${room.vastuScore}%` }} />
+                    </div>
                   </button>
 
                   {isExpanded && roomDoshas.length > 0 && (
-                    <div className="px-5 pb-5 space-y-3 animate-in fade-in slide-in-from-top-2">
-                       <div className="h-px bg-slate-100 mb-4" />
+                    <div className="px-4 pb-4 space-y-3 animate-in fade-in slide-in-from-top-1">
+                       <Separator className="bg-white/[0.06]" />
                       {roomDoshas.map((dosha, i) => (
-                        <div key={i} className={`rounded-xl p-4 border shadow-sm ${
-                          dosha.severity === 'CRITICAL' ? 'bg-destructive/5 border-destructive/20' :
-                          dosha.severity === 'SEVERE' ? 'bg-orange-500/5 border-orange-500/20' :
-                          dosha.severity === 'MODERATE' ? 'bg-amber-500/5 border-amber-500/20' :
-                          'bg-blue-500/5 border-blue-500/20'
+                        <div key={i} className={`rounded-xl p-3 border transition-all ${
+                          dosha.severity === 'CRITICAL' ? 'bg-rose-500/[0.02] border-rose-500/10' :
+                          'bg-white/[0.01] border-white/[0.06]'
                         }`}>
-                          <div className="text-foreground text-[13px] font-bold leading-snug mb-3 tracking-tight">{dosha.description}</div>
-                          <div className="bg-white rounded-lg p-3 flex items-start gap-3 border shadow-sm">
-                            <FirstAidKit size={16} weight="bold" className="text-emerald-600 flex-shrink-0 mt-0.5" />
-                            <div className="text-slate-600 text-xs leading-relaxed font-medium">
-                              <strong className="text-emerald-700 uppercase text-[10px] tracking-widest block mb-1">AI Recommendation</strong> 
-                              {dosha.remedy}
+                          <div className="text-foreground text-[12px] font-semibold leading-relaxed mb-3 tracking-tight">{dosha.description}</div>
+                          <div className="bg-white/[0.03] rounded-lg p-3 flex items-start gap-3 border border-white/[0.06]">
+                            <FirstAidKit size={16} weight="bold" className="text-green-400 flex-shrink-0 mt-0.5" />
+                            <div className="space-y-0.5">
+                              <span className="text-green-400 uppercase text-[8px] font-mono font-bold tracking-[0.2em] block">Remedy</span>
+                              <p className="text-foreground-muted text-[10px] leading-snug font-medium tracking-tight">{dosha.remedy}</p>
                             </div>
                           </div>
                         </div>
@@ -240,10 +250,10 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
 
         {rooms.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="size-20 bg-muted/30 rounded-full flex items-center justify-center mb-6">
-               <Compass size={40} weight="thin" className="text-muted-foreground/40" />
+            <div className="size-20 bg-white/[0.02] border border-white/[0.06] rounded-[2rem] flex items-center justify-center mb-6">
+               <Compass size={40} weight="thin" className="text-foreground-subtle opacity-30" />
             </div>
-            <p className="text-sm font-black text-muted-foreground uppercase tracking-widest">Blueprint Pending Analysis</p>
+            <p className="text-[10px] font-mono font-bold text-foreground-subtle uppercase tracking-[0.2em]">Blueprint Pending Analysis</p>
           </div>
         )}
       </div>

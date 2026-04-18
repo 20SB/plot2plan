@@ -74,42 +74,42 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
-      <div className="p-6 space-y-6">
+    <div className="flex flex-col h-full bg-transparent animate-in fade-in duration-500 overflow-hidden relative z-10">
+      <div className="p-6 space-y-8 overflow-y-auto">
         {/* Helper text / action box */}
-        <div className="bg-muted/30 border border-dashed rounded-2xl p-4 flex items-center justify-between">
-          <div className="space-y-0.5">
-            <p className="text-xs font-bold text-foreground">Compare States</p>
-            <p className="text-[10px] text-muted-foreground font-medium">Select 2 items to diff ({selected.length}/2)</p>
+        <div className="bg-white/[0.02] border border-white/[0.1] border-dashed rounded-2xl p-5 flex items-center justify-between backdrop-blur-md">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground tracking-tight">Compare State History</p>
+            <p className="text-[10px] text-foreground-muted font-medium font-mono uppercase tracking-widest">Select 2 items to diff ({selected.length}/2)</p>
           </div>
           {selected.length === 2 && (
             <Button size="sm" 
               onClick={() => setComparing([selected[0], selected[1]])}
-              className="rounded-xl text-[10px] font-black h-8 gap-2 shadow-premium animate-in zoom-in-95">
+              className="rounded-xl text-[10px] font-bold h-8 gap-2 shadow-accent-glow animate-in zoom-in-95 bg-accent text-white border-none">
               <GitDiff size={14} weight="bold" /> COMPARE
             </Button>
           )}
         </div>
 
         <ScrollArea className="h-[calc(100vh-280px)]">
-          <div className="space-y-3 pr-4">
+          <div className="space-y-4 pr-4">
             {revisions.map((rev, idx) => (
               <div key={rev.id}
                 onClick={() => toggleSelect(rev.id)}
-                className={`group relative p-4 rounded-2xl border transition-all duration-300 cursor-pointer ${
+                className={`group relative p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${
                   selected.includes(rev.id)
-                    ? 'border-primary bg-primary/5 shadow-premium ring-1 ring-primary/20'
-                    : 'bg-card hover:border-primary/20 hover:bg-muted/20 hover:shadow-sm'
+                    ? 'border-accent bg-accent/5 shadow-accent-glow ring-1 ring-accent/20'
+                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.2] hover:bg-white/[0.05] hover:shadow-linear'
                 }`}>
                 
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
-                      selected.includes(rev.id) ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border'
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <span className={`text-[10px] font-mono font-bold px-2 py-1 rounded border transition-colors ${
+                      selected.includes(rev.id) ? 'bg-accent text-white border-accent' : 'bg-white/[0.05] text-foreground-muted border-white/[0.1]'
                     }`}>
                       V{revisions.length - idx}
                     </span>
-                    <span className="text-sm font-bold text-foreground truncate max-w-[140px]">
+                    <span className="text-base font-semibold text-foreground truncate max-w-[140px] tracking-tight group-hover:text-accent transition-colors">
                       {rev.label || 'Auto-save Point'}
                     </span>
                   </div>
@@ -119,31 +119,33 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
                     variant="ghost"
                     disabled={restoring === rev.id}
                     onClick={(e) => { e.stopPropagation(); handleRestore(rev.id) }}
-                    className="h-8 w-8 p-0 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
+                    className="size-8 p-0 rounded-xl text-foreground-muted hover:text-accent hover:bg-white/[0.05] transition-all lg:opacity-0 group-hover:opacity-100"
                     title="Restore version"
                   >
-                    <ArrowCounterClockwise size={16} weight="bold" />
+                    <ArrowCounterClockwise size={18} weight="bold" />
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-between mt-3">
-                  <div className="flex items-center gap-1.5">
-                    <div className="size-1.5 rounded-full bg-primary/40" />
-                    <span className="text-[10px] text-muted-foreground font-bold font-mono">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="size-1.5 rounded-full bg-accent animate-pulse" />
+                    <span className="text-[10px] text-foreground-muted font-medium font-mono tracking-wider">
                       {new Date(rev.createdAt).toLocaleDateString()} · {new Date(rev.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                   {idx === 0 && (
-                    <span className="text-[9px] font-black text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Current</span>
+                    <span className="text-[9px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20 uppercase tracking-widest shadow-linear">Current</span>
                   )}
                 </div>
               </div>
             ))}
             
             {revisions.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">
-                <ClockCounterClockwise size={48} weight="thin" className="mb-4 text-muted-foreground" />
-                <p className="text-sm font-medium">No activity log found<br/>for this workspace yet</p>
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="size-20 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center mb-6">
+                  <ClockCounterClockwise size={40} weight="thin" className="text-foreground-muted opacity-40" />
+                </div>
+                <p className="text-sm font-medium text-foreground-muted tracking-tight">No activity log found<br/>for this workspace yet</p>
               </div>
             )}
           </div>

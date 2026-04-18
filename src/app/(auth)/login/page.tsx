@@ -44,33 +44,33 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-black text-foreground tracking-tighter leading-none mb-3">Welcome back</h1>
-        <p className="text-muted-foreground font-medium">Access your architectural workspace</p>
+      <div className="mb-10 text-center space-y-2">
+        <h1 className="text-4xl font-semibold text-gradient tracking-tighter leading-tight">Welcome back</h1>
+        <p className="text-foreground-muted font-medium">Access your architectural workspace</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Email Address</label>
+          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Email Address</label>
           <Input
             {...register('email')}
             type="email"
             placeholder="name@studio.com"
-            className="h-12 rounded-xl text-base font-medium"
+            className="h-12 rounded-xl text-base"
           />
           {errors.email && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Password</label>
-            <Link href="#" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Forgot?</Link>
+            <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest">Password</label>
+            <Link href="#" className="text-[10px] font-mono font-bold text-accent uppercase tracking-widest hover:underline transition-all">Forgot?</Link>
           </div>
           <Input
             {...register('password')}
             type="password"
             placeholder="••••••••"
-            className="h-12 rounded-xl text-base font-medium"
+            className="h-12 rounded-xl text-base"
           />
           {errors.password && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.password.message}</p>}
         </div>
@@ -78,11 +78,11 @@ export default function LoginPage() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-14 rounded-xl font-black text-lg shadow-premium hover:shadow-premium-hover transition-all active:scale-[0.98] mt-4"
+          className="w-full h-14 rounded-xl font-semibold text-lg shadow-accent-glow mt-4"
         >
           {loading ? (
             <span className="flex items-center gap-3">
-               <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+               <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                SECURELY SIGNING IN...
             </span>
           ) : (
@@ -91,9 +91,18 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      <p className="text-center text-sm font-bold text-muted-foreground mt-10">
+      <div className="relative my-10">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-white/[0.06]" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-[#0a0a0c] px-2 text-foreground-subtle font-mono tracking-widest">or</span>
+        </div>
+      </div>
+
+      <p className="text-center text-sm font-medium text-foreground-muted">
         New architect?{' '}
-        <Link href="/register" className="text-primary hover:text-primary/80 transition-colors uppercase tracking-widest text-xs">
+        <Link href="/register" className="text-accent hover:text-accent-bright transition-colors font-semibold">
           Create Account
         </Link>
       </p>

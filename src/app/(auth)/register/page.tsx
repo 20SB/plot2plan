@@ -55,63 +55,63 @@ export default function RegisterPage() {
 
   return (
     <>
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-black text-foreground tracking-tighter leading-none mb-3">Create Workspace</h1>
-        <p className="text-muted-foreground font-medium">Start designing Vastu-compliant spaces</p>
+      <div className="mb-10 text-center space-y-2">
+        <h1 className="text-4xl font-semibold text-gradient tracking-tighter leading-tight">Create Workspace</h1>
+        <p className="text-foreground-muted font-medium">Start designing Vastu-compliant spaces</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="space-y-2">
-          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Full Name</label>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Full Name</label>
           <Input
             {...register('name')}
             placeholder="Jane Architect"
-            className="h-12 rounded-xl text-base font-medium"
+            className="h-11 rounded-xl"
           />
-          {errors.name && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.name.message}</p>}
+          {errors.name && <p className="text-destructive text-[10px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.name.message}</p>}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Email Address</label>
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Email Address</label>
           <Input
             {...register('email')}
             type="email"
             placeholder="name@studio.com"
-            className="h-12 rounded-xl text-base font-medium"
+            className="h-11 rounded-xl"
           />
-          {errors.email && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.email.message}</p>}
+          {errors.email && <p className="text-destructive text-[10px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.email.message}</p>}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Safe Password</label>
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Safe Password</label>
           <Input
             {...register('password')}
             type="password"
             placeholder="••••••••"
-            className="h-12 rounded-xl text-base font-medium"
+            className="h-11 rounded-xl"
           />
-          {errors.password && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.password.message}</p>}
+          {errors.password && <p className="text-destructive text-[10px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.password.message}</p>}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Verify Password</label>
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-mono font-medium text-foreground-subtle uppercase tracking-widest px-1">Verify Password</label>
           <Input
             {...register('confirmPassword')}
             type="password"
             placeholder="••••••••"
-            className="h-12 rounded-xl text-base font-medium"
+            className="h-11 rounded-xl"
           />
-          {errors.confirmPassword && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && <p className="text-destructive text-[10px] font-bold mt-1 px-1 uppercase tracking-wider">{errors.confirmPassword.message}</p>}
         </div>
 
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-14 rounded-xl font-black text-lg shadow-premium hover:shadow-premium-hover transition-all active:scale-[0.98] mt-4"
+          className="w-full h-14 rounded-xl font-semibold text-lg shadow-accent-glow mt-6"
         >
           {loading ? (
             <span className="flex items-center gap-3">
-               <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+               <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                FORGING IDENTITY...
             </span>
           ) : (
@@ -120,9 +120,18 @@ export default function RegisterPage() {
         </Button>
       </form>
 
-      <p className="text-center text-sm font-bold text-muted-foreground mt-10">
+      <div className="relative my-10">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-white/[0.06]" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-[#0a0a0c] px-2 text-foreground-subtle font-mono tracking-widest">or</span>
+        </div>
+      </div>
+
+      <p className="text-center text-sm font-medium text-foreground-muted">
         Already registered?{' '}
-        <Link href="/login" className="text-primary hover:text-primary/80 transition-colors uppercase tracking-widest text-xs">
+        <Link href="/login" className="text-accent hover:text-accent-bright transition-colors font-semibold">
           Sign In Instead
         </Link>
       </p>
