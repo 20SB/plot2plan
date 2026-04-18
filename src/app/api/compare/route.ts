@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { z } from 'zod'
 import { findMatchingTemplates } from '@/lib/templates'
-import { buildSharedPrompt, callClaude, callGemini, callQwen, type AIProvider } from '@/lib/ai-providers'
+import { buildSharedPrompt, callClaude, callGemini, callOpus, type AIProvider } from '@/lib/ai-providers'
 import { scoreAllRooms } from '@/lib/vastu'
 import type { GenerateLayoutInput, GeneratedRoom } from '@/lib/claude'
 
 const compareSchema = z.object({
-  provider: z.enum(['claude', 'gemini', 'qwen']),
+  provider: z.enum(['claude', 'gemini', 'opus']),
   plotWidth: z.number().positive(),
   plotHeight: z.number().positive(),
   plotUnit: z.enum(['ft', 'm']).default('ft'),
@@ -22,7 +22,7 @@ type CallerFn = (s: string, u: string, i: GenerateLayoutInput) => Promise<Genera
 const callers: Record<AIProvider, CallerFn> = {
   claude: callClaude,
   gemini: callGemini,
-  qwen: callQwen,
+  opus:   callOpus,
 }
 
 export async function POST(req: NextRequest) {

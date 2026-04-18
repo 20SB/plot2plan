@@ -10,10 +10,8 @@ import { BHK_TEMPLATES, type BHKTemplate } from '@/lib/floor-plan-engine'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, Layout } from 'lucide-react'
+import { Loader2, Layout, Sparkles } from 'lucide-react'
 
 const ROOM_OPTIONS = [
   'Living Room', 'Master Bedroom', 'Bedroom', 'Kitchen', 'Bathroom',
@@ -107,110 +105,118 @@ export function PlotInputForm({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden border-none shadow-premium-hover">
-        <div className="bg-primary/5 p-10 border-b">
-          <DialogHeader>
-            <div className="flex items-center gap-3 mb-2">
-               <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-premium">
-                <Layout className="text-white w-6 h-6" />
-               </div>
-               <DialogTitle className="text-3xl">New Project</DialogTitle>
+      <DialogContent
+        className="max-w-xl p-0 border-white/[0.08] overflow-hidden rounded-3xl"
+        style={{ display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}
+      >
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}
+        >
+          {/* Header */}
+          <div className="px-6 pt-6 pb-5 border-b border-white/[0.06]" style={{ flexShrink: 0 }}>
+            <div className="flex items-center gap-3 mb-1.5">
+              <div className="size-9 bg-accent/10 border border-accent/20 rounded-xl flex items-center justify-center">
+                <Layout className="size-4 text-accent" />
+              </div>
+              <DialogTitle className="text-[22px] font-semibold tracking-[-0.02em] text-gradient">
+                New Project
+              </DialogTitle>
             </div>
-            <DialogDescription className="text-muted-foreground font-medium">
-              Configure your plot dimensions and architectural choices. <br/>
-              Our AI will generate a Vastu-compliant layout in seconds.
+            <DialogDescription className="text-sm text-foreground-muted leading-relaxed pl-12">
+              Configure your plot — AI generates a Vastu-compliant layout in seconds.
             </DialogDescription>
-          </DialogHeader>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="p-10 space-y-8 bg-background">
-          {/* BHK Category */}
-          <div className="space-y-4">
-            <label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1">
-              Home Configuration
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {BHK_TEMPLATES.map((template) => (
-                <button
-                  key={template.bhkType}
-                  type="button"
-                  onClick={() => {
-                    setSelectedBHK(template.bhkType)
-                    const templateRooms = template.rooms.map(r => r.name)
-                    setSelectedRooms(templateRooms)
-                  }}
-                  className={`relative p-4 rounded-2xl border-2 text-left transition-all duration-300 ${
-                    selectedBHK === template.bhkType
-                      ? 'border-primary bg-primary/5 shadow-premium'
-                      : 'border-muted bg-muted/20 hover:border-primary/20 hover:bg-muted/40'
-                  }`}
-                >
-                  <span className={`block text-sm font-black italic tracking-tighter ${selectedBHK === template.bhkType ? 'text-primary' : 'text-foreground'}`}>{template.label}</span>
-                  <span className="block text-[11px] font-bold text-muted-foreground mt-1 uppercase">
-                    {template.rooms.filter(r => r.type !== 'foyer' && r.type !== 'utility').length} Zones
-                  </span>
-                  {selectedBHK === template.bhkType && (
-                    <div className="absolute top-2 right-2 size-2 rounded-full bg-primary" />
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="px-1">
-               <p className="text-muted-foreground text-[11px] font-bold italic">
-                &quot;{BHK_TEMPLATES.find(t => t.bhkType === selectedBHK)?.description}&quot;
-              </p>
-            </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-               <span className="h-px flex-1 bg-border" />
-               <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest whitespace-nowrap">Plot Intelligence</span>
-               <span className="h-px flex-1 bg-border" />
+          {/* Scrollable body */}
+          <div className="px-6 py-5 space-y-5 custom-scrollbar" style={{ overflowY: 'auto', flex: 1 }}>
+
+            {/* BHK selection */}
+            <div className="space-y-2.5">
+              <label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">
+                Home Configuration
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {BHK_TEMPLATES.map((template) => (
+                  <button
+                    key={template.bhkType}
+                    type="button"
+                    onClick={() => {
+                      setSelectedBHK(template.bhkType)
+                      setSelectedRooms(template.rooms.map(r => r.name))
+                    }}
+                    className={`relative p-3.5 rounded-xl border text-left transition-all duration-200 ${
+                      selectedBHK === template.bhkType
+                        ? 'border-accent/40 bg-accent/[0.06]'
+                        : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <span className={`block text-sm font-semibold tracking-tight ${selectedBHK === template.bhkType ? 'text-accent' : 'text-foreground'}`}>
+                      {template.label}
+                    </span>
+                    <span className="block text-[10px] font-mono font-bold text-foreground-muted mt-0.5 uppercase">
+                      {template.rooms.filter(r => r.type !== 'foyer' && r.type !== 'utility').length} zones
+                    </span>
+                    {selectedBHK === template.bhkType && (
+                      <div className="absolute top-2 right-2 size-1.5 rounded-full bg-accent" />
+                    )}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] font-mono text-foreground-subtle">
+                {BHK_TEMPLATES.find(t => t.bhkType === selectedBHK)?.description}
+              </p>
             </div>
 
-            {/* Title */}
-            <div>
-              <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Project Title</Label>
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-white/[0.06]" />
+              <span className="text-[10px] font-mono font-bold text-foreground-subtle uppercase tracking-widest">Plot Details</span>
+              <div className="h-px flex-1 bg-white/[0.06]" />
+            </div>
+
+            {/* Project title */}
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">Project Title</Label>
               <Input
                 {...register('title')}
                 placeholder="The Riverside Villa"
-                className="h-12 rounded-xl text-lg font-bold"
+                className="h-11 rounded-xl bg-white/[0.03] border-white/[0.08] text-base font-medium placeholder:text-foreground-subtle focus-visible:border-accent/40 focus-visible:ring-1 focus-visible:ring-accent/30"
               />
-              {errors.title && <p className="text-destructive text-[11px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.title.message}</p>}
+              {errors.title && <p className="text-destructive text-[11px] font-mono">{errors.title.message}</p>}
             </div>
 
-            {/* Plot dimensions */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-1">
-                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Width</Label>
+            {/* Dimensions */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">Width</Label>
                 <Input
                   {...register('plotWidth')}
                   type="number"
-                  className="h-12 rounded-xl font-mono font-bold"
+                  className="h-11 rounded-xl bg-white/[0.03] border-white/[0.08] font-mono font-medium focus-visible:border-accent/40 focus-visible:ring-1 focus-visible:ring-accent/30"
                 />
               </div>
-              <div className="col-span-1">
-                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Length</Label>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">Length</Label>
                 <Input
                   {...register('plotHeight')}
                   type="number"
-                  className="h-12 rounded-xl font-mono font-bold"
+                  className="h-11 rounded-xl bg-white/[0.03] border-white/[0.08] font-mono font-medium focus-visible:border-accent/40 focus-visible:ring-1 focus-visible:ring-accent/30"
                 />
               </div>
-              <div className="col-span-1">
-                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Unit</Label>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">Unit</Label>
                 <Controller
                   name="plotUnit"
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <SelectTrigger className="h-12 rounded-xl bg-muted/30">
+                      <SelectTrigger className="h-11 rounded-xl bg-white/[0.03] border-white/[0.08]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ft">FEET (FT)</SelectItem>
-                        <SelectItem value="m">METERS (M)</SelectItem>
+                        <SelectItem value="ft">ft</SelectItem>
+                        <SelectItem value="m">m</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -218,30 +224,28 @@ export function PlotInputForm({ open, onClose }: Props) {
               </div>
             </div>
 
-            {/* Floors and Facing */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Floors</Label>
+            {/* Floors & Facing */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">Floors</Label>
                 <Input
                   {...register('numFloors')}
                   type="number"
-                  className="h-12 rounded-xl font-mono font-bold"
+                  className="h-11 rounded-xl bg-white/[0.03] border-white/[0.08] font-mono font-medium focus-visible:border-accent/40 focus-visible:ring-1 focus-visible:ring-accent/30"
                 />
               </div>
-              <div>
-                <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Plot Facing</Label>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">Plot Facing</Label>
                 <Controller
                   name="facing"
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <SelectTrigger className="h-12 rounded-xl bg-muted/30">
+                      <SelectTrigger className="h-11 rounded-xl bg-white/[0.03] border-white/[0.08]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {FACINGS.map(f => (
-                          <SelectItem key={f} value={f}>{f.toUpperCase()}</SelectItem>
-                        ))}
+                        {FACINGS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   )}
@@ -249,73 +253,79 @@ export function PlotInputForm({ open, onClose }: Props) {
               </div>
             </div>
 
-            {/* Style */}
-            <div>
-              <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Architectural Aura</Label>
+            {/* Architectural style */}
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">Architectural Style</Label>
               <Controller
                 name="style"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="h-12 rounded-xl bg-muted/30 font-bold">
+                    <SelectTrigger className="h-11 rounded-xl bg-white/[0.03] border-white/[0.08]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {STYLES.map(s => (
-                        <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
-                      ))}
+                      {STYLES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 )}
               />
             </div>
 
-            {/* Rooms */}
-            <div>
-              <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-3 block">Selected Zones</Label>
-              <div className="flex flex-wrap gap-2">
+            {/* Zones */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-[11px] font-mono font-bold text-foreground-muted uppercase tracking-widest">Selected Zones</Label>
+                <button
+                  type="button"
+                  onClick={() => setSelectedRooms([])}
+                  className="text-[10px] font-mono font-bold text-foreground-subtle hover:text-destructive transition-colors uppercase tracking-widest"
+                >
+                  Clear All
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
                 {ROOM_OPTIONS.map(room => (
-                  <span
+                  <button
                     key={room}
+                    type="button"
                     onClick={() => toggleRoom(room)}
-                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold cursor-pointer border transition-all duration-300 shadow-sm ${
+                    className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold transition-all duration-200 border ${
                       selectedRooms.includes(room)
-                        ? 'bg-primary text-white border-primary border-2 scale-105'
-                        : 'bg-muted/40 text-muted-foreground border-border hover:border-primary/50'
+                        ? 'bg-accent/10 text-accent border-accent/30'
+                        : 'bg-white/[0.03] text-foreground-muted border-white/[0.06] hover:border-white/[0.12] hover:text-foreground'
                     }`}
                   >
                     {room}
-                  </span>
+                  </button>
                 ))}
               </div>
-              <div className="mt-4 px-1 flex items-center justify-between">
-                 <span className="text-[11px] font-bold text-muted-foreground tracking-widest uppercase">{selectedRooms.length} Zones Locked</span>
-                 <Button variant="link" size="sm" type="button" onClick={() => setSelectedRooms([])} className="h-auto p-0 text-[11px] h-auto p-0 font-bold text-destructive uppercase tracking-widest">Clear All</Button>
-              </div>
+              <p className="text-[11px] font-mono text-foreground-subtle">{selectedRooms.length} zones selected</p>
             </div>
           </div>
 
-          <DialogFooter className="pt-6">
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-white/[0.06] flex gap-3" style={{ flexShrink: 0 }}>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={onClose}
-              className="flex-1 rounded-2xl h-14 font-black"
+              className="flex-1 h-11 rounded-xl border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] font-semibold"
             >
-              CANCEL
+              Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-2xl h-14 font-black text-lg shadow-premium group transition-all"
+              className="flex-1 h-11 rounded-xl font-semibold"
             >
               {loading ? (
-                <><Loader2 className="w-5 h-5 mr-3 animate-spin" /> ARCHITECTING...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
               ) : (
-                <span className="flex items-center gap-2">GENERATE BLUEPRINT <Layout className="size-5 transition-transform group-hover:translate-x-1" /></span>
+                <><Sparkles className="w-4 h-4 mr-2" /> Generate Blueprint</>
               )}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

@@ -5,7 +5,6 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import OpenAI from 'openai'
 import {
   inferBHKType, getBHKTemplate, computeVastuZones, getEntranceZone,
   clampToBoundary, enforceMinSizes,
@@ -14,7 +13,7 @@ import {
 import type { GenerateLayoutInput, GeneratedRoom } from './claude'
 import type { TemplateMatch } from './templates'
 
-export type AIProvider = 'claude' | 'gemini' | 'qwen'
+export type AIProvider = 'claude' | 'gemini' | 'opus'
 
 export interface AIResult {
   provider: AIProvider
@@ -29,7 +28,6 @@ export interface AIResult {
 
 let _claude: Anthropic | null = null
 let _gemini: GoogleGenerativeAI | null = null
-let _qwen: OpenAI | null = null
 
 function getClaudeClient() {
   if (!_claude) _claude = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -38,13 +36,6 @@ function getClaudeClient() {
 function getGeminiClient() {
   if (!_gemini) _gemini = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY ?? '')
   return _gemini
-}
-function getQwenClient() {
-  if (!_qwen) _qwen = new OpenAI({
-    apiKey: process.env.DASHSCOPE_API_KEY ?? '',
-    baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-  })
-  return _qwen
 }
 
 // ─── Shared prompt builder ────────────────────────────────────────────────────
@@ -194,7 +185,7 @@ export async function callGemini(
   input: GenerateLayoutInput
 ): Promise<GeneratedRoom[]> {
   const model = getGeminiClient().getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash-preview-05-20',
     systemInstruction: systemPrompt,
     generationConfig: { maxOutputTokens: 4096, temperature: 0.3 },
   })
@@ -205,24 +196,21 @@ export async function callGemini(
   return postProcess(rooms, input)
 }
 
-// ─── Qwen (via DashScope OpenAI-compatible API) ───────────────────────────────
+// ─── Claude Opus ──────────────────────────────────────────────────────────────
 
-export async function callQwen(
+export async function callOpus(
   systemPrompt: string,
   userMessage: string,
   input: GenerateLayoutInput
 ): Promise<GeneratedRoom[]> {
-  const resp = await getQwenClient().chat.completions.create({
-    model: 'qwen-max',
+  const msg = await getClaudeClient().messages.create({
+    model: 'claude-opus-4-5',
     max_tokens: 4096,
-    temperature: 0.3,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userMessage },
-    ],
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userMessage }],
   })
-  const text = resp.choices[0]?.message?.content ?? ''
+  const text = msg.content[0].type === 'text' ? msg.content[0].text : ''
   const rooms = extractRooms(text)
-  if (!rooms || rooms.length === 0) throw new Error('Qwen returned empty layout')
+  if (!rooms || rooms.length === 0) throw new Error('Claude Opus returned empty layout')
   return postProcess(rooms, input)
 }

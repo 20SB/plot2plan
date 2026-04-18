@@ -44,6 +44,7 @@ export async function findMatchingTemplates(
   const facingCode = normalizeFacing(input.facing)
   const bhkType = inferBHK(input.rooms)
 
+  if (!db.planTemplate) return []
   const templates = await db.planTemplate.findMany({ where: { isPublic: true } })
 
   const scored = templates.map(t => {

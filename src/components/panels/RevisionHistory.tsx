@@ -58,7 +58,7 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
 
   if (comparing) {
     return (
-      <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
+      <div className="flex flex-col bg-background animate-in fade-in duration-500">
         <div className="p-4 border-b bg-muted/30 flex items-center justify-between">
           <Button size="sm" variant="ghost" onClick={() => setComparing(null)}
             className="text-muted-foreground hover:text-foreground text-xs font-bold gap-2 rounded-xl">
@@ -66,7 +66,7 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
           </Button>
           <span className="text-[11px] font-black text-primary uppercase tracking-widest">Diff View</span>
         </div>
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="p-6">
           <CompareView projectId={projectId} revIdA={comparing[0]} revIdB={comparing[1]} />
         </div>
       </div>
@@ -74,8 +74,8 @@ export function RevisionHistory({ projectId, onRestore }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-transparent animate-in fade-in duration-500 overflow-hidden relative z-10">
-      <div className="p-6 space-y-8 overflow-y-auto">
+    <div className="flex flex-col bg-transparent animate-in fade-in duration-500 relative z-10">
+      <div className="p-6 space-y-8">
         {/* Helper text / action box */}
         <div className="bg-white/[0.02] border border-white/[0.1] border-dashed rounded-2xl p-5 flex items-center justify-between backdrop-blur-md">
           <div className="space-y-1">

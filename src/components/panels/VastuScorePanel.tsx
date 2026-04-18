@@ -100,8 +100,8 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
   const criticalDoshas = allDoshas.filter(d => d.severity === 'CRITICAL' || d.severity === 'SEVERE')
 
   return (
-    <div className="flex flex-col h-full bg-transparent scrollbar-hide">
-      <div className="p-4 space-y-4 overflow-y-auto">
+    <div className="flex flex-col bg-transparent">
+      <div className="p-4 space-y-4">
         {/* Brahmasthana Alert */}
         {brahmasthanaViolators.length > 0 && (
           <div className="glass-surface p-4 border-rose-500/20 bg-rose-500/[0.02] rounded-xl animate-in slide-in-from-top-4 duration-500">
@@ -157,10 +157,10 @@ export function VastuScorePanel({ rooms, overallScore }: Props) {
         </div>
 
         {/* Overall score */}
-        <div className="glass-surface p-5 rounded-[1.5rem] flex items-center gap-6 relative overflow-hidden">
+        <div className="glass-surface p-5 rounded-[1.5rem] flex items-center gap-4 relative">
           <ScoreRing score={score} />
-          <div className="flex-1 space-y-1 relative z-10">
-            <div className={`font-bold text-2xl tracking-tight leading-none ${labelColor}`}>{label}</div>
+          <div className="flex-1 min-w-0 space-y-1 relative z-10">
+            <div className={`font-bold text-xl tracking-tight leading-none truncate ${labelColor}`}>{label}</div>
             <p className="text-foreground-muted text-[11px] font-medium leading-tight tracking-tight">
               Aligns with {score}% archetypes.
             </p>

@@ -35,8 +35,8 @@ export function CostEstimate({ projectId, onExportPdf }: Props) {
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
 
   return (
-    <div className="flex flex-col h-full bg-transparent animate-in fade-in duration-500 overflow-hidden relative z-10">
-      <div className="p-4 space-y-5 overflow-y-auto">
+    <div className="flex flex-col bg-transparent animate-in fade-in duration-500 relative z-10">
+      <div className="p-4 space-y-5">
         {/* Summary Card */}
         <div className="glass-surface p-5 relative overflow-hidden group border-white/[0.08] shadow-linear rounded-2xl">
           <div className="absolute top-0 right-0 p-4 opacity-[0.03] transition-transform group-hover:scale-110 pointer-events-none">
