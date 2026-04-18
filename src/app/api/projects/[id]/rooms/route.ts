@@ -28,10 +28,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   // Score all rooms
   const scoredRooms = rooms.map(r => {
-    const { direction, vastuScore, warnings } = scoreRoom(
+    const { direction, vastuScore, warnings, doshas, isInBrahmasthana, zone16, element } = scoreRoom(
       r.type, r.x, r.y, r.width, r.height, project.plotWidth, project.plotHeight
     )
-    return { ...r, direction, vastuScore, warnings }
+    // doshas and isInBrahmasthana are not in Prisma schema; encode into warnings for persistence
+    const enrichedWarnings = [...warnings, ...doshas.map(d => `[${d.severity}] ${d.description}`)]
+    return { ...r, direction, vastuScore, warnings: enrichedWarnings, zone16, element, isInBrahmasthana, doshas }
   })
 
   const overallScore = scoreAllRooms(

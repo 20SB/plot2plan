@@ -11,6 +11,15 @@ export interface Room {
   direction?: string
   vastuScore: number
   warnings: string[]
+  zone16?: string
+  element?: string
+  doshas?: Array<{
+    type: string
+    severity: 'NONE' | 'MILD' | 'MODERATE' | 'SEVERE' | 'CRITICAL'
+    description: string
+    remedy: string
+  }>
+  isInBrahmasthana?: boolean
 }
 
 export interface PlumbingItem {
