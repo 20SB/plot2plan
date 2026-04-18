@@ -85,3 +85,21 @@ model Revision {
 
   @@unique([projectId, version])
 }
+
+model PlanTemplate {
+  id          String   @id @default(cuid())
+  bhkType     String   // "1BHK" | "2BHK" | "3BHK" | "4BHK" | "VILLA"
+  style       String   // "Modern" | "Traditional" | "Vastu Classic" | "Contemporary"
+  facing      String   // "N" | "S" | "E" | "W"
+  plotWidth   Float
+  plotHeight  Float
+  plotUnit    String   @default("ft")
+  rooms       Json     // SimpleRoom[] snapshot
+  vastuScore  Int      @default(0)
+  tags        String[]
+  description String?
+  isPublic    Boolean  @default(true)
+  useCount    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

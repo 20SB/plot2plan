@@ -1,3 +1,21 @@
+export type BHKType = '1BHK' | '2BHK' | '3BHK' | '4BHK' | 'VILLA'
+
+export interface PlanTemplate {
+  id: string
+  bhkType: BHKType
+  style: string
+  facing: string
+  plotWidth: number
+  plotHeight: number
+  plotUnit: string
+  rooms: Room[]
+  vastuScore: number
+  tags: string[]
+  description?: string
+  useCount: number
+  createdAt: string
+}
+
 export interface Room {
   id: string
   projectId: string
@@ -52,6 +70,7 @@ export interface Project {
   numFloors: number
   style?: string
   facing?: string
+  bhkType?: BHKType
   vastuScore: number
   rooms: Room[]
   plumbing: PlumbingItem[]
