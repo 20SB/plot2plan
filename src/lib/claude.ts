@@ -1,6 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk'
+import {
+  inferBHKType, getBHKTemplate, computeVastuZones, getEntranceZone,
+  clampToBoundary, enforceMinSizes, validateLayout,
+  REFERENCE_2BHK_NORTH, REFERENCE_3BHK_EAST,
+  type SimpleRoom,
+} from './floor-plan-engine'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export interface GeneratedRoom {
   name: string
@@ -12,7 +18,10 @@ export interface GeneratedRoom {
   floor: number
 }
 
-export async function generateLayout(input: {
+// Keep Room as an alias so we can cast SimpleRoom[] properly
+type Room = GeneratedRoom
+
+export interface GenerateLayoutInput {
   plotWidth: number
   plotHeight: number
   plotUnit: string
@@ -21,133 +30,171 @@ export async function generateLayout(input: {
   facing: string
   rooms: string[]
   title: string
-}): Promise<GeneratedRoom[]> {
-  // Canvas uses SCALE=8: plot dimensions in canvas units = plotWidth * SCALE / some_factor
-  // We work in canvas units where each unit = 8px
-  // Plot canvas: plotWidth (ft) → canvas units ≈ plotWidth (keep as-is, canvas scales visually)
-  const canvasW = input.plotWidth
-  const canvasH = input.plotHeight
-
-  // Brahmasthana zone: central 1/9th of the plot (33–66% in both axes) must stay open
-  const bsX1 = Math.round(canvasW * 0.33)
-  const bsX2 = Math.round(canvasW * 0.66)
-  const bsY1 = Math.round(canvasH * 0.33)
-  const bsY2 = Math.round(canvasH * 0.66)
-
-  const prompt = `You are a certified Vastu Shastra architect with 30 years of practice. Generate a precise, non-overlapping floor plan layout for a ${input.plotWidth}×${input.plotHeight} ${input.plotUnit} plot.
-
-PLOT DETAILS:
-- Plot size: ${input.plotWidth} × ${input.plotHeight} ${input.plotUnit}
-- Plot facing: ${input.facing}
-- Style: ${input.style}
-- Number of floors: ${input.numFloors}
-- Required rooms: ${input.rooms.join(', ')}
-
-COORDINATE SYSTEM (strictly follow):
-- Origin (0,0) is the TOP-LEFT corner
-- North = top of plot (y = 0)
-- South = bottom of plot (y = ${canvasH})
-- East = right of plot (x = ${canvasW})
-- West = left of plot (x = 0)
-- NE corner: x near 0, y near 0
-- SE corner: x near ${canvasW}, y near 0  (NOTE: East is RIGHT, not left)
-- SW corner: x near ${canvasW}, y near ${canvasH}
-- NW corner: x near 0, y near ${canvasH}
-
-BRAHMASTHANA (sacred centre) — MANDATORY:
-- The central zone x:[${bsX1}–${bsX2}], y:[${bsY1}–${bsY2}] MUST remain open
-- No solid room may be placed entirely within this zone
-- Only a courtyard, lobby, or open passage (type: "courtyard" or "lobby") is permitted here
-- Always include a small courtyard or open lobby in this zone
-
-VASTU PLACEMENT RULES (strictly follow):
-1. NE (top-right area): Pooja Room or open space — this is the Ishanya zone (divine energy)
-2. SE (right side, top-to-mid): Kitchen — Agni (fire) zone; ideal for cooking
-3. SW (bottom-right): Master Bedroom — Prithvi (earth) zone; heaviest, most stable
-4. NW (left side, bottom-to-mid): Guest Room or Garage — Vayu (air) zone
-5. N or NE: Bathroom/Toilet is acceptable (Jal/water energy flows North)
-6. S or SW: Bedrooms are acceptable (earth energy = rest and stability)
-7. Living Room: near the entrance face (${input.facing} face) — South or East entrance = S or E side
-8. Dining Room: adjacent to Kitchen (share a wall or be directly next to it)
-9. Study/Office: N or NE (Mercury energy supports intellect)
-10. Store/Garage: NW or SW (heavy items in SW, vehicles in NW)
-
-PER-ROOM MINIMUM SIZES (in plot units — enforce strictly):
-- Master Bedroom: min width 10, min height 12
-- Bedroom: min width 10, min height 12
-- Living Room: min width 12, min height 15
-- Kitchen: min width 8, min height 10
-- Dining Room: min width 10, min height 10
-- Bathroom / Toilet: min width 4, min height 5
-- Pooja Room: min width 4, min height 4
-- Garage / Store: min width 8, min height 10
-- Staircase: min width 4, min height 6
-
-ADJACENCY REQUIREMENTS:
-- Kitchen MUST share a wall with Dining Room (place them directly adjacent)
-- Master Bedroom MUST have its attached Bathroom directly adjacent to it
-- Living Room MUST be on the ${input.facing} face side (near the main entrance)
-- Staircase must appear on EVERY floor at the same (x, y) coordinates
-
-GENERAL LAYOUT RULES:
-- All rooms must fit strictly inside the plot: x ∈ [2, ${canvasW - 2}], y ∈ [2, ${canvasH - 2}]
-- x + width ≤ ${canvasW - 2} and y + height ≤ ${canvasH - 2} for every room
-- Rooms must NOT overlap each other (check bounding boxes)
-- Leave at least 2 units margin from all plot boundary walls
-- Distribute rooms across floors when numFloors > 1
-- Ground floor (floor 1): living areas (living room, kitchen, dining, pooja, garage)
-- Upper floors: bedrooms, bathrooms, study
-- x, y, width, height are in plot units (NOT pixels)
-
-Return ONLY a valid JSON array with no explanation, no markdown fences, no extra text:
-[
-  {
-    "name": "Living Room",
-    "type": "living_room",
-    "x": 5,
-    "y": ${canvasH - 20},
-    "width": 20,
-    "height": 15,
-    "floor": 1
-  }
-]
-
-Valid room type values: master_bedroom, bedroom, living_room, kitchen, bathroom, toilet, study, pooja, guest_room, store, garage, staircase, dining, verandah, courtyard, lobby`
-
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-5',
-    max_tokens: 2048,
-    messages: [{ role: 'user', content: prompt }],
-  })
-
-  const text = message.content[0].type === 'text' ? message.content[0].text : ''
-
-  // Try to find the JSON array with a more robust approach
-  let rooms: GeneratedRoom[] = []
-  try {
-    // First try: direct JSON parse of the whole response
-    rooms = JSON.parse(text)
-  } catch {
-    try {
-      // Second try: extract first complete JSON array
-      const match = text.match(/\[[\s\S]*?\](?=\s*$|\s*\n\s*$|\s*```)/) ||
-                    text.match(/\[[\s\S]*\]/)
-      if (match) rooms = JSON.parse(match[0])
-      else return getFallbackLayout(input)
-    } catch {
-      return getFallbackLayout(input)
-    }
-  }
-  return rooms.map(r => ({ ...r, floor: r.floor || 1 }))
 }
 
-function getFallbackLayout(input: { plotWidth: number; plotHeight: number; rooms: string[]; numFloors: number }): GeneratedRoom[] {
-  const { plotWidth: w, plotHeight: h } = input
+/** Normalize facing value to single-letter code used by floor-plan-engine */
+function normalizeFacing(facing: string): string {
+  const map: Record<string, string> = {
+    north: 'N', south: 'S', east: 'E', west: 'W',
+    'north-east': 'NE', 'northeast': 'NE',
+    'north-west': 'NW', 'northwest': 'NW',
+    'south-east': 'SE', 'southeast': 'SE',
+    'south-west': 'SW', 'southwest': 'SW',
+  }
+  return map[facing.toLowerCase()] ?? facing
+}
+
+export async function generateLayout(input: GenerateLayoutInput): Promise<Room[]> {
+  const { plotWidth, plotHeight, plotUnit, numFloors, style, rooms: requestedRoomTypes } = input
+  const facing = normalizeFacing(input.facing)
+
+  // 1. Compute plot area and infer BHK type
+  const plotSqft = plotUnit === 'm'
+    ? (plotWidth * 3.28084) * (plotHeight * 3.28084)
+    : plotWidth * plotHeight
+  const bhkType = inferBHKType(plotSqft, requestedRoomTypes)
+  const template = getBHKTemplate(bhkType)
+
+  // 2. Pre-compute Vastu zones as coordinates (inject into prompt — not natural language)
+  const zones = computeVastuZones(plotWidth, plotHeight)
+  const entranceZone = getEntranceZone(plotWidth, plotHeight, facing)
+
+  // 3. Build the priority-ordered room list from the BHK template
+  //    Merge with user's requested rooms — respect user's extra rooms, use template as default
+  const templateRoomTypes = template.rooms.map(r => r.type)
+  const allRoomTypes = [
+    ...templateRoomTypes,
+    ...requestedRoomTypes.filter(t => !templateRoomTypes.includes(t))
+  ]
+  const roomList = template.rooms
+    .filter(r => allRoomTypes.includes(r.type) || requestedRoomTypes.includes(r.type))
+    .sort((a, b) => a.priority - b.priority)
+
+  // 4. Select appropriate few-shot example
+  const exampleLayout = bhkType === '2BHK' || bhkType === '1BHK'
+    ? JSON.stringify(REFERENCE_2BHK_NORTH, null, 2)
+    : JSON.stringify(REFERENCE_3BHK_EAST, null, 2)
+  const exampleDim = bhkType === '2BHK' || bhkType === '1BHK'
+    ? '30×40 ft, North-facing, 2BHK'
+    : '40×60 ft, East-facing, 3BHK'
+
+  // 5. Build the system prompt
+  const systemPrompt = `You are a licensed Indian residential architect and Vastu Shastra expert with 20+ years of experience. You generate precise, conflict-free floor plan layouts as JSON.
+
+## COORDINATE SYSTEM (critical — never deviate)
+- Origin (0,0) is TOP-LEFT corner of the plot
+- x increases to the RIGHT (East direction)
+- y increases DOWNWARD (South direction)
+- North = top (y=0), South = bottom (y=${plotHeight}), East = right (x=${plotWidth}), West = left (x=0)
+- All values in ${plotUnit === 'm' ? 'meters' : 'feet'}
+
+## PLOT DETAILS
+- Dimensions: ${plotWidth} × ${plotHeight} ${plotUnit === 'm' ? 'meters' : 'feet'}
+- Facing: ${facing === 'N' ? 'North' : facing === 'S' ? 'South' : facing === 'E' ? 'East' : 'West'}
+- Style: ${style}
+- Floors: ${numFloors}
+- BHK Category: ${template.label} (${template.description})
+
+## PRE-COMPUTED VASTU ZONES (place each room INSIDE its assigned zone)
+${Object.entries(zones).map(([name, z]) =>
+  `${name}: x=${z.x}–${z.x + z.width}, y=${z.y}–${z.y + z.height}`
+).join('\n')}
+BRAHMASTHANA (center — keep clear, no solid rooms): x=${zones.CENTER.x}–${zones.CENTER.x + zones.CENTER.width}, y=${zones.CENTER.y}–${zones.CENTER.y + zones.CENTER.height}
+
+## ENTRANCE ZONE
+Main entrance should be placed at: x=${entranceZone.x}–${entranceZone.x + entranceZone.width}, y=${entranceZone.y}
+
+## ROOMS TO PLACE (in this exact priority order)
+${roomList.map((r, i) =>
+  `${i + 1}. ${r.name} (type: ${r.type}) → Zone: ${r.zone}${r.mustAdjacentTo ? ` → Must share wall with: ${r.mustAdjacentTo.join(', ')}` : ''}`
+).join('\n')}
+
+## HARD CONSTRAINTS (all must be satisfied)
+1. Every room must fit ENTIRELY within: x=0 to ${plotWidth}, y=0 to ${plotHeight}
+2. NO two rooms on the same floor may overlap (check all x/y bounding boxes)
+3. Every room must share at least one full wall edge with another room or the plot boundary
+4. Aspect ratio of every room must be between 1.0 and 2.2 (no corridor-shaped rooms)
+5. Minimum sizes (in ${plotUnit === 'm' ? 'meters' : 'feet'}):
+   - living_room: 12×12, dining_room: 9×9, master_bedroom: 12×11, bedroom: 10×10
+   - kitchen: 8×8, bathroom: 5×5, toilet: 4×4, pooja_room: 4×4
+   - utility: 5×5, foyer: 5×4, store: 5×5, servant_room: 8×8
+6. Kitchen must NOT be adjacent to any toilet or bathroom
+7. Pooja Room must NOT be adjacent to any toilet or bathroom
+8. Do NOT place any room inside the Brahmasthana zone (use it as open corridor only)
+9. If numFloors > 1, distribute bedrooms across floors (floor 0 = ground, floor 1 = first, etc.)
+10. Every bathroom must be adjacent to the bedroom it serves
+
+## OUTPUT FORMAT
+Return ONLY a valid JSON array. No explanation, no markdown, no code fences.
+Each room object must have exactly these fields:
+{"name": string, "type": string, "x": number, "y": number, "width": number, "height": number, "floor": number}
+
+Valid type values: living_room, dining_room, kitchen, master_bedroom, bedroom, bathroom, toilet, pooja_room, utility, foyer, store, servant_room, garage, corridor, staircase, study, guest_room, balcony, courtyard
+
+## FEW-SHOT EXAMPLE
+Input: ${exampleDim}
+Output:
+${exampleLayout}`
+
+  const userMessage = `Generate a ${template.label} floor plan for a ${plotWidth}×${plotHeight} ${plotUnit === 'm' ? 'meter' : 'foot'} plot facing ${facing === 'N' ? 'North' : facing === 'S' ? 'South' : facing === 'E' ? 'East' : 'West'} in ${style} style with ${numFloors} floor(s). Place rooms in the priority order specified. Return ONLY the JSON array.`
+
+  // 6. Call Claude
+  let rooms: Room[] = []
+  try {
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+    })
+
+    const text = message.content[0].type === 'text' ? message.content[0].text : ''
+
+    // Multi-strategy JSON extraction
+    let parsed: Room[] | null = null
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      const arrayMatch = text.match(/\[[\s\S]*\]/)
+      if (arrayMatch) {
+        try { parsed = JSON.parse(arrayMatch[0]) } catch {}
+      }
+    }
+
+    if (!parsed || !Array.isArray(parsed) || parsed.length === 0) {
+      return getFallbackLayout(input)
+    }
+
+    rooms = parsed
+
+  } catch (err) {
+    console.error('Claude generateLayout error:', err)
+    return getFallbackLayout(input)
+  }
+
+  // 7. Post-generation validation and auto-fix
+  rooms = clampToBoundary(rooms as SimpleRoom[], plotWidth, plotHeight) as Room[]
+  rooms = enforceMinSizes(rooms as SimpleRoom[], plotWidth, plotHeight) as Room[]
+
+  // Log validation issues but don't fail
+  const issues = validateLayout(rooms as SimpleRoom[], plotWidth, plotHeight)
+  if (issues.length > 0) {
+    console.warn(`Layout validation: ${issues.length} issues`, issues.slice(0, 5))
+  }
+
+  return rooms
+}
+
+function getFallbackLayout(input: GenerateLayoutInput): Room[] {
+  // Simple deterministic fallback — grid of rooms
+  const { plotWidth, plotHeight } = input
+  const hw = Math.round(plotWidth / 2)
+  const hh = Math.round(plotHeight / 2)
   return [
-    { name: 'Living Room', type: 'living_room', x: 2, y: 2, width: Math.floor(w * 0.4), height: Math.floor(h * 0.3), floor: 1 },
-    { name: 'Master Bedroom', type: 'master_bedroom', x: Math.floor(w * 0.55), y: Math.floor(h * 0.55), width: Math.floor(w * 0.4), height: Math.floor(h * 0.35), floor: 1 },
-    { name: 'Kitchen', type: 'kitchen', x: Math.floor(w * 0.55), y: 2, width: Math.floor(w * 0.3), height: Math.floor(h * 0.25), floor: 1 },
-    { name: 'Bathroom', type: 'bathroom', x: 2, y: Math.floor(h * 0.65), width: Math.floor(w * 0.2), height: Math.floor(h * 0.2), floor: 1 },
+    { name: 'Living Room',    type: 'living_room',    x: 0,  y: 0,  width: hw, height: hh, floor: 0 },
+    { name: 'Kitchen',        type: 'kitchen',        x: hw, y: hh, width: Math.round(plotWidth * 0.3), height: Math.round(plotHeight * 0.3), floor: 0 },
+    { name: 'Master Bedroom', type: 'master_bedroom', x: 0,  y: hh, width: hw, height: hh, floor: 0 },
+    { name: 'Bathroom',       type: 'bathroom',       x: hw, y: 0,  width: Math.round(plotWidth * 0.3), height: Math.round(plotHeight * 0.25), floor: 0 },
   ]
 }
 
@@ -203,7 +250,7 @@ RESPONSE STYLE — strictly follow:
     { role: 'user' as const, content: message },
   ]
 
-  const response = await client.messages.create({
+  const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-5',
     max_tokens: 1024,
     system: systemPrompt,
