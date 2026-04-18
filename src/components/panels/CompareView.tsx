@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Separator } from '@/components/ui/separator'
-import { TrendUp, TrendDown, Minus } from '@phosphor-icons/react'
+import { TrendUpIcon as TrendUp, TrendDownIcon as TrendDown, MinusIcon as Minus } from '@phosphor-icons/react'
 
 interface RoomSnapshot {
   id: string
