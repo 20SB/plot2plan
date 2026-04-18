@@ -21,17 +21,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
-        <SessionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider>
             {children}
             <Toaster position="top-right" closeButton richColors />
-          </ThemeProvider>
-        </SessionProvider>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

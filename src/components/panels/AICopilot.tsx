@@ -64,33 +64,33 @@ export function AICopilot({ projectId }: Props) {
       <ScrollArea className="flex-1 p-6 h-full">
         <div className="space-y-6 pr-4">
           {messages.map((msg, i) => (
-            <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
+            <div key={i} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
               {msg.role === 'assistant' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-xl flex items-center justify-center shadow-premium">
-                  <Robot size={18} weight="bold" className="text-white" />
+                <div className="flex-shrink-0 w-10 h-10 bg-white border rounded-2xl flex items-center justify-center shadow-sm">
+                  <Robot size={22} weight="duotone" className="text-primary" />
                 </div>
               )}
-              <div className={`max-w-[85%] text-sm leading-relaxed p-4 shadow-sm border ${
+              <div className={`max-w-[85%] text-[13px] leading-relaxed p-5 shadow-sm border ${
                 msg.role === 'user'
-                  ? 'bg-primary text-white rounded-2xl rounded-tr-none border-primary shadow-premium'
-                  : 'bg-card text-foreground rounded-2xl rounded-tl-none border-border'
+                  ? 'bg-primary text-white rounded-[2rem] rounded-tr-none border-primary shadow-premium font-medium'
+                  : 'bg-white text-slate-700 rounded-[2rem] rounded-tl-none border-slate-100 shadow-sm font-semibold'
               }`}>
-                <p className="font-medium">{msg.content}</p>
+                <p>{msg.content}</p>
               </div>
               {msg.role === 'user' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-muted rounded-xl flex items-center justify-center border shadow-sm">
-                  <User size={18} weight="bold" className="text-muted-foreground" />
+                <div className="flex-shrink-0 w-10 h-10 bg-slate-100 rounded-2xl flex items-center justify-center border shadow-sm">
+                  <User size={22} weight="bold" className="text-slate-500" />
                 </div>
               )}
             </div>
           ))}
           {loading && (
-            <div className="flex gap-3 animate-pulse">
-              <div className="w-8 h-8 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
-                <Robot size={18} weight="bold" className="text-primary" />
+            <div className="flex gap-4 animate-pulse">
+              <div className="w-10 h-10 bg-white border rounded-2xl flex items-center justify-center shadow-sm">
+                <Robot size={22} weight="duotone" className="text-primary" />
               </div>
-              <div className="bg-card border rounded-2xl rounded-tl-none p-4 text-sm text-muted-foreground font-semibold tracking-tight italic">
-                Architectural AI is analyzing...
+              <div className="bg-white border border-slate-100 rounded-[2rem] rounded-tl-none p-5 text-[11px] text-muted-foreground font-black tracking-widest uppercase italic">
+                Architectural AI is synthesizing...
               </div>
             </div>
           )}

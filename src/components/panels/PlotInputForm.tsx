@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Layout } from 'lucide-react'
 
 const ROOM_OPTIONS = [
   'Living Room', 'Master Bedroom', 'Bedroom', 'Kitchen', 'Bathroom',
@@ -106,201 +107,215 @@ export function PlotInputForm({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-app-card border border-white/10 text-app-text max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl">
-        <DialogHeader className="pb-2 border-b border-white/8 mb-5">
-          <DialogTitle className="text-app-text font-semibold text-base tracking-tight">New Floor Plan Project</DialogTitle>
-          <DialogDescription className="text-app-soft text-sm mt-1">
-            Configure your plot dimensions and room requirements.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-2">
+      <DialogContent className="max-w-xl p-0 overflow-hidden border-none shadow-premium-hover">
+        <div className="bg-primary/5 p-10 border-b">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+               <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-premium">
+                <Layout className="text-white w-6 h-6" />
+               </div>
+               <DialogTitle className="text-3xl">New Project</DialogTitle>
+            </div>
+            <DialogDescription className="text-muted-foreground font-medium">
+              Configure your plot dimensions and architectural choices. <br/>
+              Our AI will generate a Vastu-compliant layout in seconds.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="p-10 space-y-8 bg-background">
           {/* BHK Category */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-app-soft uppercase tracking-wider">
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">
               Home Configuration
             </label>
-            <div className="flex gap-2 flex-wrap">
+            <div className="grid grid-cols-3 gap-3">
               {BHK_TEMPLATES.map((template) => (
                 <button
                   key={template.bhkType}
                   type="button"
                   onClick={() => {
                     setSelectedBHK(template.bhkType)
-                    // Auto-populate rooms from template using display names
                     const templateRooms = template.rooms.map(r => r.name)
                     setSelectedRooms(templateRooms)
                   }}
-                  className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                  className={`relative p-4 rounded-2xl border-2 text-left transition-all duration-300 ${
                     selectedBHK === template.bhkType
-                      ? 'bg-app-accent text-white shadow-[0_0_12px_rgba(99,102,241,0.25)]'
-                      : 'bg-app-input border border-white/8 text-app-soft hover:border-white/16 hover:text-app-text'
+                      ? 'border-primary bg-primary/5 shadow-premium'
+                      : 'border-muted bg-muted/20 hover:border-primary/20 hover:bg-muted/40'
                   }`}
                 >
-                  <span className="block font-semibold">{template.label}</span>
-                  <span className="block text-[10px] opacity-70 mt-0.5">
-                    {template.rooms.filter(r => r.type !== 'foyer' && r.type !== 'utility').length} rooms
+                  <span className={`block text-sm font-black italic tracking-tighter ${selectedBHK === template.bhkType ? 'text-primary' : 'text-foreground'}`}>{template.label}</span>
+                  <span className="block text-[10px] font-bold text-muted-foreground mt-1 uppercase">
+                    {template.rooms.filter(r => r.type !== 'foyer' && r.type !== 'utility').length} Zones
                   </span>
+                  {selectedBHK === template.bhkType && (
+                    <div className="absolute top-2 right-2 size-2 rounded-full bg-primary" />
+                  )}
                 </button>
               ))}
             </div>
-            <p className="text-app-faint text-[10px]">
-              {BHK_TEMPLATES.find(t => t.bhkType === selectedBHK)?.description}
-            </p>
+            <div className="px-1">
+               <p className="text-muted-foreground text-[10px] font-bold italic">
+                &quot;{BHK_TEMPLATES.find(t => t.bhkType === selectedBHK)?.description}&quot;
+              </p>
+            </div>
           </div>
 
-          {/* Title */}
-          <div>
-            <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Project Title</Label>
-            <Input
-              {...register('title')}
-              placeholder="Villa Sunrise"
-              className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5"
-            />
-            {errors.title && <p className="text-app-danger text-xs mt-1">{errors.title.message}</p>}
-          </div>
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+               <span className="h-px flex-1 bg-border" />
+               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest whitespace-nowrap">Plot Intelligence</span>
+               <span className="h-px flex-1 bg-border" />
+            </div>
 
-          {/* Plot dimensions */}
-          <div className="grid grid-cols-3 gap-3">
+            {/* Title */}
             <div>
-              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Width</Label>
+              <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Project Title</Label>
               <Input
-                {...register('plotWidth')}
-                type="number"
-                placeholder="60"
-                className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5"
+                {...register('title')}
+                placeholder="The Riverside Villa"
+                className="h-12 rounded-xl text-lg font-bold"
               />
-              {errors.plotWidth && (
-                <p className="text-app-danger text-xs mt-1">{errors.plotWidth.message}</p>
-              )}
+              {errors.title && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.title.message}</p>}
             </div>
-            <div>
-              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Height</Label>
-              <Input
-                {...register('plotHeight')}
-                type="number"
-                placeholder="40"
-                className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5"
-              />
-              {errors.plotHeight && (
-                <p className="text-app-danger text-xs mt-1">{errors.plotHeight.message}</p>
-              )}
+
+            {/* Plot dimensions */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-1">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Width</Label>
+                <Input
+                  {...register('plotWidth')}
+                  type="number"
+                  className="h-12 rounded-xl font-mono font-bold"
+                />
+              </div>
+              <div className="col-span-1">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Length</Label>
+                <Input
+                  {...register('plotHeight')}
+                  type="number"
+                  className="h-12 rounded-xl font-mono font-bold"
+                />
+              </div>
+              <div className="col-span-1">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Unit</Label>
+                <Controller
+                  name="plotUnit"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/30">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ft">FEET (FT)</SelectItem>
+                        <SelectItem value="m">METERS (M)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
             </div>
+
+            {/* Floors and Facing */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Floors</Label>
+                <Input
+                  {...register('numFloors')}
+                  type="number"
+                  className="h-12 rounded-xl font-mono font-bold"
+                />
+              </div>
+              <div>
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Plot Facing</Label>
+                <Controller
+                  name="facing"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/30">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FACINGS.map(f => (
+                          <SelectItem key={f} value={f}>{f.toUpperCase()}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Style */}
             <div>
-              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Unit</Label>
+              <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-2 block">Architectural Aura</Label>
               <Controller
-                name="plotUnit"
+                name="style"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="bg-app-input border-white/10 text-app-text h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5">
+                    <SelectTrigger className="h-12 rounded-xl bg-muted/30 font-bold">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-app-card border border-white/10">
-                      <SelectItem value="ft" className="text-app-text">ft</SelectItem>
-                      <SelectItem value="m" className="text-app-text">m</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Floors */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Floors</Label>
-              <Input
-                {...register('numFloors')}
-                type="number"
-                min={1}
-                max={5}
-                className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5"
-              />
-            </div>
-            <div>
-              <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Facing</Label>
-              <Controller
-                name="facing"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="bg-app-input border-white/10 text-app-text h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-app-card border border-white/10">
-                      {FACINGS.map(f => (
-                        <SelectItem key={f} value={f} className="text-app-text">{f}</SelectItem>
+                    <SelectContent>
+                      {STYLES.map(s => (
+                        <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 )}
               />
             </div>
-          </div>
 
-          {/* Style */}
-          <div>
-            <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Architectural Style</Label>
-            <Controller
-              name="style"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger className="bg-app-input border-white/10 text-app-text h-10 rounded-xl focus:border-app-accent focus:ring-1 focus:ring-app-accent/20 mt-1.5">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-app-card border border-white/10">
-                    {STYLES.map(s => (
-                      <SelectItem key={s} value={s} className="text-app-text">{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          {/* Rooms */}
-          <div>
-            <Label className="text-xs font-medium text-app-soft uppercase tracking-wider mb-1.5">Rooms to Include</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {ROOM_OPTIONS.map(room => (
-                <span
-                  key={room}
-                  onClick={() => toggleRoom(room)}
-                  className={
-                    selectedRooms.includes(room)
-                      ? 'bg-app-accent/15 border border-app-accent/40 text-app-violet text-xs rounded-xl px-3 py-1.5 cursor-pointer transition-all hover:bg-app-accent/20'
-                      : 'bg-app-input border border-white/8 text-app-faint text-xs rounded-xl px-3 py-1.5 cursor-pointer transition-all hover:border-white/16 hover:text-app-soft'
-                  }
-                >
-                  {room}
-                </span>
-              ))}
+            {/* Rooms */}
+            <div>
+              <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 mb-3 block">Selected Zones</Label>
+              <div className="flex flex-wrap gap-2">
+                {ROOM_OPTIONS.map(room => (
+                  <span
+                    key={room}
+                    onClick={() => toggleRoom(room)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer border transition-all duration-300 shadow-sm ${
+                      selectedRooms.includes(room)
+                        ? 'bg-primary text-white border-primary border-2 scale-105'
+                        : 'bg-muted/40 text-muted-foreground border-border hover:border-primary/50'
+                    }`}
+                  >
+                    {room}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-4 px-1 flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase">{selectedRooms.length} Zones Locked</span>
+                 <Button variant="link" size="sm" type="button" onClick={() => setSelectedRooms([])} className="h-auto p-0 text-[10px] h-auto p-0 font-bold text-destructive uppercase tracking-widest">Clear All</Button>
+              </div>
             </div>
-            <p className="text-app-faint text-xs mt-2">{selectedRooms.length} rooms selected</p>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <DialogFooter className="pt-6">
             <Button
               type="button"
               variant="ghost"
               onClick={onClose}
-              className="flex-1 text-app-soft hover:text-app-text hover:bg-white/5 rounded-xl"
+              className="flex-1 rounded-2xl h-14 font-black"
             >
-              Cancel
+              CANCEL
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-app-accent hover:bg-app-accent-dim text-white rounded-xl font-medium shadow-[0_0_16px_rgba(99,102,241,0.2)] transition-all"
+              className="flex-1 rounded-2xl h-14 font-black text-lg shadow-premium group transition-all"
             >
               {loading ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating&hellip;</>
+                <><Loader2 className="w-5 h-5 mr-3 animate-spin" /> ARCHITECTING...</>
               ) : (
-                'Generate with AI'
+                <span className="flex items-center gap-2">GENERATE BLUEPRINT <Layout className="size-5 transition-transform group-hover:translate-x-1" /></span>
               )}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

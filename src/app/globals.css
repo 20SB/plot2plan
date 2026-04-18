@@ -49,7 +49,7 @@
 }
 
 :root {
-  --background: hsl(210, 40%, 98%);
+  --background: hsl(210, 50%, 98%);
   --foreground: hsl(222, 47%, 11%);
   --card: hsl(0, 0%, 100%);
   --card-foreground: hsl(222, 47%, 11%);
@@ -57,11 +57,11 @@
   --popover-foreground: hsl(222, 47%, 11%);
   --primary: hsl(243, 75%, 59%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(210, 40%, 96%);
+  --secondary: hsl(210, 40%, 96.1%);
   --secondary-foreground: hsl(222, 47%, 11%);
   --muted: hsl(210, 40%, 96.1%);
   --muted-foreground: hsl(215.4, 16.3%, 46.9%);
-  --accent: hsl(35, 92%, 50%);
+  --accent: hsl(243, 75%, 59%);
   --accent-foreground: hsl(222, 47%, 11%);
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(210, 40%, 98%);
@@ -70,16 +70,16 @@
   --ring: hsl(243, 75%, 59%);
   --radius: 0.75rem;
 
-  /* Premium Shadows */
-  --shadow-premium: 0 1px 2px rgba(0, 0, 0, 0.05), 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-  --shadow-premium-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  /* Premium Light Shadows */
+  --shadow-premium: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-premium-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
-  /* Sidebar Specific */
-  --sidebar: hsl(210, 40%, 98%);
+  /* Sidebar Specific (Light) */
+  --sidebar: hsl(210, 50%, 98%);
   --sidebar-foreground: hsl(222, 47%, 11%);
   --sidebar-primary: hsl(243, 75%, 59%);
   --sidebar-primary-foreground: hsl(0, 0%, 100%);
-  --sidebar-accent: hsl(210, 40%, 96%);
+  --sidebar-accent: hsl(210, 40%, 96.1%);
   --sidebar-accent-foreground: hsl(222, 47%, 11%);
   --sidebar-border: hsl(214.3, 31.8%, 91.4%);
   --sidebar-ring: hsl(243, 75%, 59%);
@@ -98,13 +98,16 @@
   --secondary-foreground: hsl(210, 40%, 98%);
   --muted: hsl(222, 47%, 12%);
   --muted-foreground: hsl(215, 20.2%, 65.1%);
-  --accent: hsl(35, 92%, 50%);
+  --accent: hsl(243, 75%, 65%);
   --accent-foreground: hsl(210, 40%, 98%);
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(210, 40%, 98%);
   --border: hsl(217.2, 32.6%, 17.5%);
   --input: hsl(217.2, 32.6%, 17.5%);
   --ring: hsl(243, 75%, 65%);
+
+  --shadow-premium: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-premium-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
 
   --sidebar: hsl(222, 47%, 4%);
   --sidebar-foreground: hsl(210, 40%, 98%);
@@ -119,6 +122,10 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -141,6 +148,16 @@
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes transition-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
 @layer base {
@@ -153,16 +170,51 @@
 }
 
 @layer utilities {
-  .glass {
-    @apply bg-white/70 backdrop-blur-md dark:bg-black/70;
+  /* Modern Utilities */
+  .shimmer {
+    background: linear-gradient(90deg, var(--muted) 25%, var(--muted-foreground)/10 37%, var(--muted) 63%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
   }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dark .glass {
+    background: rgba(10, 15, 29, 0.7);
+  }
+
   .animate-in {
     animation: transition-in 0.3s ease-out;
   }
-}
 
-@keyframes transition-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground)/20;
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground)/40;
+  }
+
+  /* Design Patterns */
+  .pattern-grid-slate-200 {
+    background-image: radial-gradient(hsl(var(--muted-foreground) / 0.15) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
 }
 

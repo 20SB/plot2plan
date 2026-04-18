@@ -1,65 +1,62 @@
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh bg-app-bg flex">
+    <div className="min-h-dvh bg-background flex">
       {/* Left panel — visible md+ */}
-      <div className="hidden md:flex md:w-1/2 lg:w-[55%] flex-col bg-app-base border-r border-white/6 relative overflow-hidden">
-        {/* Ambient blueprint grid pattern */}
-        <svg
-          className="absolute inset-0 w-full h-full"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern id="dot-grid" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="1" fill="white" fillOpacity="0.05" />
-            </pattern>
-            <pattern id="line-grid" x="0" y="0" width="128" height="128" patternUnits="userSpaceOnUse">
-              <path d="M 128 0 L 0 0 0 128" fill="none" stroke="white" strokeOpacity="0.04" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#dot-grid)" />
-          <rect width="100%" height="100%" fill="url(#line-grid)" />
-        </svg>
-
+      <div className="hidden md:flex md:w-1/2 lg:w-[55%] flex-col bg-muted/30 border-r relative overflow-hidden pattern-grid-slate-200">
         {/* Brand — top-left */}
-        <div className="relative z-10 p-8 flex items-center gap-3">
-          <span className="text-app-violet font-bold text-xl tracking-tight">plot2plan</span>
-          <span className="text-[10px] font-semibold tracking-widest uppercase bg-app-gold/15 text-app-gold border border-app-gold/25 px-2 py-0.5 rounded-full">
-            VASTU AI
-          </span>
+        <div className="relative z-10 p-10 flex items-center gap-4">
+          <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-premium">
+             <span className="text-white font-black text-xl">P</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-foreground font-black text-xl tracking-tighter leading-none">Plot2Plan</span>
+            <span className="text-[10px] font-black tracking-widest uppercase text-primary mt-1">
+              Architectural AI
+            </span>
+          </div>
         </div>
 
         {/* Center — headline + tagline */}
-        <div className="relative z-10 flex-1 flex flex-col items-start justify-center px-12 lg:px-16">
-          <h2 className="text-4xl font-semibold text-app-text leading-tight">
+        <div className="relative z-10 flex-1 flex flex-col items-start justify-center px-12 lg:px-20">
+           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-6">
+            <span className="size-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Next-Gen Vastu Engine</span>
+          </div>
+          <h2 className="text-6xl font-black text-foreground leading-[0.95] tracking-tighter max-w-lg">
             Design spaces that{' '}
-            <span className="bg-gradient-to-r from-app-accent to-app-violet bg-clip-text text-transparent">
+            <span className="text-primary italic">
               breathe
             </span>
           </h2>
-          <p className="text-app-soft text-sm leading-relaxed mt-3 max-w-sm">
-            AI-generated floor plans aligned with Vastu Shastra principles
+          <p className="text-muted-foreground text-lg font-medium leading-relaxed mt-6 max-w-sm">
+            AI-generated floor plans aligned with Vastu Shastra principles for modern living.
           </p>
         </div>
 
         {/* Feature bullets — bottom */}
-        <div className="relative z-10 p-10 lg:px-16 space-y-3">
+        <div className="relative z-10 p-10 lg:px-20 space-y-4">
           {[
             'Vastu-scored layouts in seconds',
             '16-direction Mandala analysis',
             'Export to PDF & AutoCAD DXF',
           ].map((feature) => (
-            <div key={feature} className="flex items-center gap-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-app-accent flex-shrink-0" />
-              <span className="text-app-soft text-sm">{feature}</span>
+            <div key={feature} className="flex items-center gap-4">
+              <div className="size-5 rounded-full bg-primary/20 flex items-center justify-center">
+                <div className="size-2 rounded-full bg-primary" />
+              </div>
+              <span className="text-foreground font-bold text-sm tracking-tight">{feature}</span>
             </div>
           ))}
         </div>
+        
+        {/* Abstract shape */}
+        <div className="absolute -bottom-24 -left-24 size-96 bg-primary/5 rounded-full blur-3xl opacity-50" />
       </div>
 
       {/* Right panel — form area */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md bg-app-card/80 backdrop-blur-sm border border-white/8 rounded-2xl shadow-2xl p-8">
+      <div className="flex-1 flex items-center justify-center px-8 py-16 bg-background relative overflow-hidden">
+        <div className="absolute top-0 right-0 size-96 bg-primary/5 rounded-full blur-3xl opacity-30" />
+        <div className="w-full max-w-md bg-background/60 backdrop-blur-xl border rounded-[2rem] shadow-premium-hover p-12 relative z-10 animate-in fade-in zoom-in-95 duration-500">
           {children}
         </div>
       </div>

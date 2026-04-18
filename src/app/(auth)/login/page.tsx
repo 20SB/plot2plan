@@ -44,57 +44,57 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-app-text tracking-tight">Welcome back</h1>
-        <p className="text-app-soft text-sm mt-1">Sign in to your plot2plan account</p>
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl font-black text-foreground tracking-tighter leading-none mb-3">Welcome back</h1>
+        <p className="text-muted-foreground font-medium">Access your architectural workspace</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-app-soft uppercase tracking-wider">Email</label>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Email Address</label>
           <Input
             {...register('email')}
             type="email"
-            placeholder="you@example.com"
-            className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-11 focus:border-app-accent focus:ring-app-accent/20 rounded-xl"
+            placeholder="name@studio.com"
+            className="h-12 rounded-xl text-base font-medium"
           />
-          {errors.email && <p className="text-app-danger text-xs mt-1">{errors.email.message}</p>}
+          {errors.email && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.email.message}</p>}
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-app-soft uppercase tracking-wider">Password</label>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Password</label>
+            <Link href="#" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Forgot?</Link>
+          </div>
           <Input
             {...register('password')}
             type="password"
-            placeholder="••••••"
-            className="bg-app-input border-white/10 text-app-text placeholder:text-app-faint h-11 focus:border-app-accent focus:ring-app-accent/20 rounded-xl"
+            placeholder="••••••••"
+            className="h-12 rounded-xl text-base font-medium"
           />
-          {errors.password && <p className="text-app-danger text-xs mt-1">{errors.password.message}</p>}
+          {errors.password && <p className="text-destructive text-[10px] font-bold mt-1.5 px-1 uppercase tracking-wider">{errors.password.message}</p>}
         </div>
 
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-11 bg-app-accent hover:bg-app-accent-dim text-white font-medium rounded-xl transition-all duration-150 shadow-[0_0_20px_rgba(99,102,241,0.25)] hover:shadow-[0_0_28px_rgba(99,102,241,0.4)] mt-6"
+          className="w-full h-14 rounded-xl font-black text-lg shadow-premium hover:shadow-premium-hover transition-all active:scale-[0.98] mt-4"
         >
           {loading ? (
-            <span className="flex items-center gap-2">
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
-              </svg>
-              Signing in…
+            <span className="flex items-center gap-3">
+               <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+               SECURELY SIGNING IN...
             </span>
           ) : (
-            'Sign in'
+            'SIGN IN TO PLOT2PLAN'
           )}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-app-faint mt-6">
-        Don&apos;t have an account?{' '}
-        <Link href="/register" className="text-app-violet hover:text-app-text transition-colors">
-          Create one
+      <p className="text-center text-sm font-bold text-muted-foreground mt-10">
+        New architect?{' '}
+        <Link href="/register" className="text-primary hover:text-primary/80 transition-colors uppercase tracking-widest text-xs">
+          Create Account
         </Link>
       </p>
     </>
